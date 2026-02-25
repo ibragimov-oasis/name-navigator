@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { petNames, animalTypes, petAttributes } from "@/data/petNames";
+import { getPetNames, getPetAnimalTypes, getPetAttributesList } from "@/lib/namesStore";
 import Header from "@/components/Header";
 import FilterChips from "@/components/FilterChips";
 import NameCard from "@/components/NameCard";
@@ -18,7 +18,7 @@ const PetNames = () => {
   };
 
   const filtered = useMemo(() => {
-    let result = petNames.filter((n) => {
+    let result = getPetNames().filter((n) => {
       if (search && !n.name.toLowerCase().includes(search.toLowerCase())) return false;
       if (gender.length > 0 && !gender.includes(n.gender)) return false;
       if (selectedTypes.length > 0 && !selectedTypes.includes(n.animalType)) return false;
@@ -78,7 +78,7 @@ const PetNames = () => {
 
             <FilterChips
               label="Тип животного"
-              options={animalTypes}
+              options={getPetAnimalTypes()}
               selected={selectedTypes}
               onToggle={(v) => toggle(selectedTypes, v, setSelectedTypes)}
               colorClass="bg-teal-light text-accent"
@@ -86,7 +86,7 @@ const PetNames = () => {
 
             <FilterChips
               label="Атрибуты"
-              options={petAttributes}
+              options={getPetAttributesList()}
               selected={selectedAttributes}
               onToggle={(v) => toggle(selectedAttributes, v, setSelectedAttributes)}
               colorClass="bg-rose-light text-rose"

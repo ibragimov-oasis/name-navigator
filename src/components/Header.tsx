@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Baby, PawPrint, Sparkles } from "lucide-react";
+import { Baby, PawPrint, Sparkles, Upload } from "lucide-react";
 
 const Header = () => {
   const location = useLocation();
@@ -33,6 +33,17 @@ const Header = () => {
           >
             <PawPrint className="h-4 w-4" />
             Питомцы
+          </Link>
+          <Link
+            to="/import"
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
+              location.pathname === "/import"
+                ? "bg-lavender-light text-lavender"
+                : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+            }`}
+          >
+            <Upload className="h-4 w-4" />
+            Импорт
           </Link>
         </nav>
       </div>
