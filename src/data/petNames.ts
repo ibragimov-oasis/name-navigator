@@ -41,7 +41,23 @@ export const petNames: PetName[] = [
   // Тигры
   { id: "sher_khan", name: "Шер-Хан", animalType: "Тигр", origin: "Персидское", meaning: "Тигр-повелитель", attributes: ["сильный", "величественный", "храбрый"], popularity: 88, famousPets: ["Шер-Хан из «Книги джунглей»"], description: "Знаменитый тигр из «Книги джунглей». «Шер» означает «тигр», «Хан» — «повелитель».", gender: "male" },
   { id: "amur", name: "Амур", animalType: "Тигр", origin: "Русское", meaning: "Река Амур", attributes: ["сильный", "величественный", "редкий"], popularity: 72, famousPets: ["Тигр Амур из приморского сафари-парка"], description: "Имя, связанное с амурским тигром — редким подвидом, обитающим на Дальнем Востоке России.", gender: "male" },
+
+  // Хомяки
+  { id: "hammy", name: "Хэмми", animalType: "Хомяк", origin: "Английское", meaning: "От слова hamster", attributes: ["забавный", "игривый", "энергичный"], popularity: 75, famousPets: ["Хэмми из мультфильма «Лесная братва»"], description: "Классическое имя для хомяка, произошедшее от английского hamster.", gender: "male" },
+  { id: "puhlik", name: "Пухлик", animalType: "Хомяк", origin: "Русское", meaning: "Пухлый, круглый", attributes: ["забавный", "пушистый", "милый"], popularity: 70, description: "Ласковое русское имя для пушистого хомячка.", gender: "male" },
+
+  // Черепахи
+  { id: "tortilla", name: "Тортилла", animalType: "Черепаха", origin: "Итальянское", meaning: "Черепаха", attributes: ["мудрая", "спокойная", "терпеливая"], popularity: 80, famousPets: ["Черепаха Тортилла из «Золотой ключик»"], description: "Знаменитая черепаха из сказки «Золотой ключик», подарившая Буратино золотой ключик.", gender: "female" },
+  { id: "franklin", name: "Франклин", animalType: "Черепаха", origin: "Английское", meaning: "Свободный землевладелец", attributes: ["спокойный", "мудрый", "дружелюбный"], popularity: 68, famousPets: ["Черепашка Франклин (мультсериал)"], description: "Имя черепашки из популярного канадского мультсериала.", gender: "male" },
+
+  // Кролики
+  { id: "krolik_roger", name: "Роджер", animalType: "Кролик", origin: "Германское", meaning: "Славное копьё", attributes: ["весёлый", "энергичный", "забавный"], popularity: 72, famousPets: ["Кролик Роджер (мультфильм)"], description: "Знаменитый кролик из фильма «Кто подставил кролика Роджера».", gender: "male" },
+  { id: "usagi", name: "Усаги", animalType: "Кролик", origin: "Японское", meaning: "Кролик", attributes: ["милый", "нежный", "ловкий"], popularity: 65, description: "На японском языке «усаги» означает «кролик». Популярное имя для декоративных кроликов.", gender: "unisex" },
+
+  // Рыбки
+  { id: "nemo", name: "Немо", animalType: "Рыбка", origin: "Латинское", meaning: "Никто", attributes: ["яркий", "храбрый", "весёлый"], popularity: 92, famousPets: ["Немо из «В поисках Немо»"], description: "Стало мегапопулярным благодаря мультфильму Pixar «В поисках Немо».", gender: "male" },
+  { id: "dory", name: "Дори", animalType: "Рыбка", origin: "Греческое", meaning: "Подарок", attributes: ["весёлая", "забавная", "добрая"], popularity: 85, famousPets: ["Дори из «В поисках Немо» и «В поисках Дори»"], description: "Голубой хирург из мультфильмов Pixar. Забывчивая, но очень добрая рыбка.", gender: "female" },
 ];
 
-export const animalTypes = ["Собака", "Кошка", "Попугай", "Змея", "Тигр"];
+export const animalTypes = ["Собака", "Кошка", "Попугай", "Змея", "Тигр", "Хомяк", "Черепаха", "Кролик", "Рыбка"];
 export const petAttributes = [...new Set(petNames.flatMap(n => n.attributes))];

@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { childNames, cultures, religions, uniqueAttributes } from "@/data/childNames";
+import { getChildNames, getChildCultures, getChildReligions, getChildAttributes } from "@/lib/namesStore";
 import Header from "@/components/Header";
 import FilterChips from "@/components/FilterChips";
 import NameCard from "@/components/NameCard";
@@ -19,7 +19,7 @@ const ChildrenNames = () => {
   };
 
   const filtered = useMemo(() => {
-    let result = childNames.filter((n) => {
+    let result = getChildNames().filter((n) => {
       if (search && !n.name.toLowerCase().includes(search.toLowerCase())) return false;
       if (gender.length > 0 && !gender.includes(n.gender)) return false;
       if (selectedCultures.length > 0 && !selectedCultures.includes(n.culture)) return false;
@@ -81,7 +81,7 @@ const ChildrenNames = () => {
 
             <FilterChips
               label="Культура"
-              options={cultures}
+              options={getChildCultures()}
               selected={selectedCultures}
               onToggle={(v) => toggle(selectedCultures, v, setSelectedCultures)}
               colorClass="bg-lavender-light text-lavender"
@@ -89,7 +89,7 @@ const ChildrenNames = () => {
 
             <FilterChips
               label="Религия"
-              options={religions}
+              options={getChildReligions()}
               selected={selectedReligions}
               onToggle={(v) => toggle(selectedReligions, v, setSelectedReligions)}
               colorClass="bg-teal-light text-accent"
@@ -97,7 +97,7 @@ const ChildrenNames = () => {
 
             <FilterChips
               label="Атрибуты"
-              options={uniqueAttributes}
+              options={getChildAttributes()}
               selected={selectedAttributes}
               onToggle={(v) => toggle(selectedAttributes, v, setSelectedAttributes)}
               colorClass="bg-rose-light text-rose"
