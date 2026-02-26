@@ -57,7 +57,24 @@ export const petNames: PetName[] = [
   // Рыбки
   { id: "nemo", name: "Немо", animalType: "Рыбка", origin: "Латинское", meaning: "Никто", attributes: ["яркий", "храбрый", "весёлый"], popularity: 92, famousPets: ["Немо из «В поисках Немо»"], description: "Стало мегапопулярным благодаря мультфильму Pixar «В поисках Немо».", gender: "male" },
   { id: "dory", name: "Дори", animalType: "Рыбка", origin: "Греческое", meaning: "Подарок", attributes: ["весёлая", "забавная", "добрая"], popularity: 85, famousPets: ["Дори из «В поисках Немо» и «В поисках Дори»"], description: "Голубой хирург из мультфильмов Pixar. Забывчивая, но очень добрая рыбка.", gender: "female" },
+
+  // Лошади
+  { id: "bucephalus", name: "Буцефал", animalType: "Лошадь", origin: "Греческое", meaning: "Бычьеголовый", attributes: ["сильный", "величественный", "верный"], popularity: 70, famousPets: ["Буцефал — конь Александра Македонского"], description: "Легендарный конь Александра Македонского, один из самых известных коней в истории.", gender: "male" },
+  { id: "pegasus", name: "Пегас", animalType: "Лошадь", origin: "Греческое", meaning: "Крылатый конь", attributes: ["красивый", "величественный", "свободный"], popularity: 75, description: "Крылатый конь из греческой мифологии, символ поэтического вдохновения.", gender: "male" },
+  { id: "rosalinda", name: "Розалинда", animalType: "Лошадь", origin: "Испанское", meaning: "Прекрасная роза", attributes: ["красивая", "грациозная", "нежная"], popularity: 60, description: "Элегантное имя для грациозной лошади.", gender: "female" },
+
+  // Морские свинки
+  { id: "fuzzy", name: "Фаззи", animalType: "Морская свинка", origin: "Английское", meaning: "Пушистый", attributes: ["пушистый", "милый", "забавный"], popularity: 65, description: "От английского fuzzy — «пушистый». Идеально для пушистой морской свинки.", gender: "unisex" },
+  { id: "caramel", name: "Карамелька", animalType: "Морская свинка", origin: "Русское", meaning: "Сладкая карамель", attributes: ["милая", "нежная", "забавная"], popularity: 68, description: "Ласковое имя для морской свинки карамельного окраса.", gender: "female" },
+
+  // Ящерицы
+  { id: "draco", name: "Драко", animalType: "Ящерица", origin: "Латинское", meaning: "Дракон", attributes: ["загадочный", "красивый", "экзотический"], popularity: 72, description: "От латинского draco — «дракон». Идеальное имя для ящерицы или игуаны.", gender: "male" },
+  { id: "godzilla", name: "Годзилла", animalType: "Ящерица", origin: "Японское", meaning: "Горилла-кит", attributes: ["сильный", "величественный", "забавный"], popularity: 70, famousPets: ["Годзилла (кинофраншиза)"], description: "Имя легендарного монстра — отличный выбор для большой ящерицы.", gender: "male" },
+
+  // Хорьки
+  { id: "bandit", name: "Бандит", animalType: "Хорёк", origin: "Английское", meaning: "Разбойник", attributes: ["игривый", "ловкий", "забавный"], popularity: 74, description: "Отлично подходит хорькам за их хитрый и проказливый характер.", gender: "male" },
+  { id: "caramelka_f", name: "Ириска", animalType: "Хорёк", origin: "Русское", meaning: "Сладкая конфета", attributes: ["милая", "игривая", "забавная"], popularity: 62, description: "Ласковое русское имя для игривой хорёчки.", gender: "female" },
 ];
 
-export const animalTypes = ["Собака", "Кошка", "Попугай", "Змея", "Тигр", "Хомяк", "Черепаха", "Кролик", "Рыбка"];
+export const animalTypes = ["Собака", "Кошка", "Попугай", "Змея", "Тигр", "Хомяк", "Черепаха", "Кролик", "Рыбка", "Лошадь", "Морская свинка", "Ящерица", "Хорёк"];
 export const petAttributes = [...new Set(petNames.flatMap(n => n.attributes))];
