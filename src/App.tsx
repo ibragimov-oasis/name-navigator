@@ -7,6 +7,9 @@ import Index from "./pages/Index";
 import ChildrenNames from "./pages/ChildrenNames";
 import PetNames from "./pages/PetNames";
 import ImportData from "./pages/ImportData";
+import NameWizard from "./pages/NameWizard";
+import NameBattle from "./pages/NameBattle";
+import NameCalendar from "./pages/NameCalendar";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,6 +24,9 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/children" element={<ChildrenNames />} />
           <Route path="/pets" element={<PetNames />} />
+          <Route path="/wizard" element={<NameWizard />} />
+          <Route path="/battle" element={<NameBattle />} />
+          <Route path="/calendar" element={<NameCalendar />} />
           <Route path="/import" element={<ImportData />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

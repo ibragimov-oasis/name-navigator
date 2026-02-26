@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
-import { Baby, PawPrint, Sparkles, ArrowRight, Heart } from "lucide-react";
+import { Baby, PawPrint, Sparkles, ArrowRight, Heart, Wand2, Swords, CalendarDays } from "lucide-react";
 
 const Index = () => {
   return (
@@ -24,38 +24,28 @@ const Index = () => {
               Узнайте историю и происхождение каждого имени.
             </p>
 
-            <div className="mt-10 grid gap-4 sm:grid-cols-2 sm:gap-6 mx-auto max-w-lg">
-              <Link
-                to="/children"
-                className="group flex flex-col items-center gap-3 rounded-2xl border border-border bg-card p-6 shadow-sm transition-all hover:shadow-lg hover:border-primary/30 hover:-translate-y-1"
-              >
-                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-coral-light transition-transform group-hover:scale-110">
-                  <Baby className="h-7 w-7 text-primary" />
-                </div>
-                <div>
-                  <h2 className="font-display text-xl font-bold text-foreground">Для детей</h2>
-                  <p className="mt-1 text-sm text-muted-foreground">Мальчики и девочки</p>
-                </div>
-                <span className="flex items-center gap-1 text-sm font-semibold text-primary">
-                  Выбрать <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </span>
-              </Link>
-
-              <Link
-                to="/pets"
-                className="group flex flex-col items-center gap-3 rounded-2xl border border-border bg-card p-6 shadow-sm transition-all hover:shadow-lg hover:border-accent/30 hover:-translate-y-1"
-              >
-                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-teal-light transition-transform group-hover:scale-110">
-                  <PawPrint className="h-7 w-7 text-accent" />
-                </div>
-                <div>
-                  <h2 className="font-display text-xl font-bold text-foreground">Для питомцев</h2>
-                  <p className="mt-1 text-sm text-muted-foreground">Собаки, кошки, попугаи и другие</p>
-                </div>
-                <span className="flex items-center gap-1 text-sm font-semibold text-accent">
-                  Выбрать <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </span>
-              </Link>
+            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-5 mx-auto max-w-3xl">
+              {[
+                { to: "/children", icon: Baby, title: "Для детей", desc: "Мальчики и девочки", color: "primary", bgClass: "bg-coral-light", textClass: "text-primary" },
+                { to: "/pets", icon: PawPrint, title: "Для питомцев", desc: "Собаки, кошки и другие", color: "accent", bgClass: "bg-teal-light", textClass: "text-accent" },
+                { to: "/wizard", icon: Wand2, title: "Мастер ФИО", desc: "Подбор по гармонии", color: "lavender", bgClass: "bg-lavender-light", textClass: "text-lavender" },
+                { to: "/battle", icon: Swords, title: "Битва имён", desc: "Турнир лучших имён", color: "rose", bgClass: "bg-rose-light", textClass: "text-rose" },
+              ].map(item => (
+                <Link key={item.to} to={item.to}
+                  className="group flex flex-col items-center gap-3 rounded-2xl border border-border bg-card p-5 shadow-sm transition-all hover:shadow-lg hover:-translate-y-1"
+                >
+                  <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${item.bgClass} transition-transform group-hover:scale-110`}>
+                    <item.icon className={`h-6 w-6 ${item.textClass}`} />
+                  </div>
+                  <div className="text-center">
+                    <h2 className="font-display text-lg font-bold text-foreground">{item.title}</h2>
+                    <p className="mt-0.5 text-xs text-muted-foreground">{item.desc}</p>
+                  </div>
+                  <span className={`flex items-center gap-1 text-sm font-semibold ${item.textClass}`}>
+                    Перейти <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                  </span>
+                </Link>
+              ))}
             </div>
           </div>
         </div>
