@@ -1,6 +1,6 @@
 import { ArrowUpDown } from "lucide-react";
 
-export type SortOption = "alphabetical" | "popularity" | "alphabetical-desc";
+export type SortOption = "alphabetical" | "popularity" | "alphabetical-desc" | "attributes";
 
 interface SortBarProps {
   sort: SortOption;
@@ -11,6 +11,7 @@ interface SortBarProps {
 const SortBar = ({ sort, onSortChange, count }: SortBarProps) => {
   const options: { value: SortOption; label: string }[] = [
     { value: "popularity", label: "По популярности" },
+    { value: "attributes", label: "По атрибутам" },
     { value: "alphabetical", label: "А → Я" },
     { value: "alphabetical-desc", label: "Я → А" },
   ];

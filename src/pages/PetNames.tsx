@@ -36,6 +36,9 @@ const PetNames = () => {
       case "popularity":
         result.sort((a, b) => b.popularity - a.popularity);
         break;
+      case "attributes":
+        result.sort((a, b) => b.attributes.length - a.attributes.length);
+        break;
     }
 
     return result;
@@ -90,6 +93,8 @@ const PetNames = () => {
               selected={selectedAttributes}
               onToggle={(v) => toggle(selectedAttributes, v, setSelectedAttributes)}
               colorClass="bg-rose-light text-rose"
+              collapsible
+              maxVisible={12}
             />
 
             {(gender.length > 0 || selectedTypes.length > 0 || selectedAttributes.length > 0) && (
