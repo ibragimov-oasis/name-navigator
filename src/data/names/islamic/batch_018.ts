@@ -429,6 +429,7 @@ export const batch018: ChildName[] = [
   },
   {
     id: "inas2",
+    name: "Инас",
     gender: "female",
     origin: "Арабское",
     culture: "Арабская",
