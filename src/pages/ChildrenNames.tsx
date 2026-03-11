@@ -101,6 +101,8 @@ const ChildrenNames = () => {
               selected={selectedAttributes}
               onToggle={(v) => toggle(selectedAttributes, v, setSelectedAttributes)}
               colorClass="bg-rose-light text-rose"
+              collapsible
+              maxVisible={12}
             />
 
             {(gender.length > 0 || selectedCultures.length > 0 || selectedReligions.length > 0 || selectedAttributes.length > 0) && (
