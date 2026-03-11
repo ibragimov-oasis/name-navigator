@@ -38,6 +38,9 @@ const ChildrenNames = () => {
       case "popularity":
         result.sort((a, b) => b.popularity - a.popularity);
         break;
+      case "attributes":
+        result.sort((a, b) => b.attributes.length - a.attributes.length);
+        break;
     }
 
     return result;
