@@ -105,6 +105,7 @@ const ChildrenNames = () => {
               onToggle={(v) => toggle(selectedAttributes, v, setSelectedAttributes)}
               colorClass="bg-rose-light text-rose"
               collapsible
+              searchable
               maxVisible={12}
             />
 
