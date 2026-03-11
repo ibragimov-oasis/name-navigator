@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { ChildName } from "@/data/childNames";
+import { ChildName } from "@/data/types";
 import { PetName } from "@/data/petNames";
-import { ChevronDown, ChevronUp, Crown, Star, Users } from "lucide-react";
+import { ChevronDown, ChevronUp, Crown, Heart, Star, Users } from "lucide-react";
+import { useFavorites } from "@/lib/favorites";
 
 type NameItem = ChildName | PetName;
 
@@ -12,7 +13,9 @@ interface NameCardProps {
 
 const NameCard = ({ item, index }: NameCardProps) => {
   const [expanded, setExpanded] = useState(false);
+  const { isFavorite, toggleFavorite } = useFavorites();
   const isChild = "culture" in item;
+  const fav = isFavorite(item.id);
 
   return (
     <div
@@ -59,9 +62,18 @@ const NameCard = ({ item, index }: NameCardProps) => {
           </div>
         </div>
         <div className="flex flex-col items-end gap-1">
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Crown className="h-3 w-3" />
-            {item.popularity}%
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => toggleFavorite(item.id)}
+              className="rounded-lg p-1 transition-colors hover:bg-rose-light"
+              title={fav ? "Убрать из избранного" : "В избранное"}
+            >
+              <Heart className={`h-4 w-4 transition-colors ${fav ? "fill-rose text-rose" : "text-muted-foreground"}`} />
+            </button>
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <Crown className="h-3 w-3" />
+              {item.popularity}%
+            </div>
           </div>
           <button
             onClick={() => setExpanded(!expanded)}
