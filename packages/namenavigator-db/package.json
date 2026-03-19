@@ -1,5 +1,5 @@
 {
-  "name": "@ibragimov-oasis/namenavigator-db",
+  "name": "namenavigator-db",
   "version": "0.1.0",
   "description": "Cross-cultural phonetic harmony engine and global anthroponymic dataset.",
   "main": "dist/index.js",
