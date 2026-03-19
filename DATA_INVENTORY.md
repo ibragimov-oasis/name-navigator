@@ -9,8 +9,8 @@ Exhaustive count of religious categorizations across the entire name corpus.
 
 | Religion | Count | Linguistic Role |
 | :--- | :--- | :--- |
-| **Muslim** | 1,005 | Primary dataset for Islamic and Turkic traditions. |
-| **Christian** | 36 | Secondary dataset for Slavic and Western traditions. |
+| **Muslim** | 1,065 | Primary dataset for Islamic and Turkic traditions. |
+| **Christian** | 56 | Secondary dataset for Slavic and Western traditions. |
 
 ---
 
@@ -125,9 +125,9 @@ Across 1,123 attributes, these are the most frequently recurring semantic tags.
 ---
 
 ## 📈 5. Global Metadata Totals
-- **Total Unique Anthroponymic Identities**: 876
-- **Total Semantic Mappings**: 2,100+
-- **Total Cultural Intersections**: 45+ (Multi-cultural crossovers)
-- **Total Name Entries (Sharded)**: 1,095
+- **Total Unique Anthroponymic Identities**: 908
+- **Total Semantic Mappings**: 5,290
+- **Total Cultural Intersections**: 45+
+- **Total Database Entries**: 1,131
 
 *This data inventory reflects the project's capability as a scalable linguistic data node.*
