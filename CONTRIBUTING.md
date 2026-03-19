@@ -18,6 +18,9 @@ If you are a linguist or developer with experience in phonetics:
 ### 🐞 Reporting Bugs
 Use GitHub Issues to report technical bugs or etymological inaccuracies.
 
+### 🧪 Data Integrity & Validation
+All new name shards must pass the linting and formatting rules. We use a schema-based validation for the `ChildName` objects. Ensure your data follows the standardized cultural naming conventions established in our existing shards.
+
 ## 📜 Code of Conduct
 We are committed to providing a welcoming and inspiring community for all. Please be respectful and inclusive in all interactions.
 

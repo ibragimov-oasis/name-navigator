@@ -77,7 +77,8 @@ Our proprietary engine performs multi-weighted linguistic analysis beyond simple
 ### 📦 Sharded Data Delivery Model
 To maintain performance in resource-constrained environments (mobile/web), we implement a **Cold/Warm Data Strategy**:
 - **TypeScript Data Sharding**: Large datasets are partitioned into immutable TypeScript batches (`batch_001.ts` to `batch_022.ts`).
-- **Registry-Based Indexing**: Centralized `_registry.json` allows for O(log n) lookup before fetching full data objects.
+- **Registry-Based Indexing**: Centralized `_registry.json` allows for O(log n) lookup.
+- **Developer API**: Full roadmap for REST/GraphQL integration defined in **[API.md](file:///Users/ibragimov/Desktop/GitHub/name-navigator/API.md)**.
 
 ### 🤖 The "Agent-First" Contract
 The project includes a dedicated manual for AI development, ensuring that any code-generating AI (like Copilot or Cursor) can extend the system without violating core invariants:
