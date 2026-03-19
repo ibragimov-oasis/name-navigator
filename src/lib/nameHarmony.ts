@@ -2,7 +2,7 @@
 
 const VOWELS = new Set("аеёиоуыэюяaeiouy".split(""));
 
-function countSyllables(word: string): number {
+export function countSyllables(word: string): number {
   return word.toLowerCase().split("").filter(c => VOWELS.has(c)).length || 1;
 }
 

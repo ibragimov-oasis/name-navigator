@@ -11,6 +11,9 @@ node_modules
 dist
 dist-ssr
 *.local
+.env
+.env*
+SENSITIVE_DATA_AUDIT.md
 
 # Editor directories and files
 .vscode/*
