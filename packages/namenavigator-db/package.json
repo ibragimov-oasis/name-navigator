@@ -1,0 +1,29 @@
+{
+  "name": "@ibragimov-oasis/namenavigator-db",
+  "version": "0.1.0",
+  "description": "Cross-cultural phonetic harmony engine and global anthroponymic dataset.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup index.ts --format cjs,esm --dts",
+    "test": "vitest"
+  },
+  "keywords": [
+    "linguistics",
+    "anthroponymy",
+    "phonetic-harmony",
+    "cultural-identity",
+    "naming-database"
+  ],
+  "author": "Ibragimov Oasis",
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  }
+}
