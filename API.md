@@ -61,7 +61,10 @@ Search the global anthroponymic database with semantic filtering.
 ```
 
 ### `GET /attributes`
-Returns the full taxonomy of 1,123 semantic attributes.
+Returns the full taxonomy of 776+ unique semantic attributes.
+
+### `GET /cultures`
+Returns a list of supported cultural and linguistic traditions (23+ currently indexed).
 
 ---
 
