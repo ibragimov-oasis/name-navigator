@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
 import Header from "@/components/Header";
 import { getChildNames } from "@/lib/namesStore";
-import { Star, Crown, Moon, BookOpen } from "lucide-react";
+import { getTodayHijri, formatHijriDate, type HijriDate } from "@/lib/hijriDate";
+import { Star, Crown, Moon, BookOpen, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const ISLAMIC_MONTHS = [
@@ -61,9 +62,13 @@ const islamicMonthInfo: Record<number, string> = {
 };
 
 const NameCalendar = () => {
-  const [selectedIslamicMonth, setSelectedIslamicMonth] = useState<number>(0);
+  const todayHijri = useMemo(() => getTodayHijri(), []);
+  const todayGreg = useMemo(() => new Date(), []);
+
+  const [selectedIslamicMonth, setSelectedIslamicMonth] = useState<number>(todayHijri.month);
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<"islamic" | "gregorian">("islamic");
-  const [selectedGregMonth, setSelectedGregMonth] = useState<number>(0);
+  const [selectedGregMonth, setSelectedGregMonth] = useState<number>(todayGreg.getMonth());
   const allNames = getChildNames();
 
   const namesWithDays = useMemo(() => {
@@ -77,8 +82,30 @@ const NameCalendar = () => {
   const gregorianNames = useMemo(() => namesWithDays.filter(n => n.parsed!.type === "gregorian"), [namesWithDays]);
 
   const currentNames = useMemo(() => {
-    if (viewMode === "islamic") return islamicNames.filter(n => n.parsed!.monthIndex === selectedIslamicMonth);
-    return gregorianNames.filter(n => n.parsed!.monthIndex === selectedGregMonth);
+    if (viewMode === "islamic") {
+      const monthNames = islamicNames.filter(n => n.parsed!.monthIndex === selectedIslamicMonth);
+      if (selectedDay !== null) return monthNames.filter(n => n.parsed!.day === selectedDay);
+      return monthNames;
+    }
+    const monthNames = gregorianNames.filter(n => n.parsed!.monthIndex === selectedGregMonth);
+    if (selectedDay !== null) return monthNames.filter(n => n.parsed!.day === selectedDay);
+    return monthNames;
+  }, [viewMode, selectedIslamicMonth, selectedGregMonth, selectedDay, islamicNames, gregorianNames]);
+
+  const todayNames = useMemo(() => {
+    return islamicNames.filter(
+      n => n.parsed!.monthIndex === todayHijri.month && n.parsed!.day === todayHijri.day
+    );
+  }, [islamicNames, todayHijri]);
+
+  // Days that have names in current month
+  const daysWithNames = useMemo(() => {
+    const names = viewMode === "islamic"
+      ? islamicNames.filter(n => n.parsed!.monthIndex === selectedIslamicMonth)
+      : gregorianNames.filter(n => n.parsed!.monthIndex === selectedGregMonth);
+    const set = new Set<number>();
+    names.forEach(n => set.add(n.parsed!.day));
+    return set;
   }, [viewMode, selectedIslamicMonth, selectedGregMonth, islamicNames, gregorianNames]);
 
   const groupedByDay = useMemo(() => {
@@ -91,77 +118,125 @@ const NameCalendar = () => {
     return [...map.entries()].sort((a, b) => a[0] - b[0]);
   }, [currentNames]);
 
+  const isToday = (day: number) =>
+    viewMode === "islamic" && selectedIslamicMonth === todayHijri.month && day === todayHijri.day;
+
+  const handleMonthChange = (i: number) => {
+    if (viewMode === "islamic") setSelectedIslamicMonth(i);
+    else setSelectedGregMonth(i);
+    setSelectedDay(null);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <div className="container mx-auto max-w-4xl px-4 py-8">
-        <div className="text-center mb-8">
+        {/* Header */}
+        <div className="text-center mb-6">
           <Moon className="mx-auto h-10 w-10 text-primary" />
           <h1 className="mt-3 font-display text-3xl font-bold text-foreground">Календарь именин</h1>
-          <p className="mt-2 text-muted-foreground">Исламские и григорианские именины — выберите месяц</p>
+          <p className="mt-1 text-muted-foreground">Исламские и григорианские именины</p>
         </div>
 
-        {/* Переключатель */}
-        <div className="flex justify-center gap-2 mb-6">
-          <button
-            onClick={() => setViewMode("islamic")}
-            className={cn(
-              "flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-all",
-              viewMode === "islamic" ? "bg-primary text-primary-foreground shadow-md" : "bg-muted text-muted-foreground hover:bg-accent"
-            )}
-          >
-            <Moon className="h-4 w-4" /> Исламский
-          </button>
-          <button
-            onClick={() => setViewMode("gregorian")}
-            className={cn(
-              "flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-all",
-              viewMode === "gregorian" ? "bg-primary text-primary-foreground shadow-md" : "bg-muted text-muted-foreground hover:bg-accent"
-            )}
-          >
-            <BookOpen className="h-4 w-4" /> Григорианский
-          </button>
+        {/* Today banner */}
+        <div className="mb-6 rounded-xl border border-primary/20 bg-primary/5 p-4 text-center">
+          <div className="flex items-center justify-center gap-2 text-sm font-medium text-foreground">
+            <CalendarDays className="h-4 w-4 text-primary" />
+            Сегодня: <strong>{formatHijriDate(todayHijri)}</strong>
+          </div>
+          {todayNames.length > 0 ? (
+            <p className="mt-1 text-sm text-muted-foreground">
+              Именины сегодня: <strong className="text-foreground">{todayNames.map(n => n.name).join(", ")}</strong>
+            </p>
+          ) : (
+            <p className="mt-1 text-xs text-muted-foreground">Нет именин сегодня в базе</p>
+          )}
         </div>
 
-        {/* Месяцы */}
-        <div className="flex flex-wrap justify-center gap-2 mb-6">
+        {/* Mode toggle */}
+        <div className="flex justify-center gap-2 mb-5">
+          {(["islamic", "gregorian"] as const).map(mode => (
+            <button key={mode} onClick={() => { setViewMode(mode); setSelectedDay(null); }}
+              className={cn(
+                "flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-all",
+                viewMode === mode ? "bg-primary text-primary-foreground shadow-md" : "bg-muted text-muted-foreground hover:bg-accent"
+              )}>
+              {mode === "islamic" ? <Moon className="h-4 w-4" /> : <BookOpen className="h-4 w-4" />}
+              {mode === "islamic" ? "Исламский" : "Григорианский"}
+            </button>
+          ))}
+        </div>
+
+        {/* Months */}
+        <div className="flex flex-wrap justify-center gap-2 mb-5">
           {(viewMode === "islamic" ? islamicMonthLabels : gregMonthNames).map((label, i) => (
-            <button
-              key={i}
-              onClick={() => viewMode === "islamic" ? setSelectedIslamicMonth(i) : setSelectedGregMonth(i)}
+            <button key={i} onClick={() => handleMonthChange(i)}
               className={cn(
                 "rounded-full px-3 py-1.5 text-xs font-medium transition-all",
                 (viewMode === "islamic" ? selectedIslamicMonth : selectedGregMonth) === i
                   ? "bg-primary text-primary-foreground shadow" : "bg-muted text-muted-foreground hover:bg-accent"
-              )}
-            >
+              )}>
               {label}
             </button>
           ))}
         </div>
 
-        {/* Инфо */}
+        {/* Islamic month info */}
         {viewMode === "islamic" && islamicMonthInfo[selectedIslamicMonth] && (
-          <div className="mb-6 rounded-xl border border-primary/20 bg-primary/5 p-4 text-center">
+          <div className="mb-5 rounded-xl border border-primary/20 bg-primary/5 p-3 text-center">
             <p className="text-sm text-foreground font-medium">☪️ {islamicMonthInfo[selectedIslamicMonth]}</p>
           </div>
         )}
 
-        {/* Статистика */}
-        <div className="mb-6 flex justify-center gap-6 text-sm text-muted-foreground">
-          <span>☪️ Мусульманских: <strong className="text-foreground">{islamicNames.length}</strong></span>
-          <span>📅 Григорианских: <strong className="text-foreground">{gregorianNames.length}</strong></span>
-          <span>📖 В этом месяце: <strong className="text-foreground">{currentNames.length}</strong></span>
+        {/* Mini calendar grid */}
+        <div className="mb-6">
+          <h3 className="text-sm font-semibold text-muted-foreground mb-2 text-center">
+            Выберите день {selectedDay !== null && (
+              <button onClick={() => setSelectedDay(null)} className="ml-2 text-xs text-primary hover:underline">
+                Показать все
+              </button>
+            )}
+          </h3>
+          <div className="grid grid-cols-10 gap-1.5 max-w-md mx-auto">
+            {Array.from({ length: 30 }, (_, i) => i + 1).map(day => {
+              const hasNames = daysWithNames.has(day);
+              const isTodayDay = isToday(day);
+              const isSelected = selectedDay === day;
+              return (
+                <button key={day} onClick={() => hasNames ? setSelectedDay(isSelected ? null : day) : undefined}
+                  className={cn(
+                    "h-8 w-full rounded-md text-xs font-medium transition-all",
+                    isTodayDay && "ring-2 ring-primary",
+                    isSelected ? "bg-primary text-primary-foreground shadow-md" :
+                    hasNames ? "bg-accent text-accent-foreground hover:bg-primary/20 cursor-pointer" :
+                    "bg-muted/50 text-muted-foreground/40 cursor-default"
+                  )}>
+                  {day}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Результаты */}
+        {/* Stats */}
+        <div className="mb-5 flex flex-wrap justify-center gap-4 text-sm text-muted-foreground">
+          <span>☪️ Мусульманских: <strong className="text-foreground">{islamicNames.length}</strong></span>
+          <span>📅 Григорианских: <strong className="text-foreground">{gregorianNames.length}</strong></span>
+          <span>📖 Показано: <strong className="text-foreground">{currentNames.length}</strong></span>
+        </div>
+
+        {/* Results */}
         {groupedByDay.length > 0 ? (
           <div className="space-y-6">
             {groupedByDay.map(([day, names]) => (
               <div key={day}>
                 <h2 className="mb-3 font-display text-lg font-bold text-foreground flex items-center gap-2">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-bold">{day}</span>
+                  <span className={cn(
+                    "flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold",
+                    isToday(day) ? "bg-primary text-primary-foreground ring-2 ring-primary/50" : "bg-primary text-primary-foreground"
+                  )}>{day}</span>
                   {viewMode === "islamic" ? islamicMonthLabels[selectedIslamicMonth] : gregMonthNames[selectedGregMonth]}
+                  {isToday(day) && <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">Сегодня</span>}
                 </h2>
                 <div className="grid gap-3 sm:grid-cols-2">
                   {names.map(name => (
@@ -195,7 +270,7 @@ const NameCalendar = () => {
                           <span key={i} className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">🕌 {ref}</span>
                         ))}
                       </div>
-                      <p className="mt-2 text-xs text-muted-foreground leading-relaxed">{name.history}</p>
+                      <p className="mt-2 text-xs text-muted-foreground leading-relaxed line-clamp-2">{name.history}</p>
                     </div>
                   ))}
                 </div>
@@ -205,8 +280,10 @@ const NameCalendar = () => {
         ) : (
           <div className="mt-12 text-center">
             <p className="text-4xl">🌙</p>
-            <p className="mt-2 text-muted-foreground">В этом месяце нет именин в базе</p>
-            <p className="mt-1 text-xs text-muted-foreground">Попробуйте другой месяц</p>
+            <p className="mt-2 text-muted-foreground">
+              {selectedDay !== null ? `Нет именин ${selectedDay}-го числа` : "В этом месяце нет именин в базе"}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">Попробуйте другой {selectedDay !== null ? "день" : "месяц"}</p>
           </div>
         )}
       </div>
