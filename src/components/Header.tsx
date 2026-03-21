@@ -10,6 +10,8 @@ const navItems = [
   { to: "/wizard", label: "Мастер", icon: Wand2, activeClass: "bg-lavender-light text-lavender" },
   { to: "/battle", label: "Битва", icon: Swords, activeClass: "bg-rose-light text-rose" },
   { to: "/calendar", label: "Именины", icon: CalendarDays, activeClass: "bg-gold/10 text-gold" },
+  { to: "/signature", label: "Подпись", icon: Pen, activeClass: "bg-teal-light text-accent" },
+  { to: "/numerology", label: "Нумерология", icon: Hash, activeClass: "bg-lavender-light text-lavender" },
   { to: "/import", label: "Импорт", icon: Upload, activeClass: "bg-secondary text-foreground" },
 ];
 

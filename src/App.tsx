@@ -33,6 +33,8 @@ const App = () => (
             <Route path="/wizard" element={<NameWizard />} />
             <Route path="/battle" element={<NameBattle />} />
             <Route path="/calendar" element={<NameCalendar />} />
+            <Route path="/signature" element={<NameSignature />} />
+            <Route path="/numerology" element={<NameNumerology />} />
             <Route path="/import" element={<ImportData />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
