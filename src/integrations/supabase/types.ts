@@ -1409,6 +1409,33 @@ export type Database = {
         }
         Relationships: []
       }
+      name_signatures: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string | null
+          name: string
+          style: string
+          svg_data: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          name: string
+          style: string
+          svg_data?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          name?: string
+          style?: string
+          svg_data?: string | null
+        }
+        Relationships: []
+      }
       optimizations: {
         Row: {
           best_expectancy: number | null
