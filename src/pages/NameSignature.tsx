@@ -1,14 +1,13 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import Header from "@/components/Header";
 import { getChildNames } from "@/lib/namesStore";
-import { SIGNATURE_STYLES, generateSignature, downloadSignature, type SignatureStyle } from "@/lib/signatureGenerator";
-import { Pen, Download, Search } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { SIGNATURE_STYLES, generateSignature, downloadSignature } from "@/lib/signatureGenerator";
+import { Pen, Download, Search, RotateCcw } from "lucide-react";
 
 const NameSignature = () => {
   const [inputName, setInputName] = useState("");
   const [activeName, setActiveName] = useState("");
-  const [signatures, setSignatures] = useState<{ style: SignatureStyle; dataUrl: string }[]>([]);
+  const [signatures, setSignatures] = useState<{ style: typeof SIGNATURE_STYLES[0]; dataUrl: string }[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const allNames = getChildNames();
@@ -31,24 +30,14 @@ const NameSignature = () => {
     setSignatures(results);
   };
 
-  // Load Google Fonts
-  useEffect(() => {
-    const fonts = ["Dancing+Script", "Great+Vibes", "Pacifico", "Sacramento", "Pinyon+Script", "Caveat"];
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = `https://fonts.googleapis.com/css2?${fonts.map(f => `family=${f}`).join("&")}&display=swap`;
-    document.head.appendChild(link);
-    return () => { document.head.removeChild(link); };
-  }, []);
-
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <div className="container mx-auto max-w-3xl px-4 py-8">
+      <div className="container mx-auto max-w-4xl px-4 py-8">
         <div className="text-center mb-8">
           <Pen className="mx-auto h-10 w-10 text-primary" />
           <h1 className="mt-3 font-display text-3xl font-bold text-foreground">Генератор подписей</h1>
-          <p className="mt-1 text-muted-foreground">Создайте красивую подпись для любого имени</p>
+          <p className="mt-1 text-muted-foreground">Реалистичные подписи с имитацией пера — 8 уникальных стилей</p>
         </div>
 
         {/* Input */}
@@ -61,6 +50,7 @@ const NameSignature = () => {
                 value={inputName}
                 onChange={e => { setInputName(e.target.value); setShowSuggestions(true); }}
                 onFocus={() => setShowSuggestions(true)}
+                onKeyDown={e => e.key === "Enter" && generateAll(inputName)}
                 placeholder="Введите имя..."
                 className="w-full rounded-xl border border-border bg-card pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
@@ -82,7 +72,6 @@ const NameSignature = () => {
           </div>
         </div>
 
-        {/* Hidden canvas */}
         <canvas ref={canvasRef} className="hidden" />
 
         {/* Results */}
@@ -94,12 +83,14 @@ const NameSignature = () => {
             <div className="grid gap-4 sm:grid-cols-2">
               {signatures.map(({ style, dataUrl }) => (
                 <div key={style.id} className="rounded-xl border border-border bg-card p-4 transition-all hover:shadow-md">
-                  <p className="text-xs font-medium text-muted-foreground mb-2">{style.label}</p>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs font-medium text-muted-foreground">{style.label}</p>
+                    <button onClick={() => downloadSignature(dataUrl, activeName, style.id)}
+                      className="flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+                      <Download className="h-3.5 w-3.5" /> PNG
+                    </button>
+                  </div>
                   <img src={dataUrl} alt={`${activeName} — ${style.label}`} className="w-full rounded-lg" />
-                  <button onClick={() => downloadSignature(dataUrl, activeName, style.id)}
-                    className="mt-3 flex items-center gap-1.5 text-xs font-medium text-primary hover:underline">
-                    <Download className="h-3.5 w-3.5" /> Скачать PNG
-                  </button>
                 </div>
               ))}
             </div>
@@ -110,7 +101,7 @@ const NameSignature = () => {
           <div className="mt-12 text-center">
             <p className="text-4xl">✍️</p>
             <p className="mt-2 text-muted-foreground">Введите имя и нажмите «Создать»</p>
-            <p className="mt-1 text-xs text-muted-foreground">Доступно 6 стилей подписи</p>
+            <p className="mt-1 text-xs text-muted-foreground">8 стилей: деловая, президентская, каллиграфическая, быстрая, королевская, арабская, минималистичная, артистическая</p>
           </div>
         )}
       </div>
