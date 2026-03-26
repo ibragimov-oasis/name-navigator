@@ -36,6 +36,7 @@ const App = () => (
             <Route path="/calendar" element={<NameCalendar />} />
             <Route path="/signature" element={<NameSignature />} />
             <Route path="/numerology" element={<NameNumerology />} />
+            <Route path="/dna" element={<NameDNA />} />
             <Route path="/import" element={<ImportData />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
