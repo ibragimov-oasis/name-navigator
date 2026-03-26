@@ -49,7 +49,7 @@ export function analyzeNameDNA(name: string): NameDNAData {
     letterFreq,
     vowelRatio: clean.length > 0 ? vowelCount / clean.length : 0,
     phonoProfile,
-    numerology: numResult.abjad.destinyNumber,
+    numerology: destinyNum,
     dnaColors,
   };
 }
