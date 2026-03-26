@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Baby, PawPrint, Sparkles, Upload, Wand2, Swords, CalendarDays, Heart, Menu, X, Pen, Hash } from "lucide-react";
+import { Baby, PawPrint, Sparkles, Upload, Wand2, Swords, CalendarDays, Heart, Menu, X, Pen, Hash, Dna } from "lucide-react";
 import { useState } from "react";
 import { useFavorites } from "@/lib/favorites";
 
