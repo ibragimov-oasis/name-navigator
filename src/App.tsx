@@ -14,6 +14,7 @@ import NameBattle from "./pages/NameBattle";
 import NameCalendar from "./pages/NameCalendar";
 import NameSignature from "./pages/NameSignature";
 import NameNumerology from "./pages/NameNumerology";
+import NameDNA from "./pages/NameDNA";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
