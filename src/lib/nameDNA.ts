@@ -36,6 +36,7 @@ export function analyzeNameDNA(name: string): NameDNAData {
   const phonoProfile = clean.split("").map(ch => VOWELS.has(ch) ? 0.8 + Math.random() * 0.2 : 0.1 + Math.random() * 0.3);
 
   const numResult = calculateNumerology(name);
+  const destinyNum = numResult.destinyNumber;
 
   // deterministic color selection based on letters
   const dnaColors = clean.split("").map((ch, i) => {
