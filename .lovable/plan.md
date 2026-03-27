@@ -1,100 +1,105 @@
 
 
-## Plan: Realistic Signature Generator + New Features
+## План улучшений: мусульманские имена и новые функции
 
-### Problem
-The current signature generator just renders text in different cursive fonts — it's not a real signature. Real signatures (like Shakespeare's, or any CEO's) have: flowing connected strokes, varying pressure/thickness, artistic flourishes, tilted baseline, and unique character deformations.
+### Что уже есть:
+- Каталог имён с фильтрами, избранное, рекомендации
+- Мастер ФИО (гармония), Битва имён, Календарь именин (хиджра)
+- Подпись, Нумерология (Абджад), ДНК имени
 
-### Solution: Canvas Path-Based Signature Engine
+---
 
-Completely rewrite `signatureGenerator.ts` to draw signatures using **Canvas 2D path drawing** instead of `fillText()`. Each letter gets converted into a series of bezier curves with:
+### Новые функции (фокус на исламские имена)
 
-- **Variable stroke width** (pen pressure simulation via multiple overlapping strokes)
-- **Connected letters** with natural ligatures (strokes flow from one letter into the next)
-- **Baseline tilt** — signatures rarely sit on a straight line
-- **Flourishes** — decorative loops at the start/end of the signature
-- **Speed variation** — some parts drawn fast (thin), some slow (thick)
-- **Artistic distortion** — letters are compressed, stretched, or partially omitted (like real signatures where people skip letters)
+#### 1. Тафсир имени (Толкование)
+Отдельная страница `/tafsir` — глубокий анализ мусульманского имени:
+- **Коранические корни** — если имя или его корень встречается в Коране, показать суру и аят (захардкодить данные для ~100 популярных имён: Ибрахим, Марьям, Юсуф и др.)
+- **Хадисы об имени** — цитаты хадисов, где упоминается имя или даётся наставление о выборе имён
+- **Правила имянаречения в Исламе** — краткая справка: сунна давать имя на 7-й день, обряд Акика, запрещённые имена
+- **Арабская каллиграфия** — рендер имени арабскими буквами через Canvas (маппинг кириллица → арабская транслитерация)
 
-#### 8 Signature Styles:
-1. **Деловая (Business)** — clean, slightly tilted, with a confident underline stroke
-2. **Президентская (Presidential)** — large first letter, flowing body, elaborate flourish
-3. **Каллиграфическая (Calligraphic)** — ornate, every letter visible, ink-pressure variation
-4. **Быстрая (Quick)** — messy, only first 2-3 letters readable, rest is a wavy line
-5. **Королевская (Royal)** — decorative initial + condensed name + ornamental tail
-6. **Арабская (Arabic-inspired)** — flowing right-to-left aesthetic with dot decorations
-7. **Минималистичная (Minimalist)** — initials only with a single decisive stroke
-8. **Артистическая (Artistic)** — exaggerated loops, dramatic pressure changes
+#### 2. Имена пророков и сахабов (Справочник)
+Страница `/prophets` — интерактивный справочник:
+- 25 пророков, упомянутых в Коране, с именами, историями, и какие имена от них произошли
+- Сахабы (сподвижники Пророка ﷺ) — их имена и значения
+- Жёны Пророка ﷺ (Умматуль-Муъминин) — имена и значения
+- Древовидная визуализация: пророк → производные имена (например, Ибрахим → Ибрагим, Абрахам, Авраам)
 
-#### Technical approach:
-- Build a **letter-to-bezier-path map** for Latin/Cyrillic characters in a handwritten style
-- Each style applies different **transforms**: scale, rotation, pressure curve, connection style
-- Use `ctx.quadraticCurveTo()` and `ctx.bezierCurveTo()` for smooth strokes
-- Simulate pen pressure by drawing each stroke segment multiple times with varying `lineWidth`
-- Add deterministic randomness seeded by the name (same name = same signature every time)
-- Flourishes are pre-defined path templates that get scaled to fit
+#### 3. Дуа для ребёнка
+Страница `/dua` — коллекция дуа (молитв):
+- Дуа при рождении ребёнка (азан в правое ухо, икамат в левое)
+- Дуа для выбора имени
+- Дуа за здоровье ребёнка
+- Текст на арабском + транслитерация + перевод на русский
+- Аудио произношение через Web Speech API
 
-### New Features to Add
+#### 4. Исламский этикет имянаречения
+Страница `/naming-guide` — полный гайд:
+- Когда давать имя (7-й день — сунна)
+- Акика — обряд жертвоприношения
+- Какие имена рекомендованы (Абдуллах, Абдуррахман — лучшие по хадису)
+- Какие имена запрещены или нежелательны (макрух)
+- Правила формирования полного имени (кунья, насаб, нисба, лакаб)
 
-#### 1. Name DNA Card (ДНК Имени)
-A single beautiful card combining ALL data about a name:
-- Meaning, origin, numerology number, compatible names, pronunciation
-- Visual "DNA strand" graphic built from the name's letter frequencies
-- Shareable as PNG — social media ready
+#### 5. Генератор полного мусульманского имени
+Расширение Мастера ФИО (`/wizard`):
+- Ввод: имя отца, деда, прадеда
+- Автоматическое формирование **насаба** (цепочки): Мухаммад ибн Ахмад ибн Али
+- Генерация **куньи**: Абу + имя первенца
+- Предложение **нисбы** по выбранному региону (аль-Бухари, аль-Казани, ат-Татари)
+- Полный результат: кунья + имя + насаб + нисба
 
-#### 2. Name Sound Wave (Звуковая волна)
-Visualize the phonetic structure of any name as a waveform:
-- Vowels = peaks, consonants = valleys, stress = amplitude
-- Beautiful canvas-drawn waveform unique to each name
-- Compare two names visually side-by-side
+#### 6. Сравнение имён (детальное)
+Страница `/compare` — положить 2-4 имени рядом:
+- Таблица: значение, происхождение, нумерология, популярность, атрибуты
+- Визуальный radar-chart (паук) по атрибутам
+- Итоговая рекомендация: какое имя лучше подходит по заданным критериям
 
-#### 3. Name Timeline (Хронология имени)
-Show when a name was most popular historically:
-- Simple timeline visualization using Canvas
-- Mark key historical figures who had this name
-- Show which centuries/regions the name dominated
+#### 7. Имя дня / Имя недели
+Виджет на главной странице:
+- Каждый день показывает одно "Имя дня" — случайное мусульманское имя с полным описанием
+- Алгоритм: детерминированный выбор по дате (хеш даты → индекс в массиве), чтобы все пользователи видели одно и то же имя
+- Кнопка "Поделиться именем дня" → генерация карточки для соцсетей
 
-### Files to Create/Modify
+#### 8. Статистика и аналитика имён
+Страница `/stats`:
+- Топ-10 популярных мужских / женских имён (из базы данных)
+- Распределение имён по культурам (pie chart)
+- Распределение по атрибутам (bar chart)
+- Самые длинные / короткие имена
+- Имена с наибольшим количеством атрибутов
+- Используем recharts (уже в зависимостях Lovable)
 
-| File | Action |
-|------|--------|
-| `src/lib/signatureGenerator.ts` | **Rewrite** — bezier path engine with 8 styles |
-| `src/pages/NameSignature.tsx` | **Rewrite** — better UI, style previews, animation |
-| `src/lib/nameDNA.ts` | **Create** — DNA card generation logic |
-| `src/pages/NameDNA.tsx` | **Create** — DNA card page |
-| `src/App.tsx` | **Edit** — add new routes |
-| `src/components/Header.tsx` | **Edit** — add navigation items |
-| `src/pages/Index.tsx` | **Edit** — add new feature cards |
+---
 
-### Technical Details
+### Файлы
 
-**Bezier signature rendering:**
-```text
-Letter "M" as bezier path:
-  moveTo(x, baseline)
-  ┌─╲    ╱─╲    ╱─┐
-  │  ╲  ╱   ╲  ╱  │   ← quadraticCurveTo for peaks
-  │   ╲╱     ╲╱   │
-  └───────────────┘
+| Файл | Действие |
+|------|----------|
+| `src/pages/NameTafsir.tsx` | Создать — толкование имени |
+| `src/pages/ProphetsGuide.tsx` | Создать — справочник пророков |
+| `src/pages/DuaCollection.tsx` | Создать — дуа для ребёнка |
+| `src/pages/NamingGuide.tsx` | Создать — этикет имянаречения |
+| `src/pages/NameCompare.tsx` | Создать — сравнение имён |
+| `src/pages/NameStats.tsx` | Создать — статистика |
+| `src/lib/arabicTranslit.ts` | Создать — кириллица → арабский маппинг |
+| `src/data/prophets.ts` | Создать — данные о пророках |
+| `src/data/duas.ts` | Создать — коллекция дуа |
+| `src/pages/NameWizard.tsx` | Изменить — добавить насаб/кунья |
+| `src/pages/Index.tsx` | Изменить — имя дня + новые карточки |
+| `src/App.tsx` | Изменить — новые маршруты |
+| `src/components/Header.tsx` | Изменить — навигация |
 
-Pen pressure simulation:
-  for each path segment:
-    draw 3 overlapping strokes:
-      lineWidth: 0.5 (outer, light opacity)
-      lineWidth: 1.5 (middle)  
-      lineWidth: 0.8 (inner, full opacity)
-    → creates natural ink-like thickness variation
+### Приоритет реализации
 
-Connection between letters:
-  endPoint of letter[i] → startPoint of letter[i+1]
-  connected via bezierCurveTo with control points
-  that create a natural hand-movement arc
-```
-
-**Deterministic randomness:**
-```text
-seed = hashCode(name + styleId)
-→ same input always produces identical output
-→ but each name looks unique and organic
-```
+| # | Функция | Сложность |
+|---|---------|-----------|
+| 1 | Имя дня на главной | Низкая |
+| 2 | Справочник пророков и сахабов | Средняя |
+| 3 | Этикет имянаречения (гайд) | Низкая |
+| 4 | Дуа для ребёнка | Низкая |
+| 5 | Тафсир имени + арабская транслитерация | Средняя |
+| 6 | Генератор насаб/кунья в Мастере | Средняя |
+| 7 | Сравнение имён с radar-chart | Средняя |
+| 8 | Статистика с recharts | Средняя |
 
