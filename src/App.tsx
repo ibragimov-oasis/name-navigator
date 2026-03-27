@@ -15,6 +15,12 @@ import NameCalendar from "./pages/NameCalendar";
 import NameSignature from "./pages/NameSignature";
 import NameNumerology from "./pages/NameNumerology";
 import NameDNA from "./pages/NameDNA";
+import NameTafsir from "./pages/NameTafsir";
+import ProphetsGuide from "./pages/ProphetsGuide";
+import DuaCollection from "./pages/DuaCollection";
+import NamingGuide from "./pages/NamingGuide";
+import NameCompare from "./pages/NameCompare";
+import NameStats from "./pages/NameStats";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
