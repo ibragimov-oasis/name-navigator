@@ -9,6 +9,21 @@ import { Wand2, ArrowRight, ArrowLeft, Sparkles, Star, Volume2, Heart } from "lu
 
 type Step = "info" | "preferences" | "results";
 
+const NISBA_OPTIONS = [
+  { region: "Бухара", nisba: "аль-Бухари" },
+  { region: "Казань", nisba: "аль-Казани" },
+  { region: "Дагестан", nisba: "ад-Дагестани" },
+  { region: "Татарстан", nisba: "ат-Татари" },
+  { region: "Башкортостан", nisba: "аль-Башкири" },
+  { region: "Узбекистан", nisba: "аль-Узбеки" },
+  { region: "Казахстан", nisba: "аль-Казахи" },
+  { region: "Чечня", nisba: "аш-Шишани" },
+  { region: "Египет", nisba: "аль-Мисри" },
+  { region: "Сирия", nisba: "аш-Шами" },
+  { region: "Медина", nisba: "аль-Мадани" },
+  { region: "Мекка", nisba: "аль-Макки" },
+];
+
 const NameWizard = () => {
   const [step, setStep] = useState<Step>("info");
   const [fatherName, setFatherName] = useState("");
@@ -18,6 +33,12 @@ const NameWizard = () => {
   const [selectedCultures, setSelectedCultures] = useState<string[]>([]);
   const [selectedAttrs, setSelectedAttrs] = useState<string[]>([]);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  // Nasab fields
+  const [grandfatherName, setGrandfatherName] = useState("");
+  const [greatGrandfatherName, setGreatGrandfatherName] = useState("");
+  const [firstChildName, setFirstChildName] = useState("");
+  const [selectedNisba, setSelectedNisba] = useState("");
+  const [showNasab, setShowNasab] = useState(false);
 
   const allNames = getChildNames();
   const cultures = [...new Set(allNames.map(n => n.culture))];
@@ -38,18 +59,33 @@ const NameWizard = () => {
     })).sort((a, b) => b.harmony.total - a.harmony.total);
   }, [allNames, gender, selectedCultures, selectedAttrs, fatherName, surname]);
 
-  const toggleCulture = (c: string) => {
-    setSelectedCultures(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c]);
+  const buildNasab = (childName: string) => {
+    const ibn = gender === "male" ? "ибн" : "бинт";
+    let chain = childName;
+    if (fatherName) chain += ` ${ibn} ${fatherName}`;
+    if (grandfatherName) chain += ` ${ibn} ${grandfatherName}`;
+    if (greatGrandfatherName) chain += ` ${ibn} ${greatGrandfatherName}`;
+    return chain;
   };
-  const toggleAttr = (a: string) => {
-    setSelectedAttrs(prev => prev.includes(a) ? prev.filter(x => x !== a) : [...prev, a]);
+
+  const buildKunya = () => {
+    if (!firstChildName) return "";
+    return gender === "male" ? `Абу ${firstChildName}` : `Умм ${firstChildName}`;
   };
+
+  const buildFullIslamicName = (childName: string) => {
+    const parts: string[] = [];
+    const kunya = buildKunya();
+    if (kunya) parts.push(kunya);
+    parts.push(buildNasab(childName));
+    if (selectedNisba) parts.push(selectedNisba);
+    return parts.join(" ");
+  };
+
+  const toggleCulture = (c: string) => setSelectedCultures(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c]);
+  const toggleAttr = (a: string) => setSelectedAttrs(prev => prev.includes(a) ? prev.filter(x => x !== a) : [...prev, a]);
   const toggleFav = (id: string) => {
-    setFavorites(prev => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
+    setFavorites(prev => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
   };
 
   return (
@@ -64,9 +100,7 @@ const NameWizard = () => {
                 step === s ? "bg-primary text-primary-foreground" :
                 (["info", "preferences", "results"].indexOf(step) > i) ? "bg-accent text-accent-foreground" :
                 "bg-secondary text-muted-foreground"
-              }`}>
-                {i + 1}
-              </div>
+              }`}>{i + 1}</div>
               {i < 2 && <div className="h-0.5 w-8 bg-border" />}
             </div>
           ))}
@@ -88,7 +122,7 @@ const NameWizard = () => {
               </div>
               <div>
                 <label className="text-sm font-semibold text-foreground">Имя отца</label>
-                <Input value={fatherName} onChange={e => setFatherName(e.target.value)} placeholder="Для отчества" className="mt-1" />
+                <Input value={fatherName} onChange={e => setFatherName(e.target.value)} placeholder="Для отчества и насаба" className="mt-1" />
                 {fatherName && (
                   <p className="mt-1 text-xs text-muted-foreground">
                     Отчество: <span className="font-medium text-foreground">{generatePatronymic(fatherName, gender)}</span>
@@ -102,23 +136,59 @@ const NameWizard = () => {
               <div>
                 <label className="text-sm font-semibold text-foreground">Пол ребёнка</label>
                 <div className="mt-2 flex gap-3">
-                  <button
-                    onClick={() => setGender("male")}
+                  <button onClick={() => setGender("male")}
                     className={`flex-1 rounded-xl border-2 p-3 text-sm font-semibold transition-all ${
                       gender === "male" ? "border-primary bg-coral-light text-primary" : "border-border text-muted-foreground hover:border-primary/30"
-                    }`}
-                  >
-                    ♂ Мальчик
-                  </button>
-                  <button
-                    onClick={() => setGender("female")}
+                    }`}>♂ Мальчик</button>
+                  <button onClick={() => setGender("female")}
                     className={`flex-1 rounded-xl border-2 p-3 text-sm font-semibold transition-all ${
                       gender === "female" ? "border-rose bg-rose-light text-rose" : "border-border text-muted-foreground hover:border-rose/30"
-                    }`}
-                  >
-                    ♀ Девочка
-                  </button>
+                    }`}>♀ Девочка</button>
                 </div>
+              </div>
+
+              {/* Nasab section */}
+              <div className="border-t border-border pt-4">
+                <button onClick={() => setShowNasab(!showNasab)}
+                  className="flex items-center gap-2 text-sm font-semibold text-primary hover:underline">
+                  ☪️ {showNasab ? "Скрыть" : "Показать"} насаб / кунья / нисба
+                </button>
+
+                {showNasab && (
+                  <div className="mt-4 space-y-3 rounded-lg bg-primary/5 p-4">
+                    <p className="text-xs text-muted-foreground">Формирование полного мусульманского имени</p>
+                    <div>
+                      <label className="text-xs font-semibold text-foreground">Имя деда</label>
+                      <Input value={grandfatherName} onChange={e => setGrandfatherName(e.target.value)} placeholder="Для насаба (цепочки)" className="mt-1 h-9 text-sm" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold text-foreground">Имя прадеда</label>
+                      <Input value={greatGrandfatherName} onChange={e => setGreatGrandfatherName(e.target.value)} placeholder="Опционально" className="mt-1 h-9 text-sm" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold text-foreground">Имя первенца (для куньи)</label>
+                      <Input value={firstChildName} onChange={e => setFirstChildName(e.target.value)} placeholder="Абу/Умм + имя" className="mt-1 h-9 text-sm" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold text-foreground">Нисба (происхождение)</label>
+                      <div className="mt-1 flex flex-wrap gap-1.5">
+                        {NISBA_OPTIONS.map(n => (
+                          <button key={n.nisba} onClick={() => setSelectedNisba(selectedNisba === n.nisba ? "" : n.nisba)}
+                            className={`rounded-full px-2.5 py-1 text-xs font-medium transition-all ${
+                              selectedNisba === n.nisba ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground hover:bg-primary/10"
+                            }`}>{n.nisba}</button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {fatherName && (
+                      <div className="mt-3 rounded-lg bg-card p-3 border border-border">
+                        <p className="text-xs font-semibold text-muted-foreground mb-1">Предпросмотр полного имени:</p>
+                        <p className="text-sm font-bold text-foreground">{buildFullIslamicName("[Имя]")}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -145,12 +215,10 @@ const NameWizard = () => {
                     <button key={c} onClick={() => toggleCulture(c)}
                       className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
                         selectedCultures.includes(c) ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground hover:bg-primary/10"
-                      }`}
-                    >{c}</button>
+                      }`}>{c}</button>
                   ))}
                 </div>
               </div>
-
               <div>
                 <label className="text-sm font-semibold text-foreground">Качества имени</label>
                 <div className="mt-2 flex flex-wrap gap-2">
@@ -158,8 +226,7 @@ const NameWizard = () => {
                     <button key={a} onClick={() => toggleAttr(a)}
                       className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
                         selectedAttrs.includes(a) ? "bg-accent text-accent-foreground" : "bg-secondary text-secondary-foreground hover:bg-accent/10"
-                      }`}
-                    >{a}</button>
+                      }`}>{a}</button>
                   ))}
                 </div>
               </div>
@@ -195,14 +262,11 @@ const NameWizard = () => {
               {results.slice(0, 20).map(({ name, harmony }, i) => (
                 <div key={name.id}
                   className="rounded-xl border border-border bg-card p-4 transition-all hover:shadow-md"
-                  style={{ animationDelay: `${i * 40}ms` }}
-                >
+                  style={{ animationDelay: `${i * 40}ms` }}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-secondary text-xs font-bold text-secondary-foreground">
-                          {i + 1}
-                        </span>
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-secondary text-xs font-bold text-secondary-foreground">{i + 1}</span>
                         <h3 className="font-display text-xl font-bold text-foreground">{name.name}</h3>
                         {harmony.total >= 80 && <Star className="h-4 w-4 fill-gold text-gold" />}
                       </div>
@@ -211,23 +275,25 @@ const NameWizard = () => {
                         <Volume2 className="mr-1 inline h-3 w-3" />
                         {harmony.fullName}
                       </p>
+                      {/* Full Islamic name if nasab enabled */}
+                      {showNasab && fatherName && (
+                        <p className="mt-1 text-xs text-primary font-medium">
+                          ☪️ {buildFullIslamicName(name.name)}
+                        </p>
+                      )}
                     </div>
                     <div className="flex flex-col items-end gap-2">
-                      {/* Harmony score */}
                       <div className={`rounded-full px-3 py-1 text-sm font-bold ${
                         harmony.total >= 80 ? "bg-accent/10 text-accent" :
                         harmony.total >= 65 ? "bg-gold/10 text-gold" :
                         "bg-secondary text-muted-foreground"
-                      }`}>
-                        {harmony.total}%
-                      </div>
+                      }`}>{harmony.total}%</div>
                       <button onClick={() => toggleFav(name.id)} className="p-1 transition-colors">
                         <Heart className={`h-5 w-5 ${favorites.has(name.id) ? "fill-rose text-rose" : "text-muted-foreground"}`} />
                       </button>
                     </div>
                   </div>
 
-                  {/* Harmony details */}
                   <div className="mt-3 flex gap-3">
                     {[
                       { label: "Переход", val: harmony.details.transition },
@@ -258,9 +324,7 @@ const NameWizard = () => {
             {results.length === 0 && (
               <div className="py-12 text-center">
                 <p className="text-lg text-muted-foreground">Нет имён по заданным критериям</p>
-                <Button variant="outline" onClick={() => setStep("preferences")} className="mt-4">
-                  Изменить фильтры
-                </Button>
+                <Button variant="outline" onClick={() => setStep("preferences")} className="mt-4">Изменить фильтры</Button>
               </div>
             )}
           </div>

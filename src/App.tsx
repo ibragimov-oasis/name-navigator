@@ -43,6 +43,12 @@ const App = () => (
             <Route path="/signature" element={<NameSignature />} />
             <Route path="/numerology" element={<NameNumerology />} />
             <Route path="/dna" element={<NameDNA />} />
+            <Route path="/tafsir" element={<NameTafsir />} />
+            <Route path="/prophets" element={<ProphetsGuide />} />
+            <Route path="/dua" element={<DuaCollection />} />
+            <Route path="/naming-guide" element={<NamingGuide />} />
+            <Route path="/compare" element={<NameCompare />} />
+            <Route path="/stats" element={<NameStats />} />
             <Route path="/import" element={<ImportData />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

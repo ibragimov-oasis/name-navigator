@@ -13,6 +13,12 @@ const navItems = [
   { to: "/signature", label: "Подпись", icon: Pen, activeClass: "bg-teal-light text-accent" },
   { to: "/numerology", label: "Нумерология", icon: Hash, activeClass: "bg-lavender-light text-lavender" },
   { to: "/dna", label: "ДНК", icon: Dna, activeClass: "bg-coral-light text-primary" },
+  { to: "/tafsir", label: "Тафсир", icon: BookOpen, activeClass: "bg-primary/10 text-primary" },
+  { to: "/prophets", label: "Пророки", icon: Crown, activeClass: "bg-gold/10 text-gold" },
+  { to: "/dua", label: "Дуа", icon: BookHeart, activeClass: "bg-accent/10 text-accent" },
+  { to: "/naming-guide", label: "Этикет", icon: ScrollText, activeClass: "bg-lavender-light text-lavender" },
+  { to: "/compare", label: "Сравнение", icon: GitCompare, activeClass: "bg-teal-light text-accent" },
+  { to: "/stats", label: "Статистика", icon: BarChart3, activeClass: "bg-coral-light text-primary" },
   { to: "/import", label: "Импорт", icon: Upload, activeClass: "bg-secondary text-foreground" },
 ];
 
