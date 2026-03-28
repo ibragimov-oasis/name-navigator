@@ -1,7 +1,8 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { ChildName } from "@/data/types";
 import { PetName } from "@/data/petNames";
-import { ChevronDown, ChevronUp, Crown, Heart, Star, Users } from "lucide-react";
+import { ChevronDown, ChevronUp, Crown, Heart, Pen, Star, Users } from "lucide-react";
 import { useFavorites } from "@/lib/favorites";
 
 type NameItem = ChildName | PetName;
