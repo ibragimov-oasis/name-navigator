@@ -147,6 +147,13 @@ const NameCard = ({ item, index }: NameCardProps) => {
               📅 Именины: <span className="font-medium text-foreground">{(item as ChildName).nameDay}</span>
             </p>
           )}
+
+          <Link
+            to={`/signature?name=${encodeURIComponent(item.name)}`}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
+          >
+            <Pen className="h-3 w-3" /> Создать подпись
+          </Link>
         </div>
       )}
     </div>
