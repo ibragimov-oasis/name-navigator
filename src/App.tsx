@@ -51,6 +51,7 @@ const App = () => (
             <Route path="/compare" element={<NameCompare />} />
             <Route path="/stats" element={<NameStats />} />
             <Route path="/import" element={<ImportData />} />
+            <Route path="/analytics" element={<NameAnalytics />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
