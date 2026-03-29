@@ -177,6 +177,41 @@ const NameTafsir = () => {
               </div>
             )}
 
+            {/* Live Quran verses from API */}
+            {loadingAyahs && (
+              <div className="rounded-xl border border-border bg-card p-6 space-y-3">
+                <Skeleton className="h-6 w-48" />
+                <Skeleton className="h-16 w-full" />
+                <Skeleton className="h-16 w-full" />
+              </div>
+            )}
+            {liveAyahs.length > 0 && !loadingAyahs && (
+              <div className="rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-card p-6">
+                <h3 className="flex items-center gap-2 font-display text-lg font-bold text-foreground mb-4">
+                  <Globe className="h-5 w-5 text-primary" /> Аяты из Корана (API)
+                </h3>
+                <div className="space-y-4">
+                  {liveAyahs.map((a, i) => (
+                    <div key={i} className="rounded-lg bg-card border border-border p-4">
+                      <p className="text-lg leading-relaxed text-foreground text-center mb-2"
+                        style={{ fontFamily: '"Noto Naskh Arabic", serif', direction: "rtl" }}>
+                        {a.arabic}
+                      </p>
+                      <p className="text-sm italic text-muted-foreground text-center">
+                        «{a.russian}»
+                      </p>
+                      <p className="mt-2 text-xs font-semibold text-primary text-center">
+                        Сура {a.surahName}, аят {a.ayahNum}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-3 text-xs text-muted-foreground text-center">
+                  Источник: Al Quran Cloud API • alquran.cloud
+                </p>
+              </div>
+            )}
+
             {/* Hadith references */}
             {hadithRefs && (
               <div className="rounded-xl border border-border bg-card p-6">
