@@ -1,10 +1,12 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getChildNames } from "@/lib/namesStore";
 import { transliterateToArabic } from "@/lib/arabicTranslit";
 import { calculateNumerology, DESTINY_TRAITS } from "@/lib/numerology";
-import { BookOpen, Search, Star, Moon } from "lucide-react";
+import { fetchAyahWithArabic } from "@/lib/api/quranApi";
+import { BookOpen, Search, Star, Moon, Globe } from "lucide-react";
 
 // Quranic references for popular Islamic names
 const QURAN_REFS: Record<string, { sura: string; ayat: string; text: string }[]> = {
