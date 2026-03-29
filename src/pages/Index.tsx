@@ -137,6 +137,7 @@ const Index = () => {
               { icon: "📊", title: "Статистика", desc: "Графики и аналитика по всей базе имён", to: "/stats" },
               { icon: "🔢", title: "Нумерология", desc: "Абджад и число судьбы имени", to: "/numerology" },
               { icon: "🧬", title: "ДНК имени", desc: "Генетический код и визуализация", to: "/dna" },
+              { icon: "🌍", title: "Аналитика имени", desc: "Пол, возраст и география по мировым данным", to: "/analytics" },
             ].map((f) => (
               <Link key={f.to} to={f.to} className="text-center group hover:opacity-80 transition-opacity">
                 <span className="text-3xl">{f.icon}</span>
