@@ -46,6 +46,9 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Islamic Widget — Hijri date + Ayah of the day */}
+      <IslamicWidget />
+
       {/* Name of the Day */}
       {nameOfDay && (
         <section className="border-t border-border bg-gradient-to-r from-primary/5 via-card to-accent/5 py-8">
