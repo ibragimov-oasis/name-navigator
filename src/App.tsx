@@ -21,6 +21,7 @@ import DuaCollection from "./pages/DuaCollection";
 import NamingGuide from "./pages/NamingGuide";
 import NameCompare from "./pages/NameCompare";
 import NameStats from "./pages/NameStats";
+import NameAnalytics from "./pages/NameAnalytics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
