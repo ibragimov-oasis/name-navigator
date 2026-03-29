@@ -45,8 +45,29 @@ const HADITH_REFS: Record<string, string[]> = {
   "хусейн": ["Пророк ﷺ назвал внука Хусейном и совершил за него акику (Тирмизи)"],
 };
 
+// Map names to Quran surah:ayah for live API fetch
+const LIVE_QURAN_REFS: Record<string, Array<[number, number]>> = {
+  "ибрахим": [[14, 35], [2, 124]], "марьям": [[19, 16], [3, 37]],
+  "юсуф": [[12, 4], [12, 3]], "муса": [[20, 11], [28, 30]],
+  "иса": [[3, 45], [19, 30]], "мухаммад": [[47, 2], [33, 40]],
+  "нух": [[71, 1], [11, 36]], "адам": [[2, 31], [2, 35]],
+  "яхья": [[19, 12], [19, 7]], "закария": [[19, 2], [3, 38]],
+  "исмаил": [[19, 54]], "дауд": [[38, 17]], "сулейман": [[27, 16]],
+  "аюб": [[21, 83]], "юнус": [[21, 87]], "идрис": [[19, 56]],
+  "салих": [[7, 73]], "худ": [[11, 50]], "нур": [[24, 35]],
+};
+
+interface LiveAyah {
+  arabic: string;
+  russian: string;
+  surahName: string;
+  ayahNum: number;
+}
+
 const NameTafsir = () => {
   const [search, setSearch] = useState("");
+  const [liveAyahs, setLiveAyahs] = useState<LiveAyah[]>([]);
+  const [loadingAyahs, setLoadingAyahs] = useState(false);
   const allNames = getChildNames();
 
   const islamicNames = useMemo(() =>
@@ -67,6 +88,25 @@ const NameTafsir = () => {
       .filter(n => n.name.toLowerCase().includes(lower))
       .slice(0, 8);
   }, [search, selectedName, islamicNames]);
+
+  // Fetch live Quran ayahs when name is selected
+  useEffect(() => {
+    if (!selectedName) { setLiveAyahs([]); return; }
+    const refs = LIVE_QURAN_REFS[selectedName.name.toLowerCase()];
+    if (!refs || refs.length === 0) { setLiveAyahs([]); return; }
+
+    let cancelled = false;
+    setLoadingAyahs(true);
+    Promise.all(refs.map(([s, a]) => fetchAyahWithArabic(s, a)))
+      .then(results => {
+        if (!cancelled) {
+          setLiveAyahs(results.filter((r): r is LiveAyah => r !== null));
+          setLoadingAyahs(false);
+        }
+      })
+      .catch(() => { if (!cancelled) setLoadingAyahs(false); });
+    return () => { cancelled = true; };
+  }, [selectedName]);
 
   const quranRefs = selectedName ? QURAN_REFS[selectedName.name.toLowerCase()] : null;
   const hadithRefs = selectedName ? HADITH_REFS[selectedName.name.toLowerCase()] : null;
