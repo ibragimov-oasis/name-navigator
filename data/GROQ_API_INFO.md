@@ -344,7 +344,7 @@ async function main() {
           content: "Explain the importance of fast language models",
         },
       ],
-      model: "llama-3.3-70b-versatile",
+
     })
   console.log(completion.choices[0].message.content);
 }
@@ -670,7 +670,7 @@ const groq = new Groq();
 async function main() {
   const transcription = await groq.audio.transcriptions.create({
     file: fs.createReadStream("sample_audio.m4a"),
-    model: "whisper-large-v3",
+
     prompt: "Specify context or spelling", // Optional
     response_format: "json", // Optional
     language: "en", // Optional
@@ -760,7 +760,7 @@ const groq = new Groq();
 async function main() {
   const translation = await groq.audio.translations.create({
     file: fs.createReadStream("sample_audio.m4a"),
-    model: "whisper-large-v3",
+
     prompt: "Specify context or spelling", // Optional
     response_format: "json", // Optional
     temperature: 0.0, // Optional
@@ -863,7 +863,7 @@ const responseFormat = "wav";
 
 async function main() {
   const response = await groq.audio.speech.create({
-    model: model,
+
     voice: voice,
     input: text,
     response_format: responseFormat
