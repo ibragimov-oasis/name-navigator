@@ -79,10 +79,19 @@ const Header = () => {
           ))}
         </nav>
 
-        {/* Mobile toggle */}
-        <button className="md:hidden p-2 text-muted-foreground" onClick={() => setOpen(!open)}>
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+        {/* Mobile actions */}
+        <div className="md:hidden flex items-center gap-1">
+          <button
+            onClick={() => setSearchOpen(true)}
+            className="p-2 text-muted-foreground"
+            aria-label="AI поиск"
+          >
+            <Search className="h-5 w-5" />
+          </button>
+          <button className="p-2 text-muted-foreground" onClick={() => setOpen(!open)}>
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile nav */}
