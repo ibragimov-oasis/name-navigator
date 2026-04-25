@@ -1,7 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
-import { Baby, PawPrint, Sparkles, Upload, Wand2, Swords, CalendarDays, Heart, Menu, X, Pen, Hash, Dna, BookOpen, Crown, BookHeart, ScrollText, GitCompare, BarChart3 } from "lucide-react";
-import { useState } from "react";
+import { Baby, PawPrint, Sparkles, Upload, Wand2, Swords, CalendarDays, Heart, Menu, X, Pen, Hash, Dna, BookOpen, Crown, BookHeart, ScrollText, GitCompare, BarChart3, Search } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useFavorites } from "@/lib/favorites";
+import AISearchDialog from "@/components/AISearchDialog";
 
 const navItems = [
   { to: "/children", label: "Дети", icon: Baby, activeClass: "bg-coral-light text-primary" },
