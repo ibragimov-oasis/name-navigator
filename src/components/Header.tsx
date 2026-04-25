@@ -26,15 +26,40 @@ const navItems = [
 const Header = () => {
   const location = useLocation();
   const [open, setOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const { favorites } = useFavorites();
+
+  // Global ⌘K / Ctrl+K hotkey
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setSearchOpen((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+      <AISearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
       <div className="container mx-auto flex items-center justify-between px-4 py-3">
         <Link to="/" className="flex items-center gap-2 group">
           <Sparkles className="h-6 w-6 text-primary group-hover:animate-float" />
           <span className="font-display text-xl font-bold text-foreground">ИмяГен</span>
         </Link>
+
+        {/* AI Search button */}
+        <button
+          onClick={() => setSearchOpen(true)}
+          className="hidden md:flex items-center gap-2 rounded-lg border border-border bg-secondary/50 px-3 py-1.5 text-sm text-muted-foreground hover:border-primary hover:text-foreground transition-colors mx-4"
+          aria-label="AI поиск"
+        >
+          <Search className="h-3.5 w-3.5" />
+          <span>Спросить AI…</span>
+          <kbd className="ml-2 rounded border border-border bg-background px-1.5 text-[10px]">⌘K</kbd>
+        </button>
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-1">
