@@ -1,6 +1,11 @@
-import { useEffect, useRef, useState } from "react";
-import { Sparkles, Search, X, ArrowRight, Loader2, BookOpen, User, Crown, Star } from "lucide-react";
-import { searchKnowledge, type RagDoc } from "@/lib/rag/knowledgeIndex";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Sparkles, Search, X, ArrowRight, Loader2, BookOpen, User, Crown, Star, Filter } from "lucide-react";
+import {
+  searchKnowledgeDetailed,
+  getTopFacets,
+  type RagSearchHit,
+  type RagSourceKind,
+} from "@/lib/rag/knowledgeIndex";
 import { Link } from "react-router-dom";
 
 const KIND_ICON: Record<string, typeof Star> = {
@@ -17,17 +22,62 @@ const KIND_LABEL: Record<string, string> = {
   guide: "Раздел",
 };
 
+const KIND_TABS: { id: RagSourceKind | "all"; label: string }[] = [
+  { id: "all", label: "Всё" },
+  { id: "name", label: "Имена" },
+  { id: "prophet", label: "Пророки" },
+  { id: "dua", label: "Дуа" },
+  { id: "guide", label: "Разделы" },
+];
+
+/** Curated quick-attribute chips (mapped to tags present in the index) */
+const QUICK_ATTRS = [
+  "красивое",
+  "высокое",
+  "справедливое",
+  "весёлое",
+  "сильное",
+  "мудрое",
+  "светлое",
+  "благородное",
+];
+
 interface Props {
   open: boolean;
   onClose: () => void;
 }
 
+/** Highlight matched substrings inside text */
+function Highlight({ text, terms }: { text: string; terms: string[] }) {
+  if (!terms.length || !text) return <>{text}</>;
+  const escaped = terms
+    .filter((t) => t && t.length > 1)
+    .map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  if (!escaped.length) return <>{text}</>;
+  const re = new RegExp(`(${escaped.join("|")})`, "gi");
+  const parts = text.split(re);
+  return (
+    <>
+      {parts.map((p, i) =>
+        re.test(p) ? (
+          <mark key={i} className="bg-primary/20 text-primary rounded px-0.5">
+            {p}
+          </mark>
+        ) : (
+          <span key={i}>{p}</span>
+        )
+      )}
+    </>
+  );
+}
+
 export default function AISearchDialog({ open, onClose }: Props) {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<RagDoc[]>([]);
   const [aiAnswer, setAiAnswer] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeKind, setActiveKind] = useState<RagSourceKind | "all">("all");
+  const [activeAttrs, setActiveAttrs] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -36,24 +86,13 @@ export default function AISearchDialog({ open, onClose }: Props) {
       setTimeout(() => inputRef.current?.focus(), 50);
     } else {
       setQuery("");
-      setResults([]);
       setAiAnswer("");
       setError(null);
+      setActiveKind("all");
+      setActiveAttrs([]);
       abortRef.current?.abort();
     }
   }, [open]);
-
-  // Live keyword search (debounced)
-  useEffect(() => {
-    if (!query.trim()) {
-      setResults([]);
-      return;
-    }
-    const t = setTimeout(() => {
-      setResults(searchKnowledge(query, 8));
-    }, 120);
-    return () => clearTimeout(t);
-  }, [query]);
 
   // ESC to close
   useEffect(() => {
@@ -63,6 +102,25 @@ export default function AISearchDialog({ open, onClose }: Props) {
     if (open) window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
+
+  // Discovered facets within current kind scope
+  const discoveredFacets = useMemo(
+    () => getTopFacets(activeKind === "all" ? undefined : [activeKind], 12),
+    [activeKind]
+  );
+
+  // Hybrid keyword + facet search
+  const hits: RagSearchHit[] = useMemo(() => {
+    if (!query.trim() && activeAttrs.length === 0) return [];
+    return searchKnowledgeDetailed(query, {
+      limit: 12,
+      kinds: activeKind === "all" ? undefined : [activeKind],
+      tags: activeAttrs,
+    });
+  }, [query, activeKind, activeAttrs]);
+
+  const toggleAttr = (a: string) =>
+    setActiveAttrs((prev) => (prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]));
 
   const handleAskAI = async () => {
     if (!query.trim() || loading) return;
@@ -74,15 +132,14 @@ export default function AISearchDialog({ open, onClose }: Props) {
     abortRef.current = ctrl;
 
     try {
-      const context = searchKnowledge(query, 6).map((d) => ({
-        id: d.id,
-        kind: d.kind,
-        title: d.title,
-        body: d.body,
-        url: d.url,
+      const context = hits.slice(0, 6).map((h) => ({
+        id: h.doc.id,
+        kind: h.doc.kind,
+        title: h.doc.title,
+        body: h.doc.body,
+        url: h.doc.url,
       }));
 
-      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
       const url = `${supabaseUrl}/functions/v1/rag-query`;
@@ -93,7 +150,7 @@ export default function AISearchDialog({ open, onClose }: Props) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${anonKey}`,
         },
-        body: JSON.stringify({ query, context }),
+        body: JSON.stringify({ query, context, filters: { kind: activeKind, attrs: activeAttrs } }),
         signal: ctrl.signal,
       });
 
@@ -102,7 +159,6 @@ export default function AISearchDialog({ open, onClose }: Props) {
         throw new Error(j.error || `Ошибка ${resp.status}`);
       }
 
-      // Stream SSE chunks
       const reader = resp.body?.getReader();
       if (!reader) throw new Error("Нет потока ответа");
       const decoder = new TextDecoder();
@@ -140,9 +196,11 @@ export default function AISearchDialog({ open, onClose }: Props) {
 
   if (!open) return null;
 
+  const hasFilters = activeKind !== "all" || activeAttrs.length > 0;
+
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-start justify-center bg-background/80 backdrop-blur-sm pt-[10vh] px-4 animate-in fade-in"
+      className="fixed inset-0 z-[100] flex items-start justify-center bg-background/80 backdrop-blur-sm pt-[8vh] px-4 animate-in fade-in"
       onClick={onClose}
     >
       <div
@@ -174,8 +232,81 @@ export default function AISearchDialog({ open, onClose }: Props) {
           </button>
         </div>
 
+        {/* Kind tabs */}
+        <div className="flex items-center gap-1 px-3 py-2 border-b border-border overflow-x-auto">
+          {KIND_TABS.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setActiveKind(t.id)}
+              className={`text-xs px-2.5 py-1 rounded-full border transition-colors whitespace-nowrap ${
+                activeKind === t.id
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "border-border text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Attribute facets */}
+        <div className="px-4 py-2 border-b border-border bg-muted/20">
+          <div className="flex items-center gap-1.5 mb-1.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+            <Filter className="h-3 w-3" /> Каким должно быть имя
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {QUICK_ATTRS.map((a) => {
+              const on = activeAttrs.includes(a);
+              return (
+                <button
+                  key={a}
+                  onClick={() => toggleAttr(a)}
+                  className={`text-xs px-2.5 py-1 rounded-full border transition-all ${
+                    on
+                      ? "bg-primary/10 text-primary border-primary"
+                      : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                  }`}
+                >
+                  {a}
+                </button>
+              );
+            })}
+            {discoveredFacets
+              .filter((f) => !QUICK_ATTRS.includes(f.tag.toLowerCase()))
+              .slice(0, 6)
+              .map((f) => {
+                const on = activeAttrs.includes(f.tag);
+                return (
+                  <button
+                    key={f.tag}
+                    onClick={() => toggleAttr(f.tag)}
+                    className={`text-xs px-2.5 py-1 rounded-full border transition-all ${
+                      on
+                        ? "bg-primary/10 text-primary border-primary"
+                        : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                    }`}
+                  >
+                    {f.tag}
+                    <span className="ml-1 text-[10px] opacity-60">{f.count}</span>
+                  </button>
+                );
+              })}
+            {hasFilters && (
+              <button
+                onClick={() => {
+                  setActiveAttrs([]);
+                  setActiveKind("all");
+                }}
+                className="text-xs px-2.5 py-1 rounded-full text-muted-foreground hover:text-destructive transition-colors"
+              >
+                сбросить
+              </button>
+            )}
+          </div>
+        </div>
+
         {/* Body */}
-        <div className="max-h-[60vh] overflow-y-auto">
+        <div className="max-h-[55vh] overflow-y-auto">
           {/* AI ask CTA */}
           {query.trim() && (
             <button
@@ -213,35 +344,70 @@ export default function AISearchDialog({ open, onClose }: Props) {
             </div>
           )}
 
-          {/* Keyword results */}
-          {results.length > 0 && (
+          {/* Hits with reasons */}
+          {hits.length > 0 && (
             <div className="py-2">
               <div className="px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Из базы знаний
+                {hits.length} {hits.length === 1 ? "результат" : "результатов"}
               </div>
-              {results.map((r) => {
+              {hits.map(({ doc: r, reasons, score }) => {
                 const Icon = KIND_ICON[r.kind] ?? Search;
+                const highlightTerms = [...reasons.matchedTokens, ...activeAttrs];
+                const reasonChips: { label: string; tone: "primary" | "muted" }[] = [];
+                if (reasons.titleHit)
+                  reasonChips.push({ label: "совпало в названии", tone: "primary" });
+                for (const tag of reasons.matchedTags.slice(0, 3))
+                  reasonChips.push({ label: `атрибут: ${tag}`, tone: "primary" });
+                for (const t of reasons.matchedTokens.slice(0, 2))
+                  reasonChips.push({ label: `«${t}»`, tone: "muted" });
+
                 return (
                   <Link
                     key={r.id}
                     to={r.url}
                     onClick={onClose}
-                    className="flex items-start gap-3 px-4 py-2.5 hover:bg-muted/50 transition-colors"
+                    className="flex items-start gap-3 px-4 py-2.5 hover:bg-muted/50 transition-colors border-l-2 border-transparent hover:border-primary"
                   >
                     <Icon className="h-4 w-4 mt-0.5 text-primary shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-sm truncate">{r.title}</span>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-medium text-sm">
+                          <Highlight text={r.title} terms={highlightTerms} />
+                        </span>
                         <span className="text-[10px] uppercase px-1.5 py-0.5 rounded bg-muted text-muted-foreground shrink-0">
                           {KIND_LABEL[r.kind]}
                         </span>
+                        <span
+                          className="ml-auto text-[10px] text-muted-foreground tabular-nums"
+                          title="Релевантность"
+                        >
+                          {score.toFixed(1)}
+                        </span>
                       </div>
                       {r.subtitle && (
-                        <div className="text-xs text-muted-foreground truncate">{r.subtitle}</div>
+                        <div className="text-xs text-muted-foreground truncate">
+                          <Highlight text={r.subtitle} terms={highlightTerms} />
+                        </div>
                       )}
-                      <div className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
-                        {r.body}
+                      <div className="text-xs text-foreground/80 line-clamp-2 mt-0.5">
+                        <Highlight text={reasons.snippet || r.body} terms={highlightTerms} />
                       </div>
+                      {reasonChips.length > 0 && (
+                        <div className="mt-1.5 flex flex-wrap gap-1">
+                          {reasonChips.map((c, i) => (
+                            <span
+                              key={i}
+                              className={`text-[10px] px-1.5 py-0.5 rounded-full border ${
+                                c.tone === "primary"
+                                  ? "border-primary/40 text-primary bg-primary/5"
+                                  : "border-border text-muted-foreground"
+                              }`}
+                            >
+                              {c.label}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </Link>
                 );
@@ -249,7 +415,7 @@ export default function AISearchDialog({ open, onClose }: Props) {
             </div>
           )}
 
-          {!query.trim() && (
+          {!query.trim() && activeAttrs.length === 0 && (
             <div className="px-4 py-8 text-center">
               <Sparkles className="h-8 w-8 mx-auto text-primary/40 mb-2" />
               <p className="text-sm text-muted-foreground">
@@ -274,16 +440,28 @@ export default function AISearchDialog({ open, onClose }: Props) {
             </div>
           )}
 
-          {query.trim() && results.length === 0 && !aiAnswer && !loading && (
-            <div className="px-4 py-8 text-center text-sm text-muted-foreground">
-              Ничего не найдено по ключевым словам. Нажмите Enter, чтобы спросить AI.
-            </div>
-          )}
+          {(query.trim() || activeAttrs.length > 0) &&
+            hits.length === 0 &&
+            !aiAnswer &&
+            !loading && (
+              <div className="px-4 py-8 text-center text-sm text-muted-foreground">
+                Ничего не найдено по фильтрам. Попробуйте снять часть атрибутов или нажмите Enter,
+                чтобы спросить AI.
+              </div>
+            )}
         </div>
 
         {/* Footer */}
         <div className="px-4 py-2 border-t border-border bg-muted/30 flex items-center justify-between text-[11px] text-muted-foreground">
-          <span>RAG поиск по {/* fixed */}базе сайта</span>
+          <span>
+            RAG поиск
+            {hasFilters && (
+              <span className="ml-1 text-primary">
+                · {activeKind !== "all" ? KIND_LABEL[activeKind] : "все"}
+                {activeAttrs.length > 0 && ` · ${activeAttrs.length} атр.`}
+              </span>
+            )}
+          </span>
           <span className="flex items-center gap-2">
             <kbd className="px-1.5 py-0.5 rounded border border-border bg-background">↵</kbd>
             спросить AI
