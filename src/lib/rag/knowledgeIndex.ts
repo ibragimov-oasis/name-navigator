@@ -81,13 +81,14 @@ export function getKnowledgeIndex(): RagDoc[] {
   }
 
   // Prophets / Sahaba
-  for (const p of prophets as any[]) {
+  for (const p of prophets) {
+    const derived = p.derivedNames?.map((d) => `${d.name} — ${d.meaning}`).join("; ") ?? "";
     docs.push(
       buildDoc(
         `prophet:${p.id}`,
         "prophet",
-        p.name,
-        `${p.title ?? ""}. ${p.description ?? ""} ${p.story ?? ""}`,
+        `${p.nameRu} (${p.nameAr})`,
+        `${p.title}. ${p.story}. Производные имена: ${derived}`,
         `/prophets#${p.id}`,
         p.title,
         [p.category]
