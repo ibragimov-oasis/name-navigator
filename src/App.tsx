@@ -22,6 +22,12 @@ import NamingGuide from "./pages/NamingGuide";
 import NameCompare from "./pages/NameCompare";
 import NameStats from "./pages/NameStats";
 import NameAnalytics from "./pages/NameAnalytics";
+import People from "./pages/People";
+import AdultNames from "./pages/people/AdultNames";
+import RevertName from "./pages/people/RevertName";
+import CharacterName from "./pages/people/CharacterName";
+import Pseudonym from "./pages/people/Pseudonym";
+import HistoricalFigures from "./pages/people/HistoricalFigures";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +42,12 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/children" element={<ChildrenNames />} />
+            <Route path="/people" element={<People />} />
+            <Route path="/people/adult" element={<AdultNames />} />
+            <Route path="/people/revert" element={<RevertName />} />
+            <Route path="/people/character" element={<CharacterName />} />
+            <Route path="/people/pseudonym" element={<Pseudonym />} />
+            <Route path="/people/historical" element={<HistoricalFigures />} />
             <Route path="/pets" element={<PetNames />} />
             <Route path="/favorites" element={<Favorites />} />
             <Route path="/wizard" element={<NameWizard />} />
