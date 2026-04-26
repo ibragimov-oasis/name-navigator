@@ -93,7 +93,6 @@ const AdultNames = () => {
               onToggle={(v) =>
                 setGender((arr) => (arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]))
               }
-              labelMap={{ male: "♂ Мужское", female: "♀ Женское" }}
             />
 
             <div>
