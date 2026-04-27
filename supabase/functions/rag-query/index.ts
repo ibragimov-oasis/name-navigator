@@ -10,9 +10,20 @@ interface ContextChunk {
   url: string;
 }
 
+interface PersonContext {
+  fullName?: string;
+  gender?: string;
+  relation?: string;
+  birthDate?: string;
+}
+
 interface RequestBody {
   query: string;
   context: ContextChunk[];
+  personContext?: PersonContext | null;
+  filters?: { kind?: string; attrs?: string[]; persona?: string | null };
+  /** When true, AI is allowed to be creative (character/pseudonym generation) */
+  creative?: boolean;
 }
 
 const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -30,9 +41,12 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { query, context } = (await req.json()) as RequestBody;
+    const body = (await req.json()) as RequestBody & { mode?: string; stream?: boolean };
+    const { query, context, personContext, filters } = body;
+    const creative = body.creative === true || body.mode === "creative";
+    const wantStream = body.stream !== false;
 
-    if (!query || typeof query !== "string" || query.length > 500) {
+    if (!query || typeof query !== "string" || query.length > 800) {
       return new Response(JSON.stringify({ error: "Invalid query" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -48,18 +62,24 @@ Deno.serve(async (req) => {
       )
       .join("\n\n");
 
-    const systemPrompt = `Ты — эксперт-помощник по мусульманским именам, исламской традиции имянаречения, пророкам и дуа.
-Отвечай на русском языке, кратко (2-5 предложений), ТОЛЬКО на основе предоставленных источников.
-Если в источниках нет ответа — честно скажи: "В базе пока нет точного ответа" и предложи похожие темы.
-В конце добавь ссылки на источники в формате [1], [2] и т.д.
-Тон: тёплый, уважительный, без воды.`;
+    const personLine = personContext?.fullName
+      ? `\nКонтекст пользователя: активный профиль — ${personContext.fullName} (${personContext.relation ?? "—"}, ${personContext.gender ?? "—"}${personContext.birthDate ? `, дата ${personContext.birthDate}` : ""}). Учитывай этот профиль при ответе.`
+      : "";
+
+    const personaLine = filters?.persona
+      ? `\nАудитория запроса: ${filters.persona === "revert" ? "новообращённый в ислам" : filters.persona === "character" ? "имя для художественного персонажа" : filters.persona === "self" ? "имя для себя (взрослого)" : "имя для ребёнка"}.`
+      : "";
+
+    const systemPrompt = creative
+      ? `Ты — креативный AI-помощник по именам и культурам. Можешь предлагать новые сочетания имён, биографии, истории. Опирайся на источники как на вдохновение, но не ограничивайся ими.${personaLine}${personLine}\nОтвечай на русском, ярко, с деталями (4-8 предложений).`
+      : `Ты — эксперт-помощник по мусульманским именам, исламской традиции имянаречения, пророкам, дуа и истории. Отвечай на русском языке, кратко (2-5 предложений), на основе предоставленных источников. Если в источниках нет ответа — честно скажи: "В базе пока нет точного ответа" и предложи похожие темы. В конце добавь ссылки на источники [1], [2]. Тон: тёплый, уважительный, без воды.${personaLine}${personLine}`;
 
     const userPrompt = `Вопрос пользователя: "${query}"
 
 Источники из базы знаний:
 ${contextText || "(нет релевантных источников)"}
 
-Сформируй краткий грамотный ответ.`;
+Сформируй ${creative ? "развёрнутый креативный" : "краткий грамотный"} ответ.`;
 
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -73,7 +93,7 @@ ${contextText || "(нет релевантных источников)"}
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
-        stream: true,
+        stream: wantStream,
       }),
     });
 
@@ -93,6 +113,14 @@ ${contextText || "(нет релевантных источников)"}
       }
       return new Response(JSON.stringify({ error: "AI gateway error", details: errText }), {
         status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (!wantStream) {
+      const json = await aiResponse.json();
+      const answer = json?.choices?.[0]?.message?.content ?? "";
+      return new Response(JSON.stringify({ answer }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }

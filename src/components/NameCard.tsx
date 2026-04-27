@@ -2,8 +2,10 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ChildName } from "@/data/types";
 import { PetName } from "@/data/petNames";
-import { ChevronDown, ChevronUp, Crown, Heart, Pen, Star, Users } from "lucide-react";
+import { Award, ChevronDown, ChevronUp, Crown, Heart, Pen, Star, Users, Volume2 } from "lucide-react";
 import { useFavorites } from "@/lib/favorites";
+import ShareButton from "@/components/ShareButton";
+import { speakName, ttsSupported } from "@/lib/tts";
 
 type NameItem = ChildName | PetName;
 
@@ -148,12 +150,34 @@ const NameCard = ({ item, index }: NameCardProps) => {
             </p>
           )}
 
-          <Link
-            to={`/signature?name=${encodeURIComponent(item.name)}`}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
-          >
-            <Pen className="h-3 w-3" /> Создать подпись
-          </Link>
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              to={`/signature?name=${encodeURIComponent(item.name)}`}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
+            >
+              <Pen className="h-3 w-3" /> Подпись
+            </Link>
+            <Link
+              to={`/certificate?name=${encodeURIComponent(item.name)}`}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
+            >
+              <Award className="h-3 w-3" /> Сертификат
+            </Link>
+            {ttsSupported() && (
+              <button
+                onClick={() => speakName(item.name)}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
+                title="Произнести"
+              >
+                <Volume2 className="h-3 w-3" /> Озвучить
+              </button>
+            )}
+            <ShareButton
+              title={`${item.name} — значение и происхождение`}
+              text={item.meaning}
+              url={`${typeof window !== "undefined" ? window.location.origin : ""}/?name=${encodeURIComponent(item.name)}`}
+            />
+          </div>
         </div>
       )}
     </div>

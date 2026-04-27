@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Sparkles, Search, X, ArrowRight, Loader2, BookOpen, User, Crown, Star, Filter } from "lucide-react";
+import { Sparkles, Search, X, ArrowRight, Loader2, BookOpen, User, Crown, Star, Filter, Compass, Users as UsersIcon, Brain } from "lucide-react";
 import {
   searchKnowledgeDetailed,
   getTopFacets,
@@ -7,12 +7,16 @@ import {
   type RagSourceKind,
 } from "@/lib/rag/knowledgeIndex";
 import { Link } from "react-router-dom";
+import { usePeople, formatFullName, RELATION_LABELS } from "@/lib/people";
 
 const KIND_ICON: Record<string, typeof Star> = {
   name: User,
   prophet: Crown,
   dua: Star,
   guide: BookOpen,
+  "revert-guide": Compass,
+  "historical-figure": UsersIcon,
+  "name-impression": Brain,
 };
 
 const KIND_LABEL: Record<string, string> = {
@@ -20,12 +24,17 @@ const KIND_LABEL: Record<string, string> = {
   prophet: "Пророк / сахаба",
   dua: "Дуа",
   guide: "Раздел",
+  "revert-guide": "Новообращённому",
+  "historical-figure": "Историческая личность",
+  "name-impression": "Восприятие имени",
 };
 
 const KIND_TABS: { id: RagSourceKind | "all"; label: string }[] = [
   { id: "all", label: "Всё" },
   { id: "name", label: "Имена" },
   { id: "prophet", label: "Пророки" },
+  { id: "historical-figure", label: "Личности" },
+  { id: "revert-guide", label: "Новообращ." },
   { id: "dua", label: "Дуа" },
   { id: "guide", label: "Разделы" },
 ];
@@ -40,6 +49,14 @@ const QUICK_ATTRS = [
   "мудрое",
   "светлое",
   "благородное",
+];
+
+/** Persona quick filters — switch UI focus by audience */
+const PERSONA_PRESETS: { id: string; label: string; kinds: RagSourceKind[]; tags?: string[] }[] = [
+  { id: "self", label: "Для себя", kinds: ["name", "name-impression"], tags: [] },
+  { id: "character", label: "Для персонажа", kinds: ["historical-figure", "name"], tags: [] },
+  { id: "revert", label: "Для новообращённого", kinds: ["revert-guide", "name", "prophet"], tags: [] },
+  { id: "child", label: "Для ребёнка", kinds: ["name", "dua", "prophet"], tags: [] },
 ];
 
 interface Props {
@@ -78,8 +95,10 @@ export default function AISearchDialog({ open, onClose }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [activeKind, setActiveKind] = useState<RagSourceKind | "all">("all");
   const [activeAttrs, setActiveAttrs] = useState<string[]>([]);
+  const [activePersona, setActivePersona] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const { activePerson } = usePeople();
 
   useEffect(() => {
     if (open) {
@@ -90,6 +109,7 @@ export default function AISearchDialog({ open, onClose }: Props) {
       setError(null);
       setActiveKind("all");
       setActiveAttrs([]);
+      setActivePersona(null);
       abortRef.current?.abort();
     }
   }, [open]);
@@ -103,21 +123,27 @@ export default function AISearchDialog({ open, onClose }: Props) {
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
+  // Persona-derived kind scope (overrides single-kind tabs when active)
+  const personaKinds = useMemo(() => {
+    const p = PERSONA_PRESETS.find((x) => x.id === activePersona);
+    return p?.kinds;
+  }, [activePersona]);
+
   // Discovered facets within current kind scope
   const discoveredFacets = useMemo(
-    () => getTopFacets(activeKind === "all" ? undefined : [activeKind], 12),
-    [activeKind]
+    () => getTopFacets(personaKinds ?? (activeKind === "all" ? undefined : [activeKind]), 12),
+    [activeKind, personaKinds]
   );
 
   // Hybrid keyword + facet search
   const hits: RagSearchHit[] = useMemo(() => {
-    if (!query.trim() && activeAttrs.length === 0) return [];
+    if (!query.trim() && activeAttrs.length === 0 && !activePersona) return [];
     return searchKnowledgeDetailed(query, {
       limit: 12,
-      kinds: activeKind === "all" ? undefined : [activeKind],
+      kinds: personaKinds ?? (activeKind === "all" ? undefined : [activeKind]),
       tags: activeAttrs,
     });
-  }, [query, activeKind, activeAttrs]);
+  }, [query, activeKind, activeAttrs, activePersona, personaKinds]);
 
   const toggleAttr = (a: string) =>
     setActiveAttrs((prev) => (prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]));
@@ -144,13 +170,27 @@ export default function AISearchDialog({ open, onClose }: Props) {
       const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
       const url = `${supabaseUrl}/functions/v1/rag-query`;
 
+      const personContext = activePerson
+        ? {
+            fullName: formatFullName(activePerson),
+            gender: activePerson.gender,
+            relation: RELATION_LABELS[activePerson.relation],
+            birthDate: activePerson.birthDate,
+          }
+        : null;
+
       const resp = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${anonKey}`,
         },
-        body: JSON.stringify({ query, context, filters: { kind: activeKind, attrs: activeAttrs } }),
+        body: JSON.stringify({
+          query,
+          context,
+          filters: { kind: activeKind, attrs: activeAttrs, persona: activePersona },
+          personContext,
+        }),
         signal: ctrl.signal,
       });
 
@@ -196,7 +236,7 @@ export default function AISearchDialog({ open, onClose }: Props) {
 
   if (!open) return null;
 
-  const hasFilters = activeKind !== "all" || activeAttrs.length > 0;
+  const hasFilters = activeKind !== "all" || activeAttrs.length > 0 || activePersona !== null;
 
   return (
     <div
@@ -230,6 +270,37 @@ export default function AISearchDialog({ open, onClose }: Props) {
           >
             <X className="h-4 w-4 text-muted-foreground" />
           </button>
+        </div>
+
+        {/* Active person banner */}
+        {activePerson && (
+          <div className="flex items-center gap-2 border-b border-border bg-primary/5 px-4 py-1.5 text-[11px] text-primary">
+            <User className="h-3 w-3" />
+            <span>
+              Контекст: <strong>{formatFullName(activePerson)}</strong> · {RELATION_LABELS[activePerson.relation]}
+            </span>
+          </div>
+        )}
+
+        {/* Persona presets */}
+        <div className="flex items-center gap-1 px-3 py-2 border-b border-border overflow-x-auto bg-muted/10">
+          <span className="text-[10px] uppercase tracking-wide text-muted-foreground mr-1 shrink-0">Я ищу</span>
+          {PERSONA_PRESETS.map((p) => {
+            const on = activePersona === p.id;
+            return (
+              <button
+                key={p.id}
+                onClick={() => setActivePersona(on ? null : p.id)}
+                className={`text-xs px-2.5 py-1 rounded-full border transition-colors whitespace-nowrap ${
+                  on
+                    ? "bg-accent text-accent-foreground border-accent"
+                    : "border-border text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {p.label}
+              </button>
+            );
+          })}
         </div>
 
         {/* Kind tabs */}
@@ -296,6 +367,7 @@ export default function AISearchDialog({ open, onClose }: Props) {
                 onClick={() => {
                   setActiveAttrs([]);
                   setActiveKind("all");
+                  setActivePersona(null);
                 }}
                 className="text-xs px-2.5 py-1 rounded-full text-muted-foreground hover:text-destructive transition-colors"
               >

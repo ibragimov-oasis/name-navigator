@@ -30,6 +30,8 @@ import CharacterName from "./pages/people/CharacterName";
 import Pseudonym from "./pages/people/Pseudonym";
 import HistoricalFigures from "./pages/people/HistoricalFigures";
 import Profiles from "./pages/people/Profiles";
+import Compatibility from "./pages/people/Compatibility";
+import Certificate from "./pages/Certificate";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -52,6 +54,8 @@ const App = () => (
             <Route path="/people/character" element={<CharacterName />} />
             <Route path="/people/pseudonym" element={<Pseudonym />} />
             <Route path="/people/historical" element={<HistoricalFigures />} />
+            <Route path="/people/compatibility" element={<Compatibility />} />
+            <Route path="/certificate" element={<Certificate />} />
             <Route path="/pets" element={<PetNames />} />
             <Route path="/favorites" element={<Favorites />} />
             <Route path="/wizard" element={<NameWizard />} />

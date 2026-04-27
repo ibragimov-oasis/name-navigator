@@ -6,8 +6,17 @@
 import { childNames } from "@/data/childNames";
 import { duas } from "@/data/duas";
 import { prophets } from "@/data/prophets";
+import { historicalFigures } from "@/data/historicalFigures";
+import { revertGuides, nameImpressions } from "@/data/peopleKnowledge";
 
-export type RagSourceKind = "name" | "prophet" | "dua" | "guide";
+export type RagSourceKind =
+  | "name"
+  | "prophet"
+  | "dua"
+  | "guide"
+  | "revert-guide"
+  | "historical-figure"
+  | "name-impression";
 
 export interface RagDoc {
   id: string;
@@ -144,6 +153,41 @@ export function getKnowledgeIndex(): RagDoc[] {
   ];
   for (const g of guides) {
     docs.push(buildDoc(`guide:${g.id}`, "guide", g.title, g.body, g.url, undefined, g.tags));
+  }
+
+  // Revert guides — для новообращённых
+  for (const g of revertGuides) {
+    docs.push(buildDoc(`revert:${g.id}`, "revert-guide", g.title, g.body, g.url, "Гайд для новообращённого", g.tags));
+  }
+
+  // Historical figures — реальные люди
+  for (const h of historicalFigures) {
+    docs.push(
+      buildDoc(
+        `hist:${h.id}`,
+        "historical-figure",
+        h.fullName ? `${h.name} (${h.fullName})` : h.name,
+        `${h.bio} Эпоха: ${h.era}. Регион: ${h.region}. Известен(а) как: ${h.knownFor.join(", ")}. Годы: ${h.years}.`,
+        `/people/historical#${h.id}`,
+        `${h.field} · ${h.region}`,
+        [h.field, h.era, h.region, ...h.knownFor]
+      )
+    );
+  }
+
+  // Name impressions — психология восприятия
+  for (const im of nameImpressions) {
+    docs.push(
+      buildDoc(
+        `impr:${im.id}`,
+        "name-impression",
+        im.title,
+        im.body,
+        "/people/adult",
+        "Восприятие имени",
+        im.tags
+      )
+    );
   }
 
   CACHE = docs;
