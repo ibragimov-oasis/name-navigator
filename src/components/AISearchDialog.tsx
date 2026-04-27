@@ -170,13 +170,27 @@ export default function AISearchDialog({ open, onClose }: Props) {
       const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
       const url = `${supabaseUrl}/functions/v1/rag-query`;
 
+      const personContext = activePerson
+        ? {
+            fullName: formatFullName(activePerson),
+            gender: activePerson.gender,
+            relation: RELATION_LABELS[activePerson.relation],
+            birthDate: activePerson.birthDate,
+          }
+        : null;
+
       const resp = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${anonKey}`,
         },
-        body: JSON.stringify({ query, context, filters: { kind: activeKind, attrs: activeAttrs } }),
+        body: JSON.stringify({
+          query,
+          context,
+          filters: { kind: activeKind, attrs: activeAttrs, persona: activePersona },
+          personContext,
+        }),
         signal: ctrl.signal,
       });
 
