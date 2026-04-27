@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
-import { Users, UserCheck, Sparkles, Mic2, Crown, ArrowRight, Heart, IdCard } from "lucide-react";
+import SEO from "@/components/SEO";
+import { Users, UserCheck, Sparkles, Mic2, Crown, ArrowRight, Heart, IdCard, HeartHandshake } from "lucide-react";
 
 const sections = [
   {
@@ -51,11 +52,23 @@ const sections = [
     bg: "bg-gold/10",
     fg: "text-gold",
   },
+  {
+    to: "/people/compatibility",
+    icon: HeartHandshake,
+    title: "Совместимость двух людей",
+    desc: "Звучание, нумерология, культура и жизненный путь — одна карточка для пары",
+    bg: "bg-rose-light",
+    fg: "text-rose",
+  },
 ];
 
 const People = () => {
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Имена для людей — взрослых, новообращённых, персонажей | Имяген"
+        description="Подбор имени для взрослого, мусульманское имя для новообращённого, имя для персонажа книги, псевдоним и совместимость двух людей."
+      />
       <Header />
       <main className="container mx-auto px-4 py-8">
         <div className="text-center max-w-2xl mx-auto mb-10">
