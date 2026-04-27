@@ -1,8 +1,16 @@
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
-import { Users, UserCheck, Sparkles, Mic2, Crown, ArrowRight, Heart } from "lucide-react";
+import { Users, UserCheck, Sparkles, Mic2, Crown, ArrowRight, Heart, IdCard } from "lucide-react";
 
 const sections = [
+  {
+    to: "/people/profiles",
+    icon: IdCard,
+    title: "Мои профили",
+    desc: "Сохраните себя и близких — все инструменты будут работать персонально",
+    bg: "bg-rose-light",
+    fg: "text-rose",
+  },
   {
     to: "/people/adult",
     icon: UserCheck,
