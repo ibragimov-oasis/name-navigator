@@ -367,6 +367,7 @@ export default function AISearchDialog({ open, onClose }: Props) {
                 onClick={() => {
                   setActiveAttrs([]);
                   setActiveKind("all");
+                  setActivePersona(null);
                 }}
                 className="text-xs px-2.5 py-1 rounded-full text-muted-foreground hover:text-destructive transition-colors"
               >
