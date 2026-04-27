@@ -272,6 +272,37 @@ export default function AISearchDialog({ open, onClose }: Props) {
           </button>
         </div>
 
+        {/* Active person banner */}
+        {activePerson && (
+          <div className="flex items-center gap-2 border-b border-border bg-primary/5 px-4 py-1.5 text-[11px] text-primary">
+            <User className="h-3 w-3" />
+            <span>
+              Контекст: <strong>{formatFullName(activePerson)}</strong> · {RELATION_LABELS[activePerson.relation]}
+            </span>
+          </div>
+        )}
+
+        {/* Persona presets */}
+        <div className="flex items-center gap-1 px-3 py-2 border-b border-border overflow-x-auto bg-muted/10">
+          <span className="text-[10px] uppercase tracking-wide text-muted-foreground mr-1 shrink-0">Я ищу</span>
+          {PERSONA_PRESETS.map((p) => {
+            const on = activePersona === p.id;
+            return (
+              <button
+                key={p.id}
+                onClick={() => setActivePersona(on ? null : p.id)}
+                className={`text-xs px-2.5 py-1 rounded-full border transition-colors whitespace-nowrap ${
+                  on
+                    ? "bg-accent text-accent-foreground border-accent"
+                    : "border-border text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {p.label}
+              </button>
+            );
+          })}
+        </div>
+
         {/* Kind tabs */}
         <div className="flex items-center gap-1 px-3 py-2 border-b border-border overflow-x-auto">
           {KIND_TABS.map((t) => (
