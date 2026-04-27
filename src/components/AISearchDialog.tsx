@@ -95,8 +95,10 @@ export default function AISearchDialog({ open, onClose }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [activeKind, setActiveKind] = useState<RagSourceKind | "all">("all");
   const [activeAttrs, setActiveAttrs] = useState<string[]>([]);
+  const [activePersona, setActivePersona] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const { activePerson } = usePeople();
 
   useEffect(() => {
     if (open) {
@@ -107,6 +109,7 @@ export default function AISearchDialog({ open, onClose }: Props) {
       setError(null);
       setActiveKind("all");
       setActiveAttrs([]);
+      setActivePersona(null);
       abortRef.current?.abort();
     }
   }, [open]);
