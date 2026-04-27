@@ -93,7 +93,7 @@ ${contextText || "(нет релевантных источников)"}
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
-        stream: true,
+        stream: wantStream,
       }),
     });
 
