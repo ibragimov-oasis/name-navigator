@@ -117,6 +117,14 @@ ${contextText || "(нет релевантных источников)"}
       });
     }
 
+    if (!wantStream) {
+      const json = await aiResponse.json();
+      const answer = json?.choices?.[0]?.message?.content ?? "";
+      return new Response(JSON.stringify({ answer }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     return new Response(aiResponse.body, {
       headers: {
         ...corsHeaders,
