@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Sparkles, Search, X, ArrowRight, Loader2, BookOpen, User, Crown, Star, Filter } from "lucide-react";
+import { Sparkles, Search, X, ArrowRight, Loader2, BookOpen, User, Crown, Star, Filter, Compass, Users as UsersIcon, Brain } from "lucide-react";
 import {
   searchKnowledgeDetailed,
   getTopFacets,
@@ -7,12 +7,16 @@ import {
   type RagSourceKind,
 } from "@/lib/rag/knowledgeIndex";
 import { Link } from "react-router-dom";
+import { usePeople, formatFullName, RELATION_LABELS } from "@/lib/people";
 
 const KIND_ICON: Record<string, typeof Star> = {
   name: User,
   prophet: Crown,
   dua: Star,
   guide: BookOpen,
+  "revert-guide": Compass,
+  "historical-figure": UsersIcon,
+  "name-impression": Brain,
 };
 
 const KIND_LABEL: Record<string, string> = {
@@ -20,12 +24,17 @@ const KIND_LABEL: Record<string, string> = {
   prophet: "Пророк / сахаба",
   dua: "Дуа",
   guide: "Раздел",
+  "revert-guide": "Новообращённому",
+  "historical-figure": "Историческая личность",
+  "name-impression": "Восприятие имени",
 };
 
 const KIND_TABS: { id: RagSourceKind | "all"; label: string }[] = [
   { id: "all", label: "Всё" },
   { id: "name", label: "Имена" },
   { id: "prophet", label: "Пророки" },
+  { id: "historical-figure", label: "Личности" },
+  { id: "revert-guide", label: "Новообращ." },
   { id: "dua", label: "Дуа" },
   { id: "guide", label: "Разделы" },
 ];
@@ -40,6 +49,14 @@ const QUICK_ATTRS = [
   "мудрое",
   "светлое",
   "благородное",
+];
+
+/** Persona quick filters — switch UI focus by audience */
+const PERSONA_PRESETS: { id: string; label: string; kinds: RagSourceKind[]; tags?: string[] }[] = [
+  { id: "self", label: "Для себя", kinds: ["name", "name-impression"], tags: [] },
+  { id: "character", label: "Для персонажа", kinds: ["historical-figure", "name"], tags: [] },
+  { id: "revert", label: "Для новообращённого", kinds: ["revert-guide", "name", "prophet"], tags: [] },
+  { id: "child", label: "Для ребёнка", kinds: ["name", "dua", "prophet"], tags: [] },
 ];
 
 interface Props {
