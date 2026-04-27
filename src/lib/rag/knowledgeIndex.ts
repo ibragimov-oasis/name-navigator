@@ -6,8 +6,17 @@
 import { childNames } from "@/data/childNames";
 import { duas } from "@/data/duas";
 import { prophets } from "@/data/prophets";
+import { historicalFigures } from "@/data/historicalFigures";
+import { revertGuides, nameImpressions } from "@/data/peopleKnowledge";
 
-export type RagSourceKind = "name" | "prophet" | "dua" | "guide";
+export type RagSourceKind =
+  | "name"
+  | "prophet"
+  | "dua"
+  | "guide"
+  | "revert-guide"
+  | "historical-figure"
+  | "name-impression";
 
 export interface RagDoc {
   id: string;
