@@ -123,21 +123,27 @@ export default function AISearchDialog({ open, onClose }: Props) {
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
+  // Persona-derived kind scope (overrides single-kind tabs when active)
+  const personaKinds = useMemo(() => {
+    const p = PERSONA_PRESETS.find((x) => x.id === activePersona);
+    return p?.kinds;
+  }, [activePersona]);
+
   // Discovered facets within current kind scope
   const discoveredFacets = useMemo(
-    () => getTopFacets(activeKind === "all" ? undefined : [activeKind], 12),
-    [activeKind]
+    () => getTopFacets(personaKinds ?? (activeKind === "all" ? undefined : [activeKind]), 12),
+    [activeKind, personaKinds]
   );
 
   // Hybrid keyword + facet search
   const hits: RagSearchHit[] = useMemo(() => {
-    if (!query.trim() && activeAttrs.length === 0) return [];
+    if (!query.trim() && activeAttrs.length === 0 && !activePersona) return [];
     return searchKnowledgeDetailed(query, {
       limit: 12,
-      kinds: activeKind === "all" ? undefined : [activeKind],
+      kinds: personaKinds ?? (activeKind === "all" ? undefined : [activeKind]),
       tags: activeAttrs,
     });
-  }, [query, activeKind, activeAttrs]);
+  }, [query, activeKind, activeAttrs, activePersona, personaKinds]);
 
   const toggleAttr = (a: string) =>
     setActiveAttrs((prev) => (prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]));
