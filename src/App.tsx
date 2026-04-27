@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { FavoritesProvider } from "@/lib/favorites";
+import { PeopleProvider } from "@/lib/people";
 import Index from "./pages/Index";
 import ChildrenNames from "./pages/ChildrenNames";
 import PetNames from "./pages/PetNames";
@@ -28,6 +29,7 @@ import RevertName from "./pages/people/RevertName";
 import CharacterName from "./pages/people/CharacterName";
 import Pseudonym from "./pages/people/Pseudonym";
 import HistoricalFigures from "./pages/people/HistoricalFigures";
+import Profiles from "./pages/people/Profiles";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +38,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <FavoritesProvider>
+        <PeopleProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
@@ -43,6 +46,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/children" element={<ChildrenNames />} />
             <Route path="/people" element={<People />} />
+            <Route path="/people/profiles" element={<Profiles />} />
             <Route path="/people/adult" element={<AdultNames />} />
             <Route path="/people/revert" element={<RevertName />} />
             <Route path="/people/character" element={<CharacterName />} />
@@ -67,6 +71,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
+        </PeopleProvider>
       </FavoritesProvider>
     </TooltipProvider>
   </QueryClientProvider>
