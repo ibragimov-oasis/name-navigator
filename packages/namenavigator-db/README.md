@@ -1,3 +1,14 @@
+---
+title: "README.md"
+aliases: ["README"]
+tags:
+  - name-navigator
+  - namenavigator-db
+date: 2026-04-27
+cssclasses:
+  - enriched-document
+---
+
 # Name Navigator DB Utility
 
 The core linguistic engine and phonetic harmony algorithm used by Name Navigator.

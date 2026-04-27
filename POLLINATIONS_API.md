@@ -1,3 +1,13 @@
+---
+title: "POLLINATIONS_API.md"
+aliases: ["POLLINATIONS_API"]
+tags:
+  - name-navigator
+date: 2026-04-27
+cssclasses:
+  - enriched-document
+---
+
 # 🌸 Pollinations API — Полная документация для AI-агентов
 
 > **Источник:** [gen.pollinations.ai](https://gen.pollinations.ai) · [GitHub](https://github.com/pollinations/pollinations) · [Docs](https://enter.pollinations.ai/api/docs)  
@@ -207,7 +217,7 @@ curl 'https://gen.pollinations.ai/account/usage' -H 'Authorization: Bearer YOUR_
 
 | Модель | Alias | Возможности | Описание |
 |--------|-------|-------------|----------|
-| **Polly** by @Itachi-1824 (ALPHA) | `polly` | 👁️🧠🔍💻 | Vision + reasoning + search + code exec; стоимость не указана — возможно бесплатная, стоит проверить |
+| **Polly** by @Itachi-1824 (ALPHA) | `polly` | 👁️🧠🔍💻 | Vision + reasoning + search + code exec; стоимость не ==указ==ана — возможно бесплатная, стоит проверить |
 
 ---
 

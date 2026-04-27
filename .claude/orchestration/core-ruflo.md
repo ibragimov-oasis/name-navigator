@@ -1,3 +1,14 @@
+---
+title: "core-ruflo.md"
+aliases: ["core-ruflo"]
+tags:
+  - name-navigator
+  - orchestration
+date: 2026-04-27
+cssclasses:
+  - enriched-document
+---
+
 # 🌊 RuFlo v3.5: Enterprise AI Orchestration Platform
 
 <div align="center">

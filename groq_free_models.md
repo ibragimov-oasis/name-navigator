@@ -1,3 +1,13 @@
+---
+title: "groq_free_models.md"
+aliases: ["groq_free_models"]
+tags:
+  - name-navigator
+date: 2026-04-27
+cssclasses:
+  - enriched-document
+---
+
 # 🤖 GROQ API — Справочник для ИИ-агентов (Только бесплатный тир)
 
 > **Обновлено:** 2026-03-29  

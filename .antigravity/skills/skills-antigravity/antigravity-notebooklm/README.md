@@ -1,3 +1,14 @@
+---
+title: "README.md"
+aliases: ["README"]
+tags:
+  - name-navigator
+  - antigravity-notebooklm
+date: 2026-04-27
+cssclasses:
+  - enriched-document
+---
+
 <div align="center">
 
 # NotebookLM Claude Code Skill

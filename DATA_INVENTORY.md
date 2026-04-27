@@ -1,3 +1,13 @@
+---
+title: "DATA_INVENTORY.md"
+aliases: ["DATA_INVENTORY"]
+tags:
+  - name-navigator
+date: 2026-04-27
+cssclasses:
+  - enriched-document
+---
+
 # Name Navigator: Detailed Infrastructure Data Inventory (v1.0)
 
 This document provides a full, machine-verifiable inventory of the linguistic and cultural data assets within the Name Navigator ecosystem. This transparency is provided to support our cloud grant application and to assist researchers in understanding our data coverage.

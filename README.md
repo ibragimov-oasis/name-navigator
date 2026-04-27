@@ -1,3 +1,13 @@
+---
+title: "README.md"
+aliases: ["README"]
+tags:
+  - name-navigator
+date: 2026-04-27
+cssclasses:
+  - enriched-document
+---
+
 # Name Navigator — Linguistic Identity & Global Data Infrastructure 🧭
 
 **Name Navigator** is a high-performance, mission-critical infrastructure platform designed for the management, normalization, and phonetic analysis of global anthroponymic data. Bridging the gap between ancient cultural heritage and modern machine learning classification, it provides a high-fidelity data layer for identity management, personalization, and cross-cultural linguistic research.

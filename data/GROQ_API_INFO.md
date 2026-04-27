@@ -1,3 +1,14 @@
+---
+title: "GROQ_API_INFO.md"
+aliases: ["GROQ_API_INFO"]
+tags:
+  - name-navigator
+  - data
+date: 2026-04-27
+cssclasses:
+  - enriched-document
+---
+
 Free Plan Limits
 MODEL ID	RPM	RPD	TPM	TPD	ASH	ASD
 allam-2-7b

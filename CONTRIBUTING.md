@@ -1,3 +1,13 @@
+---
+title: "CONTRIBUTING.md"
+aliases: ["CONTRIBUTING"]
+tags:
+  - name-navigator
+date: 2026-04-27
+cssclasses:
+  - enriched-document
+---
+
 # Contributing to Name Navigator
 
 First off, thank you for considering contributing to Name Navigator! It's people like you that help keep cultural heritage alive in the digital age.

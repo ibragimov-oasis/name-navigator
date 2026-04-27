@@ -1,3 +1,13 @@
+---
+title: "gemini_api_FREE_FULL.md"
+aliases: ["gemini_api_FREE_FULL"]
+tags:
+  - name-navigator
+date: 2026-04-27
+cssclasses:
+  - enriched-document
+---
+
 # Google Gemini API — Полный справочник моделей (Free Tier)
 > **Источник лимитов:** AI Studio dashboard пользователя (март 2026)
 > **Правило:** В файл включены ТОЛЬКО модели с реальными ненулевыми лимитами.

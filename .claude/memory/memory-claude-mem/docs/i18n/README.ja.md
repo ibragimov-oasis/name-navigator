@@ -1,3 +1,14 @@
+---
+title: "README.ja.md"
+aliases: ["README.ja"]
+tags:
+  - name-navigator
+  - i18n
+date: 2026-04-27
+cssclasses:
+  - enriched-document
+---
+
 🌐 これは自動翻訳です。コミュニティによる修正を歓迎します!
 
 ---

@@ -1,3 +1,14 @@
+---
+title: "Gemini_API_INFO.md"
+aliases: ["Gemini_API_INFO"]
+tags:
+  - name-navigator
+  - data
+date: 2026-04-27
+cssclasses:
+  - enriched-document
+---
+
 for m in client.models.list():
     print(m.name, " | ", m.display_name)
 models/gemini-2.5-flash  |  Gemini 2.5 Flash

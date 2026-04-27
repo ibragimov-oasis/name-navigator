@@ -1,3 +1,14 @@
+---
+title: "README.de.md"
+aliases: ["README.de"]
+tags:
+  - name-navigator
+  - i18n
+date: 2026-04-27
+cssclasses:
+  - enriched-document
+---
+
 🌐 Dies ist eine automatisierte Übersetzung. Korrekturen aus der Community sind willkommen!
 
 ---

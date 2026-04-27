@@ -1,3 +1,14 @@
+---
+title: "README.ro.md"
+aliases: ["README.ro"]
+tags:
+  - name-navigator
+  - i18n
+date: 2026-04-27
+cssclasses:
+  - enriched-document
+---
+
 🌐 Aceasta este o traducere automată. Corecțiile din partea comunității sunt binevenite!
 
 ---

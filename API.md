@@ -1,3 +1,13 @@
+---
+title: "API.md"
+aliases: ["API"]
+tags:
+  - name-navigator
+date: 2026-04-27
+cssclasses:
+  - enriched-document
+---
+
 # Name Navigator API Specification (v1.0-alpha)
 
 This document outlines the planned API endpoints for the Name Navigator linguistic infrastructure. These endpoints are designed for high-performance integration into registration flows, AI assistants, and CRM systems.

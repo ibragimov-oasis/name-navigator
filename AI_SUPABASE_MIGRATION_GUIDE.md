@@ -1,3 +1,13 @@
+---
+title: "AI_SUPABASE_MIGRATION_GUIDE.md"
+aliases: ["AI_SUPABASE_MIGRATION_GUIDE"]
+tags:
+  - name-navigator
+date: 2026-04-27
+cssclasses:
+  - enriched-document
+---
+
 # AI_SUPABASE_MIGRATION_GUIDE.md
 
 ## SYSTEM RULES FOR AI AGENTS — NAME-NAVIGATOR × SUPABASE
