@@ -236,7 +236,7 @@ export default function AISearchDialog({ open, onClose }: Props) {
 
   if (!open) return null;
 
-  const hasFilters = activeKind !== "all" || activeAttrs.length > 0;
+  const hasFilters = activeKind !== "all" || activeAttrs.length > 0 || activePersona !== null;
 
   return (
     <div
