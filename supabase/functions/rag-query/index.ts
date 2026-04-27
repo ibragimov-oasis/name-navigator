@@ -41,8 +41,10 @@ Deno.serve(async (req) => {
       });
     }
 
-    const body = (await req.json()) as RequestBody;
-    const { query, context, personContext, filters, creative } = body;
+    const body = (await req.json()) as RequestBody & { mode?: string; stream?: boolean };
+    const { query, context, personContext, filters } = body;
+    const creative = body.creative === true || body.mode === "creative";
+    const wantStream = body.stream !== false;
 
     if (!query || typeof query !== "string" || query.length > 800) {
       return new Response(JSON.stringify({ error: "Invalid query" }), {
