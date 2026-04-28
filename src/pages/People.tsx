@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import SEO from "@/components/SEO";
-import { Users, UserCheck, Sparkles, Mic2, Crown, ArrowRight, Heart, IdCard, HeartHandshake } from "lucide-react";
+import PersonCard from "@/components/PersonCard";
+import { usePeople } from "@/lib/people";
+import { Users, UserCheck, Sparkles, Mic2, Crown, ArrowRight, Heart, IdCard, HeartHandshake, Star } from "lucide-react";
 
 const sections = [
   {
@@ -60,9 +62,18 @@ const sections = [
     bg: "bg-rose-light",
     fg: "text-rose",
   },
+  {
+    to: "/people/nasab",
+    icon: Crown,
+    title: "Арабское ФИО / насаб",
+    desc: "Кунья · Имя · ибн/бинт Отец · Нисба · Лакаб — в кириллице и арабской вязи",
+    bg: "bg-gold/10",
+    fg: "text-gold",
+  },
 ];
 
 const People = () => {
+  const { activePerson } = usePeople();
   return (
     <div className="min-h-screen bg-background">
       <SEO
@@ -83,6 +94,15 @@ const People = () => {
             или творческий псевдоним — с глубоким смыслом и культурным контекстом.
           </p>
         </div>
+
+        {activePerson && (
+          <div className="mx-auto max-w-3xl mb-8">
+            <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gold">
+              <Star className="h-3.5 w-3.5 fill-gold" /> Активный профиль
+            </div>
+            <PersonCard person={activePerson} active />
+          </div>
+        )}
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
           {sections.map((s) => (

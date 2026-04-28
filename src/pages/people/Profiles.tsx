@@ -2,8 +2,9 @@ import { useState } from "react";
 import Header from "@/components/Header";
 import PersonCard from "@/components/PersonCard";
 import PersonForm from "@/components/PersonForm";
-import { usePeople } from "@/lib/people";
-import { UserPlus, Users, Inbox } from "lucide-react";
+import { usePeople, Person } from "@/lib/people";
+import { Link } from "react-router-dom";
+import { UserPlus, Users, Inbox, Crown, GitCompare } from "lucide-react";
 
 const Profiles = () => {
   const {
@@ -11,9 +12,17 @@ const Profiles = () => {
     activePersonId,
     setActivePersonId,
     addPerson,
+    updatePerson,
     removePerson,
   } = usePeople();
   const [creating, setCreating] = useState(false);
+  const [editing, setEditing] = useState<Person | null>(null);
+
+  const startEdit = (p: Person) => {
+    setEditing(p);
+    setCreating(false);
+    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -28,24 +37,45 @@ const Profiles = () => {
               Мои профили
             </h1>
             <p className="mt-1 text-sm text-muted-foreground max-w-xl">
-              Сохраняйте людей, для которых подбираете имя. Активный профиль
-              автоматически подставляется в тафсир, нумерологию, ДНК и подпись.
+              Активный профиль автоматически подставляется в тафсир, нумерологию,
+              ДНК, подпись, сертификат и насаб.
             </p>
           </div>
-          {!creating && (
-            <button
-              onClick={() => setCreating(true)}
-              className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm"
-            >
-              <UserPlus className="h-4 w-4" />
-              Добавить человека
-            </button>
+          {!creating && !editing && (
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setCreating(true)}
+                className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm"
+              >
+                <UserPlus className="h-4 w-4" />
+                Добавить человека
+              </button>
+              {people.length >= 2 && (
+                <Link
+                  to="/people/compatibility"
+                  className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-semibold text-foreground hover:bg-secondary transition-colors"
+                >
+                  <GitCompare className="h-4 w-4" />
+                  Совместимость
+                </Link>
+              )}
+              {people.length >= 1 && (
+                <Link
+                  to="/people/nasab"
+                  className="inline-flex items-center gap-2 rounded-xl border border-gold/40 bg-gold/5 px-4 py-2.5 text-sm font-semibold text-gold hover:bg-gold/10 transition-colors"
+                >
+                  <Crown className="h-4 w-4" />
+                  Насаб
+                </Link>
+              )}
+            </div>
           )}
         </div>
 
         {creating && (
           <div className="mb-6 animate-fade-in">
             <PersonForm
+              others={people}
               onSubmit={(input) => {
                 const created = addPerson(input);
                 setActivePersonId(created.id);
@@ -53,6 +83,31 @@ const Profiles = () => {
               }}
               onCancel={() => setCreating(false)}
               submitLabel="Создать профиль"
+            />
+          </div>
+        )}
+
+        {editing && (
+          <div className="mb-6 animate-fade-in">
+            <PersonForm
+              initial={editing}
+              others={people.filter((p) => p.id !== editing.id)}
+              onSubmit={(input) => {
+                // If main name changed, log into history.
+                if (input.fullName !== editing.fullName) {
+                  const stamp = new Date().toISOString().slice(0, 10);
+                  const next = [
+                    ...(editing.nameHistory ?? []),
+                    { name: editing.fullName, reason: "прежнее имя", date: stamp },
+                  ];
+                  updatePerson(editing.id, { ...input, nameHistory: next });
+                } else {
+                  updatePerson(editing.id, input);
+                }
+                setEditing(null);
+              }}
+              onCancel={() => setEditing(null)}
+              submitLabel="Сохранить изменения"
             />
           </div>
         )}
@@ -89,6 +144,7 @@ const Profiles = () => {
                 onActivate={() =>
                   setActivePersonId(activePersonId === p.id ? null : p.id)
                 }
+                onEdit={() => startEdit(p)}
                 onDelete={() => {
                   if (confirm(`Удалить профиль "${p.fullName}"?`)) {
                     removePerson(p.id);

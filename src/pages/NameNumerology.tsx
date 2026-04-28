@@ -1,13 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import { calculateNumerology, getCompatibility, DESTINY_TRAITS } from "@/lib/numerology";
+import { usePeople } from "@/lib/people";
 import { Hash, Heart, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NameNumerology = () => {
-  const [name, setName] = useState("");
+  const [searchParams] = useSearchParams();
+  const { activePerson } = usePeople();
+  const initialName = searchParams.get("name") || activePerson?.fullName || "";
+  const [name, setName] = useState(initialName);
   const [name2, setName2] = useState("");
   const [tab, setTab] = useState<"numerology" | "compatibility">("numerology");
+
+  // Sync if URL changes (e.g., from PersonCard navigation)
+  useEffect(() => {
+    const urlName = searchParams.get("name");
+    if (urlName && urlName !== name) setName(urlName);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const result = name.trim() ? calculateNumerology(name) : null;
   const traits = result ? DESTINY_TRAITS[result.destinyNumber] : null;

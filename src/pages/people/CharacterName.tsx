@@ -1,7 +1,8 @@
 import { useState } from "react";
 import Header from "@/components/Header";
-import { Users, Sparkles, Loader2, Copy, RefreshCw } from "lucide-react";
+import { Users, Sparkles, Loader2, Copy, RefreshCw, UserPlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { usePeople } from "@/lib/people";
 import { toast } from "sonner";
 
 const CULTURES = ["Арабская", "Тюркская", "Персидская", "Русская", "Японская", "Скандинавская", "Кельтская", "Греческая"];
@@ -16,6 +17,7 @@ const ARCHETYPES = [
 ];
 
 const CharacterName = () => {
+  const { addPerson } = usePeople();
   const [culture, setCulture] = useState(CULTURES[0]);
   const [era, setEra] = useState(ERAS[0]);
   const [archetype, setArchetype] = useState(ARCHETYPES[0].key);
@@ -46,6 +48,24 @@ const CharacterName = () => {
   const copy = () => {
     navigator.clipboard.writeText(result);
     toast.success("Скопировано");
+  };
+
+  const saveAsProfile = () => {
+    // Extract first non-empty line as the name guess
+    const firstLine = result.split("\n").find((l) => l.trim()) ?? "";
+    const nameGuess = firstLine.replace(/^[\d\.\)\-\s«"]+/, "").replace(/[«"].+$/, "").trim().slice(0, 60);
+    if (!nameGuess) {
+      toast.error("Не удалось извлечь имя из ответа");
+      return;
+    }
+    addPerson({
+      fullName: nameGuess,
+      gender,
+      relation: "character",
+      notes: `${culture} · ${era} · ${ARCHETYPES.find((a) => a.key === archetype)?.label}\n\n${result}`.slice(0, 1000),
+      tags: [culture.toLowerCase(), era.toLowerCase(), "персонаж"],
+    });
+    toast.success(`Персонаж «${nameGuess}» сохранён в «Мои профили»`);
   };
 
   return (
@@ -172,6 +192,13 @@ const CharacterName = () => {
             <div className="flex items-center justify-between mb-3">
               <h2 className="font-display text-lg font-bold text-foreground">Ваш персонаж</h2>
               <div className="flex gap-1">
+                <button
+                  onClick={saveAsProfile}
+                  className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-2.5 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20"
+                  title="Сохранить как профиль персонажа"
+                >
+                  <UserPlus className="h-3.5 w-3.5" /> В профили
+                </button>
                 <button
                   onClick={copy}
                   className="rounded-lg p-2 text-muted-foreground hover:bg-secondary hover:text-foreground"

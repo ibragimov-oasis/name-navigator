@@ -5,6 +5,7 @@ import { getChildNames } from "@/lib/namesStore";
 import { SIGNATURE_STYLES, generateSignature, downloadSignature } from "@/lib/signatureGenerator";
 import type { SignatureStyle } from "@/lib/signatureGenerator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { usePeople } from "@/lib/people";
 import { Pen, Download, Search, RotateCcw, Star, Copy, Check } from "lucide-react";
 
 const QUICK_NAMES = ["Мухаммад", "Али", "Фатима", "Аиша", "Юсуф", "Ибрахим", "Марьям", "Омар"];
@@ -16,7 +17,9 @@ interface GeneratedSig {
 
 const NameSignature = () => {
   const [searchParams] = useSearchParams();
-  const [inputName, setInputName] = useState(searchParams.get("name") || "");
+  const { activePerson } = usePeople();
+  const fallbackName = searchParams.get("name") || activePerson?.fullName || "";
+  const [inputName, setInputName] = useState(fallbackName);
   const [activeName, setActiveName] = useState("");
   const [signatures, setSignatures] = useState<GeneratedSig[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -52,15 +55,14 @@ const NameSignature = () => {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // Auto-generate if URL param present
+  // Auto-generate if URL param or active profile present
   useEffect(() => {
-    const urlName = searchParams.get("name");
-    if (urlName && canvasRef.current) {
-      setInputName(urlName);
-      generateAll(urlName);
+    if (fallbackName && canvasRef.current && !signatures.length) {
+      setInputName(fallbackName);
+      generateAll(fallbackName);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fallbackName]);
 
   // Save favorites to localStorage
   useEffect(() => {

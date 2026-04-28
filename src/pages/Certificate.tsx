@@ -5,16 +5,22 @@ import SEO from "@/components/SEO";
 import { calculateNumerology, DESTINY_TRAITS } from "@/lib/numerology";
 import { childNames } from "@/data/childNames";
 import { duas } from "@/data/duas";
+import { usePeople, RELATION_LABELS } from "@/lib/people";
 
 /**
  * Printable name certificate. Use ?name=... and optional &date= &person=
+ * If no params — auto-fills from the active profile.
  * Hit "Print" or Ctrl+P → "Save as PDF".
  */
 const Certificate = () => {
   const [params] = useSearchParams();
-  const name = params.get("name")?.trim() || "—";
-  const personLine = params.get("person")?.trim() || "";
-  const date = params.get("date")?.trim() || "";
+  const { activePerson } = usePeople();
+
+  const name = params.get("name")?.trim() || activePerson?.fullName || "—";
+  const personLine =
+    params.get("person")?.trim() ||
+    (activePerson ? RELATION_LABELS[activePerson.relation] : "");
+  const date = params.get("date")?.trim() || activePerson?.birthDate || "";
 
   const numerology = useMemo(() => calculateNumerology(name), [name]);
   const destiny = DESTINY_TRAITS[numerology.destinyNumber];

@@ -11,6 +11,8 @@ import { Save, X } from "lucide-react";
 
 interface PersonFormProps {
   initial?: Person;
+  /** Other profiles available to link as parent/spouse */
+  others?: Person[];
   onSubmit: (input: PersonInput) => void;
   onCancel?: () => void;
   submitLabel?: string;
@@ -28,6 +30,7 @@ const RELATIONS: PersonRelation[] = [
 
 const PersonForm = ({
   initial,
+  others = [],
   onSubmit,
   onCancel,
   submitLabel = "Сохранить",
@@ -44,11 +47,19 @@ const PersonForm = ({
     initial?.relation ?? "self"
   );
   const [notes, setNotes] = useState(initial?.notes ?? "");
+  const [parentId, setParentId] = useState(initial?.parentId ?? "");
+  const [spouseId, setSpouseId] = useState(initial?.spouseId ?? "");
+  const [tagsRaw, setTagsRaw] = useState((initial?.tags ?? []).join(", "));
+  const [meaningPersonal, setMeaningPersonal] = useState(initial?.meaningPersonal ?? "");
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     const trimmed = fullName.trim();
     if (!trimmed) return;
+    const tags = tagsRaw
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
     onSubmit({
       fullName: trimmed,
       surname: surname.trim() || undefined,
@@ -60,6 +71,12 @@ const PersonForm = ({
       birthDate: birthDate || undefined,
       relation,
       notes: notes.trim() || undefined,
+      parentId: parentId || undefined,
+      spouseId: spouseId || undefined,
+      tags: tags.length ? tags : undefined,
+      meaningPersonal: meaningPersonal.trim() || undefined,
+      nameHistory: initial?.nameHistory,
+      revertChecklist: initial?.revertChecklist,
     });
   };
 
@@ -159,6 +176,57 @@ const PersonForm = ({
             </button>
           ))}
         </div>
+      </Field>
+
+      {others.length > 0 && (
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Field label="Родитель (из профилей)">
+            <select
+              value={parentId}
+              onChange={(e) => setParentId(e.target.value)}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none"
+            >
+              <option value="">— нет —</option>
+              {others.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.fullName}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Супруг(а) (из профилей)">
+            <select
+              value={spouseId}
+              onChange={(e) => setSpouseId(e.target.value)}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none"
+            >
+              <option value="">— нет —</option>
+              {others.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.fullName}
+                </option>
+              ))}
+            </select>
+          </Field>
+        </div>
+      )}
+
+      <Field label="Теги (через запятую)">
+        <Input
+          value={tagsRaw}
+          onChange={(e) => setTagsRaw(e.target.value)}
+          placeholder="револют, татарское происхождение"
+        />
+      </Field>
+
+      <Field label="Что имя значит лично для вас">
+        <textarea
+          value={meaningPersonal}
+          onChange={(e) => setMeaningPersonal(e.target.value)}
+          rows={2}
+          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          placeholder="Имя бабушки, обещание, любимый смысл…"
+        />
       </Field>
 
       <Field label="Заметки">

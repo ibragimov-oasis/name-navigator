@@ -4,8 +4,8 @@ import SEO from "@/components/SEO";
 import ShareButton from "@/components/ShareButton";
 import PersonForm from "@/components/PersonForm";
 import { usePeople, Person, PersonInput, formatFullName, RELATION_LABELS } from "@/lib/people";
-import { calculatePersonCompatibility } from "@/lib/personCompatibility";
-import { Heart, ArrowLeftRight, Sparkles, Plus, Loader2 } from "lucide-react";
+import { calculatePersonCompatibility, compareWithFamily } from "@/lib/personCompatibility";
+import { Heart, ArrowLeftRight, Sparkles, Plus, Loader2, Users } from "lucide-react";
 
 const PersonPicker = ({
   label,
@@ -97,7 +97,7 @@ const ScoreBar = ({ value }: { value: number }) => (
 );
 
 const Compatibility = () => {
-  const { addPerson, activePerson } = usePeople();
+  const { addPerson, activePerson, people } = usePeople();
   const [a, setA] = useState<Person | null>(activePerson);
   const [b, setB] = useState<Person | null>(null);
   const [aiOpen, setAiOpen] = useState(false);
@@ -105,6 +105,10 @@ const Compatibility = () => {
   const [aiLoading, setAiLoading] = useState(false);
 
   const result = useMemo(() => (a && b ? calculatePersonCompatibility(a, b) : null), [a, b]);
+  const familyMatches = useMemo(
+    () => (a && people.length > 1 ? compareWithFamily(a, people) : []),
+    [a, people]
+  );
 
   const askAI = async () => {
     if (!a || !b || !result) return;
@@ -292,6 +296,44 @@ const Compatibility = () => {
                 </p>
               </div>
             )}
+          </div>
+        )}
+
+        {a && familyMatches.length > 0 && (
+          <div className="mt-8 rounded-2xl border border-border bg-card p-5">
+            <h3 className="mb-3 flex items-center gap-2 font-display text-base font-bold text-foreground">
+              <Users className="h-4 w-4 text-primary" />
+              Совместимость {a.fullName} со всей семьёй
+            </h3>
+            <div className="space-y-2">
+              {familyMatches.map((m) => (
+                <button
+                  key={m.person.id}
+                  onClick={() => setB(m.person)}
+                  className="flex w-full items-center justify-between gap-3 rounded-lg border border-border bg-background px-3 py-2 text-left transition-colors hover:border-primary hover:bg-primary/5"
+                >
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-semibold text-foreground">
+                      {m.person.fullName}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {RELATION_LABELS[m.person.relation]}
+                    </div>
+                  </div>
+                  <div
+                    className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                      m.score >= 75
+                        ? "bg-accent/20 text-accent"
+                        : m.score >= 55
+                        ? "bg-primary/15 text-primary"
+                        : "bg-rose/15 text-rose"
+                    }`}
+                  >
+                    {m.score}
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
