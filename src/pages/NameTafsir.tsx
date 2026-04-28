@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -6,6 +7,7 @@ import { getChildNames } from "@/lib/namesStore";
 import { transliterateToArabic } from "@/lib/arabicTranslit";
 import { calculateNumerology, DESTINY_TRAITS } from "@/lib/numerology";
 import { fetchAyahWithArabic } from "@/lib/api/quranApi";
+import { usePeople } from "@/lib/people";
 import { BookOpen, Search, Star, Moon, Globe } from "lucide-react";
 
 // Quranic references for popular Islamic names
@@ -65,7 +67,10 @@ interface LiveAyah {
 }
 
 const NameTafsir = () => {
-  const [search, setSearch] = useState("");
+  const [searchParams] = useSearchParams();
+  const { activePerson } = usePeople();
+  const initialName = searchParams.get("name") || activePerson?.fullName || "";
+  const [search, setSearch] = useState(initialName);
   const [liveAyahs, setLiveAyahs] = useState<LiveAyah[]>([]);
   const [loadingAyahs, setLoadingAyahs] = useState(false);
   const allNames = getChildNames();
