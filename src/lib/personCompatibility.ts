@@ -185,3 +185,19 @@ export function calculatePersonCompatibility(p1: Person, p2: Person): Compatibil
 
   return { total, axes, strengths, watchOuts, advice, summary };
 }
+
+export interface FamilyMatch {
+  person: Person;
+  score: number;
+  summary: string;
+}
+
+export function compareWithFamily(anchor: Person, family: Person[]): FamilyMatch[] {
+  return family
+    .filter((p) => p.id !== anchor.id)
+    .map((p) => {
+      const r = calculatePersonCompatibility(anchor, p);
+      return { person: p, score: r.total, summary: r.summary };
+    })
+    .sort((a, b) => b.score - a.score);
+}
