@@ -1,11 +1,16 @@
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import { getChildNames } from "@/lib/namesStore";
 import { analyzeNameDNA, renderDNACard } from "@/lib/nameDNA";
+import { usePeople } from "@/lib/people";
 import { Dna, Download, Search } from "lucide-react";
 
 const NameDNA = () => {
-  const [inputName, setInputName] = useState("");
+  const [searchParams] = useSearchParams();
+  const { activePerson } = usePeople();
+  const fallbackName = searchParams.get("name") || activePerson?.fullName || "";
+  const [inputName, setInputName] = useState(fallbackName);
   const [activeName, setActiveName] = useState("");
   const [cardUrl, setCardUrl] = useState("");
   const [dnaData, setDnaData] = useState<ReturnType<typeof analyzeNameDNA> | null>(null);
