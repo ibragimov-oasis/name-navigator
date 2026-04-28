@@ -50,6 +50,14 @@ const NameDNA = () => {
     link.click();
   };
 
+  // Auto-generate when arriving from a profile/URL
+  useEffect(() => {
+    if (fallbackName && !activeName && canvasRef.current) {
+      generate(fallbackName);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fallbackName]);
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
