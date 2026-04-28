@@ -19,6 +19,19 @@ export type PersonRelation =
 
 export type PersonGender = "male" | "female";
 
+export interface NameHistoryEntry {
+  name: string;
+  reason?: string;
+  date: string; // ISO yyyy-mm-dd
+}
+
+export interface RevertChecklist {
+  nameChosen?: boolean;
+  shahadaSpoken?: boolean;
+  ghuslDone?: boolean;
+  imamConfirmed?: boolean;
+}
+
 export interface Person {
   id: string;
   fullName: string;
@@ -31,13 +44,24 @@ export interface Person {
   birthDate?: string; // ISO yyyy-mm-dd
   relation: PersonRelation;
   notes?: string;
+  // v2 fields (added 2026-04)
+  nameHistory?: NameHistoryEntry[];
+  parentId?: string;
+  spouseId?: string;
+  tags?: string[];
+  meaningPersonal?: string;
+  revertChecklist?: RevertChecklist;
   createdAt: number;
   updatedAt: number;
 }
 
 export type PersonInput = Omit<Person, "id" | "createdAt" | "updatedAt">;
 
+// v1 used "imyagen.people.v1" — we keep the same key but migrate shapes in-place.
 const STORAGE_KEY = "imyagen.people.v1";
+const ACTIVE_KEY = "imyagen.people.active.v1";
+const SCHEMA_VERSION = 2;
+const SCHEMA_KEY = "imyagen.people.schema";
 
 interface PeopleContextType {
   people: Person[];
@@ -48,17 +72,41 @@ interface PeopleContextType {
   updatePerson: (id: string, patch: Partial<PersonInput>) => void;
   removePerson: (id: string) => void;
   getPerson: (id: string) => Person | undefined;
+  appendNameHistory: (id: string, entry: NameHistoryEntry) => void;
   clearAll: () => void;
 }
 
 const PeopleContext = createContext<PeopleContextType | null>(null);
 
-const ACTIVE_KEY = "imyagen.people.active.v1";
-
 const safeId = () =>
   typeof crypto !== "undefined" && "randomUUID" in crypto
     ? crypto.randomUUID()
     : `p_${Math.random().toString(36).slice(2)}_${Date.now()}`;
+
+function migrate(p: Partial<Person>): Person | null {
+  if (!p || typeof p.id !== "string" || typeof p.fullName !== "string") return null;
+  return {
+    id: p.id,
+    fullName: p.fullName,
+    surname: p.surname,
+    patronymic: p.patronymic,
+    kunya: p.kunya,
+    nisba: p.nisba,
+    laqab: p.laqab,
+    gender: p.gender === "female" ? "female" : "male",
+    birthDate: p.birthDate,
+    relation: (p.relation as PersonRelation) ?? "self",
+    notes: p.notes,
+    nameHistory: Array.isArray(p.nameHistory) ? p.nameHistory : [],
+    parentId: p.parentId,
+    spouseId: p.spouseId,
+    tags: Array.isArray(p.tags) ? p.tags : [],
+    meaningPersonal: p.meaningPersonal,
+    revertChecklist: p.revertChecklist ?? undefined,
+    createdAt: typeof p.createdAt === "number" ? p.createdAt : Date.now(),
+    updatedAt: typeof p.updatedAt === "number" ? p.updatedAt : Date.now(),
+  };
+}
 
 const loadPeople = (): Person[] => {
   try {
@@ -66,10 +114,13 @@ const loadPeople = (): Person[] => {
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter(
-      (p): p is Person =>
-        p && typeof p.id === "string" && typeof p.fullName === "string"
-    );
+    const migrated = parsed.map(migrate).filter((x): x is Person => x !== null);
+    try {
+      localStorage.setItem(SCHEMA_KEY, String(SCHEMA_VERSION));
+    } catch {
+      /* ignore */
+    }
+    return migrated;
   } catch {
     return [];
   }
@@ -110,6 +161,8 @@ export const PeopleProvider = ({ children }: { children: ReactNode }) => {
     const now = Date.now();
     const person: Person = {
       ...input,
+      nameHistory: input.nameHistory ?? [],
+      tags: input.tags ?? [],
       id: safeId(),
       createdAt: now,
       updatedAt: now,
@@ -129,17 +182,41 @@ export const PeopleProvider = ({ children }: { children: ReactNode }) => {
     []
   );
 
-  const removePerson = useCallback(
-    (id: string) => {
-      setPeople((prev) => prev.filter((p) => p.id !== id));
-      setActivePersonIdState((cur) => (cur === id ? null : cur));
-    },
-    []
-  );
+  const removePerson = useCallback((id: string) => {
+    // Cleanup references in other profiles to avoid dangling links.
+    setPeople((prev) =>
+      prev
+        .filter((p) => p.id !== id)
+        .map((p) => {
+          const next = { ...p };
+          if (next.parentId === id) next.parentId = undefined;
+          if (next.spouseId === id) next.spouseId = undefined;
+          return next;
+        })
+    );
+    setActivePersonIdState((cur) => (cur === id ? null : cur));
+  }, []);
 
   const getPerson = useCallback(
     (id: string) => people.find((p) => p.id === id),
     [people]
+  );
+
+  const appendNameHistory = useCallback(
+    (id: string, entry: NameHistoryEntry) => {
+      setPeople((prev) =>
+        prev.map((p) =>
+          p.id === id
+            ? {
+                ...p,
+                nameHistory: [...(p.nameHistory ?? []), entry],
+                updatedAt: Date.now(),
+              }
+            : p
+        )
+      );
+    },
+    []
   );
 
   const clearAll = useCallback(() => {
@@ -162,6 +239,7 @@ export const PeopleProvider = ({ children }: { children: ReactNode }) => {
       updatePerson,
       removePerson,
       getPerson,
+      appendNameHistory,
       clearAll,
     }),
     [
@@ -173,6 +251,7 @@ export const PeopleProvider = ({ children }: { children: ReactNode }) => {
       updatePerson,
       removePerson,
       getPerson,
+      appendNameHistory,
       clearAll,
     ]
   );
