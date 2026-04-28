@@ -110,12 +110,20 @@ function lifePathScore(p1: Person, p2: Person): { score: number; detail: string 
 }
 
 function attributesAxis(p1: Person, p2: Person): { score: number; detail: string } {
-  // Without explicit attribute data on Person, derive a soft signal from relation + gender pair
   const samePolarity = p1.gender === p2.gender;
   const pair = `${p1.relation}|${p2.relation}`;
   const friendly = ["self|spouse", "spouse|self", "self|child", "child|self", "parent|child", "child|parent"];
   const hard = ["self|self"];
   if (hard.includes(pair)) return { score: 50, detail: "слишком близкие зоны — нужен внешний взгляд" };
+
+  // Special boost: parent ↔ child — phonetic harmony with patronymic matters most
+  if (pair === "parent|child" || pair === "child|parent") {
+    return { score: 90, detail: "родитель и ребёнок — связь имени и отчества, важно созвучие" };
+  }
+  // Spouse ↔ spouse — extra weight to cultural alignment
+  if (pair === "spouse|spouse" || pair === "self|spouse" || pair === "spouse|self") {
+    return { score: 85, detail: "супружеская пара — баланс культур и характеров" };
+  }
   if (friendly.includes(pair))
     return { score: 85, detail: "роли естественно дополняют друг друга" };
   return {
