@@ -193,6 +193,13 @@ const CharacterName = () => {
               <h2 className="font-display text-lg font-bold text-foreground">Ваш персонаж</h2>
               <div className="flex gap-1">
                 <button
+                  onClick={saveAsProfile}
+                  className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-2.5 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20"
+                  title="Сохранить как профиль персонажа"
+                >
+                  <UserPlus className="h-3.5 w-3.5" /> В профили
+                </button>
+                <button
                   onClick={copy}
                   className="rounded-lg p-2 text-muted-foreground hover:bg-secondary hover:text-foreground"
                   title="Копировать"
