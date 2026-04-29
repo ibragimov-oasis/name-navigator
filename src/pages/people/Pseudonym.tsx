@@ -192,7 +192,7 @@ const Pseudonym = () => {
                   <Volume2 className="h-4 w-4" />
                 </button>
               </div>
-              <div className="mt-2 flex items-center gap-2 text-xs">
+              <div className="mt-2 flex items-center gap-2 text-xs flex-wrap">
                 <span className="rounded-full bg-teal-light px-2 py-0.5 text-accent font-medium">
                   {n.name.length} букв
                 </span>
@@ -201,6 +201,13 @@ const Pseudonym = () => {
                     <Star className="h-3 w-3" /> редкое
                   </span>
                 )}
+                <button
+                  onClick={() => saveAsCharacter(n.name, n.gender as "male" | "female")}
+                  className="ml-auto inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-primary font-semibold hover:bg-primary/20"
+                  title="Сохранить как профиль персонажа"
+                >
+                  <UserPlus className="h-3 w-3" /> Сохранить
+                </button>
               </div>
             </div>
           ))}
@@ -210,6 +217,25 @@ const Pseudonym = () => {
             </p>
           )}
         </div>
+
+        {history.length > 0 && (
+          <div className="mt-8 rounded-2xl border border-border bg-card p-5">
+            <h3 className="font-display text-sm font-bold text-foreground flex items-center gap-2 mb-3">
+              <History className="h-4 w-4 text-accent" /> Недавно сохранённые
+            </h3>
+            <div className="flex flex-wrap gap-1.5">
+              {history.map((h) => (
+                <span
+                  key={`${h.name}-${h.date}`}
+                  className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-xs text-secondary-foreground"
+                >
+                  {h.name}
+                  <span className="text-muted-foreground">· {h.date}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
