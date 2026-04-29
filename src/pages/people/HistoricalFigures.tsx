@@ -113,6 +113,24 @@ const HistoricalFigures = () => {
                         </span>
                       ))}
                     </div>
+                    {f.derivedNames && f.derivedNames.length > 0 && (
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1.5">
+                          Имена, связанные с этой личностью:
+                        </p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {f.derivedNames.map((dn) => (
+                            <Link
+                              key={dn}
+                              to={`/?name=${encodeURIComponent(dn)}`}
+                              className="rounded-full bg-gold/10 px-2.5 py-0.5 text-xs font-semibold text-gold hover:bg-gold/20 transition-colors"
+                            >
+                              {dn}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     <Link
                       to={`/tafsir?name=${encodeURIComponent(f.name)}`}
                       className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
