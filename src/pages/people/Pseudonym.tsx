@@ -1,7 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Header from "@/components/Header";
-import { Mic2, Search, Volume2, Star } from "lucide-react";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import { Mic2, Search, Volume2, Star, UserPlus, History } from "lucide-react";
 import { getChildNames } from "@/lib/namesStore";
+import { usePeople } from "@/lib/people";
+import { toast } from "sonner";
 
 const VIBES = [
   { key: "short", label: "Короткое (≤5 букв)" },
@@ -10,10 +13,46 @@ const VIBES = [
   { key: "global", label: "Универсальное" },
 ];
 
+const HISTORY_KEY = "imyagen.pseudonym.history.v1";
+type HistoryItem = { name: string; gender: "male" | "female"; date: string };
+
 const Pseudonym = () => {
+  const { addPerson, setActivePersonId } = usePeople();
   const [search, setSearch] = useState("");
   const [vibes, setVibes] = useState<string[]>(["short"]);
   const [gender, setGender] = useState<"male" | "female" | "any">("any");
+  const [history, setHistory] = useState<HistoryItem[]>(() => {
+    try {
+      const raw = localStorage.getItem(HISTORY_KEY);
+      return raw ? (JSON.parse(raw) as HistoryItem[]) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, 10)));
+    } catch {
+      /* ignore */
+    }
+  }, [history]);
+
+  const saveAsCharacter = (name: string, g: "male" | "female") => {
+    const created = addPerson({
+      fullName: name,
+      gender: g,
+      relation: "character",
+      tags: ["псевдоним"],
+      notes: "Сохранено из инструмента «Псевдоним»",
+    });
+    setActivePersonId(created.id);
+    setHistory((h) => [
+      { name, gender: g, date: new Date().toISOString().slice(0, 10) },
+      ...h.filter((x) => x.name !== name),
+    ]);
+    toast.success(`«${name}» сохранён как профиль персонажа`);
+  };
 
   const results = useMemo(() => {
     const all = getChildNames();
@@ -55,6 +94,7 @@ const Pseudonym = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      <Breadcrumbs items={[{ to: "/people", label: "Для людей" }, { label: "Псевдоним" }]} />
       <main className="container mx-auto max-w-3xl px-4 py-8">
         <div className="text-center mb-8">
           <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-light">
@@ -153,7 +193,7 @@ const Pseudonym = () => {
                   <Volume2 className="h-4 w-4" />
                 </button>
               </div>
-              <div className="mt-2 flex items-center gap-2 text-xs">
+              <div className="mt-2 flex items-center gap-2 text-xs flex-wrap">
                 <span className="rounded-full bg-teal-light px-2 py-0.5 text-accent font-medium">
                   {n.name.length} букв
                 </span>
@@ -162,6 +202,13 @@ const Pseudonym = () => {
                     <Star className="h-3 w-3" /> редкое
                   </span>
                 )}
+                <button
+                  onClick={() => saveAsCharacter(n.name, n.gender as "male" | "female")}
+                  className="ml-auto inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-primary font-semibold hover:bg-primary/20"
+                  title="Сохранить как профиль персонажа"
+                >
+                  <UserPlus className="h-3 w-3" /> Сохранить
+                </button>
               </div>
             </div>
           ))}
@@ -171,6 +218,25 @@ const Pseudonym = () => {
             </p>
           )}
         </div>
+
+        {history.length > 0 && (
+          <div className="mt-8 rounded-2xl border border-border bg-card p-5">
+            <h3 className="font-display text-sm font-bold text-foreground flex items-center gap-2 mb-3">
+              <History className="h-4 w-4 text-accent" /> Недавно сохранённые
+            </h3>
+            <div className="flex flex-wrap gap-1.5">
+              {history.map((h) => (
+                <span
+                  key={`${h.name}-${h.date}`}
+                  className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-xs text-secondary-foreground"
+                >
+                  {h.name}
+                  <span className="text-muted-foreground">· {h.date}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

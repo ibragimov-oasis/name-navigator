@@ -1,8 +1,25 @@
 import { useMemo, useState } from "react";
 import Header from "@/components/Header";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import { getChildNames } from "@/lib/namesStore";
-import { Sparkles, ArrowRight, ArrowLeft, Heart, BookHeart, ScrollText, Star } from "lucide-react";
-import { Link } from "react-router-dom";
+import {
+  Sparkles,
+  ArrowRight,
+  ArrowLeft,
+  Heart,
+  BookHeart,
+  ScrollText,
+  Star,
+  Volume2,
+  CheckCircle2,
+  UserPlus,
+  Copy,
+} from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { transliterateToArabic } from "@/lib/arabicTranslit";
+import { speakName } from "@/lib/tts";
+import { usePeople, RevertChecklist } from "@/lib/people";
+import { toast } from "sonner";
 
 type Step = "intro" | "gender" | "meaning" | "results";
 
@@ -16,9 +33,15 @@ const MEANINGS = [
 ];
 
 const RevertName = () => {
+  const navigate = useNavigate();
+  const { addPerson, setActivePersonId, activePerson, updatePerson } = usePeople();
   const [step, setStep] = useState<Step>("intro");
   const [gender, setGender] = useState<"male" | "female">("male");
   const [meaning, setMeaning] = useState<string[]>([]);
+  const [previousName, setPreviousName] = useState<string>("");
+  const [checklist, setChecklist] = useState<RevertChecklist>(
+    activePerson?.revertChecklist ?? {}
+  );
 
   const recommendations = useMemo(() => {
     if (step !== "results") return [];
@@ -50,9 +73,45 @@ const RevertName = () => {
   const toggleMeaning = (k: string) =>
     setMeaning((arr) => (arr.includes(k) ? arr.filter((x) => x !== k) : [...arr, k]));
 
+  const adoptName = (name: string) => {
+    const stamp = new Date().toISOString().slice(0, 10);
+    const created = addPerson({
+      fullName: name,
+      gender,
+      relation: "self",
+      nameHistory: previousName.trim()
+        ? [{ name: previousName.trim(), reason: "имя до принятия ислама", date: stamp }]
+        : [],
+      tags: ["новообращённый"],
+      meaningPersonal: "Имя, выбранное при принятии шахады",
+      revertChecklist: { ...checklist, nameChosen: true },
+    });
+    setActivePersonId(created.id);
+    toast.success(`«${name}» сохранено как ваш активный профиль`);
+    navigate("/people/profiles");
+  };
+
+  const updateCheck = (key: keyof RevertChecklist, value: boolean) => {
+    const next = { ...checklist, [key]: value };
+    setChecklist(next);
+    if (activePerson) {
+      updatePerson(activePerson.id, { revertChecklist: next });
+    }
+  };
+
+  const copyArabic = (txt: string) => {
+    navigator.clipboard?.writeText(txt).then(() => toast.success("Скопировано"));
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      <Breadcrumbs
+        items={[
+          { to: "/people", label: "Для людей" },
+          { label: "Новообращённый" },
+        ]}
+      />
       <main className="container mx-auto max-w-2xl px-4 py-8">
         <div className="text-center mb-8">
           <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10">
@@ -84,10 +143,32 @@ const RevertName = () => {
               </p>
               <p className="text-xs text-muted-foreground mt-1">— Абу Дауд</p>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Ответьте на 2 вопроса — мы подберём 5 имён, подходящих именно вам, с тафсиром, дуа и
-              инструкцией.
-            </p>
+            <div className="rounded-xl bg-gold/5 border border-gold/20 p-4 text-sm text-foreground">
+              <p className="font-semibold mb-1">📚 Имена, которые менял Пророк ﷺ:</p>
+              <ul className="list-disc list-inside space-y-0.5 text-xs">
+                <li>Асия («ослушница») → Джамиля («красивая»)</li>
+                <li>Зайнаб была сначала Барра («благочестивая») — изменено, чтобы избежать самовосхваления</li>
+                <li>Харб («война») → Сильм («мир»)</li>
+              </ul>
+              <p className="text-xs text-muted-foreground mt-2">
+                Менялись имена с плохим смыслом. Нейтральные и красивые имена сохранялись.
+              </p>
+            </div>
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Ваше имя до ислама (необязательно)
+              </label>
+              <input
+                type="text"
+                value={previousName}
+                onChange={(e) => setPreviousName(e.target.value)}
+                placeholder="Например, Александр"
+                className="mt-2 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none"
+              />
+              <p className="mt-1 text-xs text-muted-foreground">
+                Сохранится в истории имени вашего профиля.
+              </p>
+            </div>
             <button
               onClick={() => setStep("gender")}
               className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
@@ -178,38 +259,114 @@ const RevertName = () => {
                 <Star className="h-5 w-5 fill-gold text-gold" /> Ваши 5 имён
               </h2>
               <p className="text-sm text-muted-foreground">
-                {gender === "male" ? "Мужские" : "Женские"} мусульманские имена, подобранные по
-                смыслу.
+                {gender === "male" ? "Мужские" : "Женские"} мусульманские имена с арабским
+                написанием и произношением.
               </p>
             </div>
 
-            {recommendations.map((n, idx) => (
-              <div
-                key={n.id}
-                className="rounded-xl border border-border bg-card p-4 hover:shadow-md transition-shadow"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-muted-foreground">#{idx + 1}</span>
-                      <h3 className="font-display text-xl font-bold text-foreground">{n.name}</h3>
-                    </div>
-                    <p className="mt-1 text-sm text-foreground">{n.meaning}</p>
-                    <p className="mt-2 text-xs text-muted-foreground leading-relaxed">{n.history}</p>
-                    <div className="mt-2 flex flex-wrap gap-1">
-                      {n.attributes.slice(0, 4).map((a) => (
+            {recommendations.map((n, idx) => {
+              const arabic = transliterateToArabic(n.name);
+              return (
+                <div
+                  key={n.id}
+                  className="rounded-xl border border-border bg-card p-4 hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-bold text-muted-foreground">#{idx + 1}</span>
+                        <h3 className="font-display text-xl font-bold text-foreground">{n.name}</h3>
                         <span
-                          key={a}
-                          className="rounded-full bg-secondary px-2 py-0.5 text-xs text-secondary-foreground"
+                          className="text-xl text-primary"
+                          style={{ fontFamily: '"Noto Naskh Arabic", serif', direction: "rtl" }}
                         >
-                          {a}
+                          {arabic}
                         </span>
-                      ))}
+                      </div>
+                      <p className="mt-1 text-sm text-foreground">{n.meaning}</p>
+                      <p className="mt-2 text-xs text-muted-foreground leading-relaxed">{n.history}</p>
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {n.attributes.slice(0, 4).map((a) => (
+                          <span
+                            key={a}
+                            className="rounded-full bg-secondary px-2 py-0.5 text-xs text-secondary-foreground"
+                          >
+                            {a}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    <button
+                      onClick={() => speakName(n.name, "ru-RU")}
+                      className="inline-flex items-center gap-1 rounded-lg bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground hover:bg-secondary/70"
+                    >
+                      <Volume2 className="h-3 w-3" /> RU
+                    </button>
+                    <button
+                      onClick={() => speakName(arabic, "ar-SA")}
+                      className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary hover:bg-primary/20"
+                    >
+                      <Volume2 className="h-3 w-3" /> AR
+                    </button>
+                    <button
+                      onClick={() => copyArabic(arabic)}
+                      className="inline-flex items-center gap-1 rounded-lg bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground hover:bg-secondary/70"
+                    >
+                      <Copy className="h-3 w-3" /> Арабский
+                    </button>
+                    <button
+                      onClick={() => adoptName(n.name)}
+                      className="inline-flex items-center gap-1 rounded-lg bg-primary px-2.5 py-1 text-xs font-semibold text-primary-foreground hover:bg-primary/90 ml-auto"
+                    >
+                      <UserPlus className="h-3 w-3" /> Сделать моим именем
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
+
+            <div className="rounded-2xl border border-gold/30 bg-gold/5 p-5 space-y-3">
+              <h3 className="font-display text-lg font-bold text-foreground flex items-center gap-2">
+                <CheckCircle2 className="h-5 w-5 text-gold" /> Чек-лист шахады
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Отмечайте по мере прохождения. Сохраняется в активном профиле.
+              </p>
+              {(
+                [
+                  ["nameChosen", "Имя выбрано"],
+                  ["shahadaSpoken", "Шахада произнесена"],
+                  ["ghuslDone", "Гусль (полное омовение) сделан"],
+                  ["imamConfirmed", "Имам подтвердил"],
+                ] as [keyof RevertChecklist, string][]
+              ).map(([key, label]) => (
+                <label
+                  key={key}
+                  className="flex items-center gap-3 cursor-pointer rounded-lg p-2 hover:bg-card transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    checked={!!checklist[key]}
+                    onChange={(e) => updateCheck(key, e.target.checked)}
+                    className="h-4 w-4 rounded border-border accent-gold"
+                  />
+                  <span
+                    className={`text-sm ${
+                      checklist[key] ? "text-foreground line-through" : "text-foreground"
+                    }`}
+                  >
+                    {label}
+                  </span>
+                </label>
+              ))}
+              {!activePerson && (
+                <p className="text-xs text-muted-foreground italic">
+                  💡 Чтобы чек-лист сохранился — нажмите «Сделать моим именем» на одном из имён выше.
+                </p>
+              )}
+            </div>
 
             <div className="rounded-2xl border border-border bg-card p-5 space-y-3">
               <h3 className="font-display text-lg font-bold text-foreground flex items-center gap-2">

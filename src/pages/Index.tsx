@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import IslamicWidget from "@/components/IslamicWidget";
-import { Baby, PawPrint, Sparkles, ArrowRight, Heart, Wand2, Swords, CalendarDays, BookOpen, Crown, BookHeart, ScrollText, GitCompare, BarChart3, Star, Globe, Users } from "lucide-react";
+import { Baby, PawPrint, Sparkles, ArrowRight, Heart, Wand2, Swords, CalendarDays, BookOpen, Crown, BookHeart, ScrollText, GitCompare, BarChart3, Star, Globe, Users, UserCircle2 } from "lucide-react";
 import { useMemo } from "react";
 import { getChildNames } from "@/lib/namesStore";
+import { usePeople } from "@/lib/people";
 
-// Deterministic "Name of the Day" based on date hash
 function getNameOfDay() {
   const today = new Date();
   const dateStr = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
@@ -20,8 +20,33 @@ function getNameOfDay() {
   return names[idx];
 }
 
+function getPersonalNameOfDay(activeName: string, activeGender: "male" | "female") {
+  const today = new Date();
+  const seed = `${activeName}-${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+    hash |= 0;
+  }
+  const pool = getChildNames().filter(
+    (n) =>
+      n.gender === activeGender &&
+      (n.religion === "Мусульманское" || n.culture === "Арабская"),
+  );
+  if (pool.length === 0) return null;
+  return pool[Math.abs(hash) % pool.length];
+}
+
 const Index = () => {
+  const { activePerson } = usePeople();
   const nameOfDay = useMemo(() => getNameOfDay(), []);
+  const personalName = useMemo(
+    () =>
+      activePerson
+        ? getPersonalNameOfDay(activePerson.fullName, activePerson.gender)
+        : null,
+    [activePerson]
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -49,26 +74,58 @@ const Index = () => {
       {/* Islamic Widget — Hijri date + Ayah of the day */}
       <IslamicWidget />
 
-      {/* Name of the Day */}
-      {nameOfDay && (
+      {/* Name of the Day — personalized if active profile exists */}
+      {(personalName || nameOfDay) && (
         <section className="border-t border-border bg-gradient-to-r from-primary/5 via-card to-accent/5 py-8">
           <div className="container mx-auto px-4">
             <div className="mx-auto max-w-2xl rounded-2xl border border-primary/20 bg-card p-6 text-center shadow-sm">
-              <div className="inline-flex items-center gap-2 rounded-full bg-gold/10 px-3 py-1 text-xs font-bold text-gold mb-3">
-                <Star className="h-3.5 w-3.5 fill-gold" /> Имя дня
-              </div>
-              <h2 className="font-display text-3xl font-bold text-foreground">{nameOfDay.name}</h2>
-              <p className="mt-1 text-muted-foreground">{nameOfDay.meaning}</p>
-              <div className="mt-3 flex justify-center gap-2 flex-wrap">
-                <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">{nameOfDay.origin}</span>
-                <span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-medium text-accent">{nameOfDay.gender === "male" ? "♂ Мужское" : "♀ Женское"}</span>
-                {nameOfDay.attributes.slice(0, 3).map(a => (
-                  <span key={a} className="rounded-full bg-secondary px-3 py-1 text-xs text-secondary-foreground">{a}</span>
-                ))}
-              </div>
-              <Link to="/tafsir" className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline">
-                Подробный тафсир <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
+              {personalName && activePerson ? (
+                <>
+                  <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary mb-3">
+                    <UserCircle2 className="h-3.5 w-3.5" /> Имя для {activePerson.fullName}
+                  </div>
+                  <h2 className="font-display text-3xl font-bold text-foreground">{personalName.name}</h2>
+                  <p className="mt-1 text-muted-foreground">{personalName.meaning}</p>
+                  <div className="mt-3 flex justify-center gap-2 flex-wrap">
+                    <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">{personalName.origin}</span>
+                    <span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
+                      {personalName.gender === "male" ? "♂ Мужское" : "♀ Женское"}
+                    </span>
+                    {personalName.attributes.slice(0, 3).map((a) => (
+                      <span key={a} className="rounded-full bg-secondary px-3 py-1 text-xs text-secondary-foreground">{a}</span>
+                    ))}
+                  </div>
+                  <div className="mt-4 flex justify-center gap-3">
+                    <Link
+                      to={`/tafsir?name=${encodeURIComponent(personalName.name)}`}
+                      className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
+                    >
+                      Подробный тафсир <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
+                    <Link to="/people/profiles" className="text-sm text-muted-foreground hover:text-foreground">
+                      сменить профиль
+                    </Link>
+                  </div>
+                </>
+              ) : nameOfDay ? (
+                <>
+                  <div className="inline-flex items-center gap-2 rounded-full bg-gold/10 px-3 py-1 text-xs font-bold text-gold mb-3">
+                    <Star className="h-3.5 w-3.5 fill-gold" /> Имя дня
+                  </div>
+                  <h2 className="font-display text-3xl font-bold text-foreground">{nameOfDay.name}</h2>
+                  <p className="mt-1 text-muted-foreground">{nameOfDay.meaning}</p>
+                  <div className="mt-3 flex justify-center gap-2 flex-wrap">
+                    <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">{nameOfDay.origin}</span>
+                    <span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-medium text-accent">{nameOfDay.gender === "male" ? "♂ Мужское" : "♀ Женское"}</span>
+                    {nameOfDay.attributes.slice(0, 3).map(a => (
+                      <span key={a} className="rounded-full bg-secondary px-3 py-1 text-xs text-secondary-foreground">{a}</span>
+                    ))}
+                  </div>
+                  <Link to="/tafsir" className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline">
+                    Подробный тафсир <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </>
+              ) : null}
             </div>
           </div>
         </section>
