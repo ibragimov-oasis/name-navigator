@@ -17,9 +17,42 @@ const HISTORY_KEY = "imyagen.pseudonym.history.v1";
 type HistoryItem = { name: string; gender: "male" | "female"; date: string };
 
 const Pseudonym = () => {
+  const { addPerson, setActivePersonId } = usePeople();
   const [search, setSearch] = useState("");
   const [vibes, setVibes] = useState<string[]>(["short"]);
   const [gender, setGender] = useState<"male" | "female" | "any">("any");
+  const [history, setHistory] = useState<HistoryItem[]>(() => {
+    try {
+      const raw = localStorage.getItem(HISTORY_KEY);
+      return raw ? (JSON.parse(raw) as HistoryItem[]) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, 10)));
+    } catch {
+      /* ignore */
+    }
+  }, [history]);
+
+  const saveAsCharacter = (name: string, g: "male" | "female") => {
+    const created = addPerson({
+      fullName: name,
+      gender: g,
+      relation: "character",
+      tags: ["псевдоним"],
+      notes: "Сохранено из инструмента «Псевдоним»",
+    });
+    setActivePersonId(created.id);
+    setHistory((h) => [
+      { name, gender: g, date: new Date().toISOString().slice(0, 10) },
+      ...h.filter((x) => x.name !== name),
+    ]);
+    toast.success(`«${name}» сохранён как профиль персонажа`);
+  };
 
   const results = useMemo(() => {
     const all = getChildNames();
