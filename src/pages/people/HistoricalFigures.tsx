@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import { Crown, Search, BookOpen } from "lucide-react";
 import { historicalFigures, figureFields } from "@/data/historicalFigures";
 import { Link } from "react-router-dom";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 const HistoricalFigures = () => {
   const [search, setSearch] = useState("");
@@ -27,6 +28,7 @@ const HistoricalFigures = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      <Breadcrumbs items={[{ to: "/people", label: "Для людей" }, { label: "Исторические личности" }]} />
       <main className="container mx-auto max-w-3xl px-4 py-8">
         <div className="text-center mb-8">
           <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gold/10">
