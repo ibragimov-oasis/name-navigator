@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import IslamicWidget from "@/components/IslamicWidget";
-import { Baby, PawPrint, Sparkles, ArrowRight, Heart, Wand2, Swords, CalendarDays, BookOpen, Crown, BookHeart, ScrollText, GitCompare, BarChart3, Star, Globe, Users } from "lucide-react";
+import { Baby, PawPrint, Sparkles, ArrowRight, Heart, Wand2, Swords, CalendarDays, BookOpen, Crown, BookHeart, ScrollText, GitCompare, BarChart3, Star, Globe, Users, UserCircle2 } from "lucide-react";
 import { useMemo } from "react";
 import { getChildNames } from "@/lib/namesStore";
+import { usePeople } from "@/lib/people";
 
-// Deterministic "Name of the Day" based on date hash
 function getNameOfDay() {
   const today = new Date();
   const dateStr = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
@@ -20,8 +20,33 @@ function getNameOfDay() {
   return names[idx];
 }
 
+function getPersonalNameOfDay(activeName: string, activeGender: "male" | "female") {
+  const today = new Date();
+  const seed = `${activeName}-${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+    hash |= 0;
+  }
+  const pool = getChildNames().filter(
+    (n) =>
+      n.gender === activeGender &&
+      (n.religion === "Мусульманское" || n.culture === "Арабская"),
+  );
+  if (pool.length === 0) return null;
+  return pool[Math.abs(hash) % pool.length];
+}
+
 const Index = () => {
+  const { activePerson } = usePeople();
   const nameOfDay = useMemo(() => getNameOfDay(), []);
+  const personalName = useMemo(
+    () =>
+      activePerson
+        ? getPersonalNameOfDay(activePerson.fullName, activePerson.gender)
+        : null,
+    [activePerson]
+  );
 
   return (
     <div className="min-h-screen bg-background">
