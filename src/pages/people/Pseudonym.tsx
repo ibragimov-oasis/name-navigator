@@ -1,7 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Header from "@/components/Header";
-import { Mic2, Search, Volume2, Star } from "lucide-react";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import { Mic2, Search, Volume2, Star, UserPlus, History } from "lucide-react";
 import { getChildNames } from "@/lib/namesStore";
+import { usePeople } from "@/lib/people";
+import { toast } from "sonner";
 
 const VIBES = [
   { key: "short", label: "Короткое (≤5 букв)" },
@@ -9,6 +12,9 @@ const VIBES = [
   { key: "rare", label: "Редкое" },
   { key: "global", label: "Универсальное" },
 ];
+
+const HISTORY_KEY = "imyagen.pseudonym.history.v1";
+type HistoryItem = { name: string; gender: "male" | "female"; date: string };
 
 const Pseudonym = () => {
   const [search, setSearch] = useState("");
