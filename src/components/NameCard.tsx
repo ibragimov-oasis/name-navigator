@@ -6,6 +6,7 @@ import { Award, ChevronDown, ChevronUp, Crown, Heart, Pen, Star, Users, Volume2 
 import { useFavorites } from "@/lib/favorites";
 import ShareButton from "@/components/ShareButton";
 import { speakName, ttsSupported } from "@/lib/tts";
+import AskGeminiButton from "@/components/AskGeminiButton";
 
 type NameItem = ChildName | PetName;
 
@@ -178,6 +179,7 @@ const NameCard = ({ item, index }: NameCardProps) => {
               url={`${typeof window !== "undefined" ? window.location.origin : ""}/?name=${encodeURIComponent(item.name)}`}
             />
           </div>
+          <AskGeminiButton name={item.name} meaning={item.meaning} origin={item.origin} />
         </div>
       )}
     </div>
