@@ -115,6 +115,7 @@ const Header = () => {
           ))}
         </nav>
       )}
+      <GeminiChatWidget />
     </header>
   );
 };

@@ -6,6 +6,7 @@ import { Award, ChevronDown, ChevronUp, Crown, Heart, Pen, Star, Users, Volume2 
 import { useFavorites } from "@/lib/favorites";
 import ShareButton from "@/components/ShareButton";
 import { speakName, ttsSupported } from "@/lib/tts";
+import AskGeminiButton from "@/components/AskGeminiButton";
 
 type NameItem = ChildName | PetName;
 
