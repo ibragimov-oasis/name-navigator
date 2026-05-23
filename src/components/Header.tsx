@@ -3,6 +3,7 @@ import { Baby, PawPrint, Sparkles, Upload, Wand2, Swords, CalendarDays, Heart, M
 import { useEffect, useState } from "react";
 import { useFavorites } from "@/lib/favorites";
 import AISearchDialog from "@/components/AISearchDialog";
+import GeminiChatWidget from "@/components/GeminiChatWidget";
 
 const navItems = [
   { to: "/children", label: "Дети", icon: Baby, activeClass: "bg-coral-light text-primary" },
