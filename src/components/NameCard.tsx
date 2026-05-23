@@ -179,6 +179,7 @@ const NameCard = ({ item, index }: NameCardProps) => {
               url={`${typeof window !== "undefined" ? window.location.origin : ""}/?name=${encodeURIComponent(item.name)}`}
             />
           </div>
+          <AskGeminiButton name={item.name} meaning={item.meaning} origin={item.origin} />
         </div>
       )}
     </div>
