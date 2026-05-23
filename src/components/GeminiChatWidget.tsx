@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Bot, Send, Sparkles, X, Loader2 } from "lucide-react";
 import { askGemini } from "@/lib/ai/gemini";
-import { getActivePerson } from "@/lib/people";
+import { usePeople } from "@/lib/people";
 import ReactMarkdown from "react-markdown";
 
 interface Msg {
@@ -16,6 +16,7 @@ const SYSTEM = `Ты — тёплый помощник по мусульманс
 Если вопрос вне темы имён и культуры — мягко возвращай к теме.`;
 
 const GeminiChatWidget = () => {
+  const { activePerson } = usePeople();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -44,9 +45,8 @@ const GeminiChatWidget = () => {
     setMessages(next);
     setBusy(true);
     try {
-      const active = getActivePerson();
-      const personLine = active
-        ? `\nАктивный профиль: ${active.fullName} (${active.relation ?? "—"}, ${active.gender ?? "—"}${active.birthDate ? `, дата ${active.birthDate}` : ""}).`
+      const personLine = activePerson
+        ? `\nАктивный профиль: ${activePerson.fullName} (${activePerson.relation ?? "—"}, ${activePerson.gender ?? "—"}${activePerson.birthDate ? `, дата ${activePerson.birthDate}` : ""}).`
         : "";
       const answer = await askGemini(text, {
         system: SYSTEM + personLine,
