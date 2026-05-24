@@ -78,6 +78,20 @@ const NameCard = ({ item, index }: NameCardProps) => {
             }`}>
               {item.gender === "male" ? "♂ Муж" : item.gender === "female" ? "♀ Жен" : "⚥ Унисекс"}
             </span>
+            {surnameMatch && surnameMatch.total > 0 && (
+              <span
+                className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                  surnameMatch.total >= 75
+                    ? "bg-emerald-50 text-emerald-700"
+                    : surnameMatch.total >= 55
+                    ? "bg-amber-50 text-amber-700"
+                    : "bg-rose-light text-rose"
+                }`}
+                title={surnameMatch.fullName}
+              >
+                {surnameMatch.total >= 75 ? "✓" : surnameMatch.total >= 55 ? "≈" : "⚠"} с фамилией {surnameMatch.total}%
+              </span>
+            )}
           </div>
         </div>
         <div className="flex flex-col items-end gap-1">
