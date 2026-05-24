@@ -35,6 +35,8 @@ const NameCard = ({ item, index }: NameCardProps) => {
     isChild && family && (family.surname || family.fatherName)
       ? calculateHarmony(item.name, family.fatherName, family.surname, family.gender)
       : null;
+
+  return (
     <div
       className="group animate-fade-in rounded-xl border border-border bg-card p-4 shadow-sm transition-all hover:shadow-md"
       style={{ animationDelay: `${index * 50}ms` }}
