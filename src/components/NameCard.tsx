@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ChildName } from "@/data/types";
 import { PetName } from "@/data/petNames";
@@ -7,6 +7,8 @@ import { useFavorites } from "@/lib/favorites";
 import ShareButton from "@/components/ShareButton";
 import { speakName, ttsSupported } from "@/lib/tts";
 import AskGeminiButton from "@/components/AskGeminiButton";
+import { getFamilyContext } from "@/components/FamilyNameBar";
+import { calculateHarmony } from "@/lib/nameHarmony";
 
 type NameItem = ChildName | PetName;
 
@@ -21,7 +23,18 @@ const NameCard = ({ item, index }: NameCardProps) => {
   const isChild = "culture" in item;
   const fav = isFavorite(item.id);
 
-  return (
+  // Совместимость с фамилией/отчеством из FamilyNameBar
+  const [family, setFamily] = useState(() => (isChild ? getFamilyContext() : null));
+  useEffect(() => {
+    if (!isChild) return;
+    const handler = () => setFamily(getFamilyContext());
+    window.addEventListener("family-context-changed", handler);
+    return () => window.removeEventListener("family-context-changed", handler);
+  }, [isChild]);
+  const surnameMatch =
+    isChild && family && (family.surname || family.fatherName)
+      ? calculateHarmony(item.name, family.fatherName, family.surname, family.gender)
+      : null;
     <div
       className="group animate-fade-in rounded-xl border border-border bg-card p-4 shadow-sm transition-all hover:shadow-md"
       style={{ animationDelay: `${index * 50}ms` }}
