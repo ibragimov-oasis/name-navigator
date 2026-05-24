@@ -134,12 +134,13 @@ const Index = () => {
       {/* Main features */}
       <section className="py-10">
         <div className="container mx-auto px-4">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5 mx-auto max-w-5xl">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6 mx-auto max-w-6xl">
             {[
               { to: "/children", icon: Baby, title: "Для детей", desc: "Мальчики и девочки", bgClass: "bg-coral-light", textClass: "text-primary" },
               { to: "/people", icon: Users, title: "Для людей", desc: "Взрослые, новообращённые, персонажи", bgClass: "bg-primary/10", textClass: "text-primary" },
               { to: "/pets", icon: PawPrint, title: "Для питомцев", desc: "Собаки, кошки и другие", bgClass: "bg-teal-light", textClass: "text-accent" },
               { to: "/wizard", icon: Wand2, title: "Мастер ФИО", desc: "Насаб, кунья, нисба", bgClass: "bg-lavender-light", textClass: "text-lavender" },
+              { to: "/style-quiz", icon: Sparkles, title: "Стиль-тест", desc: "Найди свой стиль за 10 вопросов", bgClass: "bg-gold/15", textClass: "text-gold" },
               { to: "/battle", icon: Swords, title: "Битва имён", desc: "Турнир лучших имён", bgClass: "bg-rose-light", textClass: "text-rose" },
             ].map(item => (
               <Link key={item.to} to={item.to}
