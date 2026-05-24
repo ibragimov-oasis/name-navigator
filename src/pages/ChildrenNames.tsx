@@ -1,10 +1,12 @@
 import { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { getChildNames, getChildCultures, getChildReligions, getChildAttributes } from "@/lib/namesStore";
 import Header from "@/components/Header";
 import FilterChips from "@/components/FilterChips";
 import NameCard from "@/components/NameCard";
 import SortBar, { SortOption } from "@/components/SortBar";
-import { Search, Baby } from "lucide-react";
+import FamilyNameBar from "@/components/FamilyNameBar";
+import { Search, Baby, Sparkles } from "lucide-react";
 
 const ChildrenNames = () => {
   const [search, setSearch] = useState("");
@@ -50,14 +52,26 @@ const ChildrenNames = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container mx-auto px-4 py-6">
-        <div className="mb-6 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-coral-light">
-            <Baby className="h-5 w-5 text-primary" />
+        <div className="mb-6 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-coral-light">
+              <Baby className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h1 className="font-display text-2xl font-bold text-foreground">Имена для детей</h1>
+              <p className="text-sm text-muted-foreground">Найдите идеальное имя для вашего ребёнка</p>
+            </div>
           </div>
-          <div>
-            <h1 className="font-display text-2xl font-bold text-foreground">Имена для детей</h1>
-            <p className="text-sm text-muted-foreground">Найдите идеальное имя для вашего ребёнка</p>
-          </div>
+          <Link
+            to="/style-quiz"
+            className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-primary to-accent px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm transition hover:scale-105"
+          >
+            <Sparkles className="h-3.5 w-3.5" /> Пройти стиль-тест
+          </Link>
+        </div>
+
+        <div className="mb-4">
+          <FamilyNameBar />
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
