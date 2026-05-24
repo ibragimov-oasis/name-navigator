@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ChildName } from "@/data/types";
 import { PetName } from "@/data/petNames";
@@ -7,6 +7,8 @@ import { useFavorites } from "@/lib/favorites";
 import ShareButton from "@/components/ShareButton";
 import { speakName, ttsSupported } from "@/lib/tts";
 import AskGeminiButton from "@/components/AskGeminiButton";
+import { getFamilyContext } from "@/components/FamilyNameBar";
+import { calculateHarmony } from "@/lib/nameHarmony";
 
 type NameItem = ChildName | PetName;
 
@@ -20,6 +22,19 @@ const NameCard = ({ item, index }: NameCardProps) => {
   const { isFavorite, toggleFavorite } = useFavorites();
   const isChild = "culture" in item;
   const fav = isFavorite(item.id);
+
+  // Совместимость с фамилией/отчеством из FamilyNameBar
+  const [family, setFamily] = useState(() => (isChild ? getFamilyContext() : null));
+  useEffect(() => {
+    if (!isChild) return;
+    const handler = () => setFamily(getFamilyContext());
+    window.addEventListener("family-context-changed", handler);
+    return () => window.removeEventListener("family-context-changed", handler);
+  }, [isChild]);
+  const surnameMatch =
+    isChild && family && (family.surname || family.fatherName)
+      ? calculateHarmony(item.name, family.fatherName, family.surname, family.gender)
+      : null;
 
   return (
     <div
@@ -63,6 +78,20 @@ const NameCard = ({ item, index }: NameCardProps) => {
             }`}>
               {item.gender === "male" ? "♂ Муж" : item.gender === "female" ? "♀ Жен" : "⚥ Унисекс"}
             </span>
+            {surnameMatch && surnameMatch.total > 0 && (
+              <span
+                className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                  surnameMatch.total >= 75
+                    ? "bg-emerald-50 text-emerald-700"
+                    : surnameMatch.total >= 55
+                    ? "bg-amber-50 text-amber-700"
+                    : "bg-rose-light text-rose"
+                }`}
+                title={surnameMatch.fullName}
+              >
+                {surnameMatch.total >= 75 ? "✓" : surnameMatch.total >= 55 ? "≈" : "⚠"} с фамилией {surnameMatch.total}%
+              </span>
+            )}
           </div>
         </div>
         <div className="flex flex-col items-end gap-1">
