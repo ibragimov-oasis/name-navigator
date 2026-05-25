@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import { getChildNames } from "@/lib/namesStore";
 import { BarChart3 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import RegionalPopularity from "@/components/RegionalPopularity";
 
 const COLORS = [
   "hsl(var(--primary))", "hsl(var(--accent))", "hsl(var(--rose))", "hsl(var(--gold))",
@@ -69,6 +70,9 @@ const NameStats = () => {
             </div>
           ))}
         </div>
+        {/* Regional popularity */}
+        <RegionalPopularity />
+
 
         {/* Culture distribution */}
         <div className="rounded-xl border border-border bg-card p-6 mb-6">

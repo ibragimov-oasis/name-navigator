@@ -4,13 +4,19 @@ import Header from "@/components/Header";
 import FilterChips from "@/components/FilterChips";
 import NameCard from "@/components/NameCard";
 import SortBar, { SortOption } from "@/components/SortBar";
-import { Search, PawPrint } from "lucide-react";
+import { Search, PawPrint, Megaphone } from "lucide-react";
+import { PET_CHARACTERS, getPetCharacter, isCommandFriendly, getPetSize, PetSize } from "@/lib/petFilters";
+
+const PET_SIZES: PetSize[] = ["малый", "средний", "крупный"];
 
 const PetNames = () => {
   const [search, setSearch] = useState("");
   const [gender, setGender] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedAttributes, setSelectedAttributes] = useState<string[]>([]);
+  const [selectedCharacters, setSelectedCharacters] = useState<string[]>([]);
+  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
+  const [commandOnly, setCommandOnly] = useState(false);
   const [sort, setSort] = useState<SortOption>("popularity");
 
   const toggle = (arr: string[], val: string, setter: (v: string[]) => void) => {
@@ -23,6 +29,12 @@ const PetNames = () => {
       if (gender.length > 0 && !gender.includes(n.gender)) return false;
       if (selectedTypes.length > 0 && !selectedTypes.includes(n.animalType)) return false;
       if (selectedAttributes.length > 0 && !selectedAttributes.some((a) => n.attributes.includes(a))) return false;
+      if (selectedCharacters.length > 0) {
+        const chars = getPetCharacter(n.attributes);
+        if (!selectedCharacters.some((c) => chars.includes(c as never))) return false;
+      }
+      if (selectedSizes.length > 0 && !selectedSizes.includes(getPetSize(n.animalType))) return false;
+      if (commandOnly && !isCommandFriendly(n.name)) return false;
       return true;
     });
 
@@ -42,7 +54,7 @@ const PetNames = () => {
     }
 
     return result;
-  }, [search, gender, selectedTypes, selectedAttributes, sort]);
+  }, [search, gender, selectedTypes, selectedAttributes, selectedCharacters, selectedSizes, commandOnly, sort]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -88,6 +100,22 @@ const PetNames = () => {
             />
 
             <FilterChips
+              label="Характер"
+              options={[...PET_CHARACTERS]}
+              selected={selectedCharacters}
+              onToggle={(v) => toggle(selectedCharacters, v, setSelectedCharacters)}
+              colorClass="bg-lavender-light text-lavender"
+            />
+
+            <FilterChips
+              label="Размер"
+              options={PET_SIZES}
+              selected={selectedSizes}
+              onToggle={(v) => toggle(selectedSizes, v, setSelectedSizes)}
+              colorClass="bg-gold-light text-gold"
+            />
+
+            <FilterChips
               label="Атрибуты"
               options={getPetAttributesList()}
               selected={selectedAttributes}
@@ -98,9 +126,27 @@ const PetNames = () => {
               maxVisible={12}
             />
 
-            {(gender.length > 0 || selectedTypes.length > 0 || selectedAttributes.length > 0) && (
+            <label className="flex cursor-pointer items-start gap-2 rounded-lg border border-border bg-secondary/30 p-3 hover:bg-secondary/60 transition-colors">
+              <input
+                type="checkbox"
+                checked={commandOnly}
+                onChange={(e) => setCommandOnly(e.target.checked)}
+                className="mt-0.5 accent-primary"
+              />
+              <div className="flex-1">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                  <Megaphone className="h-3.5 w-3.5 text-primary" />
+                  Удобно подавать команды
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  Короткие имена (1-2 слога), которые легко произносить
+                </p>
+              </div>
+            </label>
+
+            {(gender.length > 0 || selectedTypes.length > 0 || selectedAttributes.length > 0 || selectedCharacters.length > 0 || selectedSizes.length > 0 || commandOnly) && (
               <button
-                onClick={() => { setGender([]); setSelectedTypes([]); setSelectedAttributes([]); }}
+                onClick={() => { setGender([]); setSelectedTypes([]); setSelectedAttributes([]); setSelectedCharacters([]); setSelectedSizes([]); setCommandOnly(false); }}
                 className="w-full rounded-lg border border-border py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
               >
                 Сбросить фильтры
