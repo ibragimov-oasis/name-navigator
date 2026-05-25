@@ -70,6 +70,9 @@ const NameStats = () => {
             </div>
           ))}
         </div>
+        {/* Regional popularity */}
+        <RegionalPopularity />
+
 
         {/* Culture distribution */}
         <div className="rounded-xl border border-border bg-card p-6 mb-6">
