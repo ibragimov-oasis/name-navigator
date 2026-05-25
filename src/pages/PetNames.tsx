@@ -4,13 +4,19 @@ import Header from "@/components/Header";
 import FilterChips from "@/components/FilterChips";
 import NameCard from "@/components/NameCard";
 import SortBar, { SortOption } from "@/components/SortBar";
-import { Search, PawPrint } from "lucide-react";
+import { Search, PawPrint, Megaphone } from "lucide-react";
+import { PET_CHARACTERS, getPetCharacter, isCommandFriendly, getPetSize, PetSize } from "@/lib/petFilters";
+
+const PET_SIZES: PetSize[] = ["малый", "средний", "крупный"];
 
 const PetNames = () => {
   const [search, setSearch] = useState("");
   const [gender, setGender] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedAttributes, setSelectedAttributes] = useState<string[]>([]);
+  const [selectedCharacters, setSelectedCharacters] = useState<string[]>([]);
+  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
+  const [commandOnly, setCommandOnly] = useState(false);
   const [sort, setSort] = useState<SortOption>("popularity");
 
   const toggle = (arr: string[], val: string, setter: (v: string[]) => void) => {
