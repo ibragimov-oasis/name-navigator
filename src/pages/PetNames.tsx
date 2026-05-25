@@ -29,6 +29,12 @@ const PetNames = () => {
       if (gender.length > 0 && !gender.includes(n.gender)) return false;
       if (selectedTypes.length > 0 && !selectedTypes.includes(n.animalType)) return false;
       if (selectedAttributes.length > 0 && !selectedAttributes.some((a) => n.attributes.includes(a))) return false;
+      if (selectedCharacters.length > 0) {
+        const chars = getPetCharacter(n.attributes);
+        if (!selectedCharacters.some((c) => chars.includes(c as never))) return false;
+      }
+      if (selectedSizes.length > 0 && !selectedSizes.includes(getPetSize(n.animalType))) return false;
+      if (commandOnly && !isCommandFriendly(n.name)) return false;
       return true;
     });
 
@@ -48,7 +54,7 @@ const PetNames = () => {
     }
 
     return result;
-  }, [search, gender, selectedTypes, selectedAttributes, sort]);
+  }, [search, gender, selectedTypes, selectedAttributes, selectedCharacters, selectedSizes, commandOnly, sort]);
 
   return (
     <div className="min-h-screen bg-background">
