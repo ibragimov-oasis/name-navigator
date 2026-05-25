@@ -100,6 +100,22 @@ const PetNames = () => {
             />
 
             <FilterChips
+              label="Характер"
+              options={[...PET_CHARACTERS]}
+              selected={selectedCharacters}
+              onToggle={(v) => toggle(selectedCharacters, v, setSelectedCharacters)}
+              colorClass="bg-lavender-light text-lavender"
+            />
+
+            <FilterChips
+              label="Размер"
+              options={PET_SIZES}
+              selected={selectedSizes}
+              onToggle={(v) => toggle(selectedSizes, v, setSelectedSizes)}
+              colorClass="bg-gold-light text-gold"
+            />
+
+            <FilterChips
               label="Атрибуты"
               options={getPetAttributesList()}
               selected={selectedAttributes}
@@ -110,9 +126,27 @@ const PetNames = () => {
               maxVisible={12}
             />
 
-            {(gender.length > 0 || selectedTypes.length > 0 || selectedAttributes.length > 0) && (
+            <label className="flex cursor-pointer items-start gap-2 rounded-lg border border-border bg-secondary/30 p-3 hover:bg-secondary/60 transition-colors">
+              <input
+                type="checkbox"
+                checked={commandOnly}
+                onChange={(e) => setCommandOnly(e.target.checked)}
+                className="mt-0.5 accent-primary"
+              />
+              <div className="flex-1">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                  <Megaphone className="h-3.5 w-3.5 text-primary" />
+                  Удобно подавать команды
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  Короткие имена (1-2 слога), которые легко произносить
+                </p>
+              </div>
+            </label>
+
+            {(gender.length > 0 || selectedTypes.length > 0 || selectedAttributes.length > 0 || selectedCharacters.length > 0 || selectedSizes.length > 0 || commandOnly) && (
               <button
-                onClick={() => { setGender([]); setSelectedTypes([]); setSelectedAttributes([]); }}
+                onClick={() => { setGender([]); setSelectedTypes([]); setSelectedAttributes([]); setSelectedCharacters([]); setSelectedSizes([]); setCommandOnly(false); }}
                 className="w-full rounded-lg border border-border py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
               >
                 Сбросить фильтры
