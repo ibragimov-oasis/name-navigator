@@ -6,6 +6,13 @@ import { getChildNames } from "@/lib/namesStore";
 import { Heart, X, Users, Copy, RefreshCw, Trophy, Share2 } from "lucide-react";
 import { toast } from "sonner";
 
+// Таблица создана миграцией, но types.ts ещё не перегенерирован
+const db = supabase as unknown as {
+  from: (t: string) => any;
+  channel: typeof supabase.channel;
+  removeChannel: typeof supabase.removeChannel;
+};
+
 type Likes = Record<string, boolean>;
 type Session = {
   code: string;
