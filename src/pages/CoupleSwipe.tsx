@@ -63,8 +63,7 @@ export default function CoupleSwipe() {
   }, [session?.code]);
 
   const loadSession = async (code: string) => {
-    const { data, error } = await supabase
-      .from("swipe_sessions")
+    const { data, error } = await db.from("swipe_sessions")
       .select("*")
       .eq("code", code)
       .maybeSingle();
@@ -83,8 +82,7 @@ export default function CoupleSwipe() {
       .slice(0, 30)
       .map((n) => ({ id: n.id, name: n.name, meaning: n.meaning, gender: n.gender }));
     const code = genCode();
-    const { error } = await supabase
-      .from("swipe_sessions")
+    const { error } = await db.from("swipe_sessions")
       .insert({ code, names, partner_a: {}, partner_b: {} });
     setLoading(false);
     if (error) {
@@ -120,8 +118,7 @@ export default function CoupleSwipe() {
     if (!current) return;
     const field = role === "a" ? "partner_a" : "partner_b";
     const updated = { ...(session[field] || {}), [current.id]: liked };
-    const { error } = await supabase
-      .from("swipe_sessions")
+    const { error } = await db.from("swipe_sessions")
       .update({ [field]: updated, updated_at: new Date().toISOString() })
       .eq("code", session.code);
     if (error) {
