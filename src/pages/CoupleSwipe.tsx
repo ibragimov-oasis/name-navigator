@@ -7,11 +7,8 @@ import { Heart, X, Users, Copy, RefreshCw, Trophy, Share2 } from "lucide-react";
 import { toast } from "sonner";
 
 // Таблица создана миграцией, но types.ts ещё не перегенерирован
-const db = supabase as unknown as {
-  from: (t: string) => any;
-  channel: typeof db.channel;
-  removeChannel: typeof db.removeChannel;
-};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const db = supabase as any;
 
 type Likes = Record<string, boolean>;
 type Session = {
