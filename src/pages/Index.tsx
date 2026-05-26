@@ -142,6 +142,7 @@ const Index = () => {
               { to: "/wizard", icon: Wand2, title: "Мастер ФИО", desc: "Насаб, кунья, нисба", bgClass: "bg-lavender-light", textClass: "text-lavender" },
               { to: "/style-quiz", icon: Sparkles, title: "Стиль-тест", desc: "Найди свой стиль за 10 вопросов", bgClass: "bg-gold/15", textClass: "text-gold" },
               { to: "/battle", icon: Swords, title: "Битва имён", desc: "Турнир лучших имён", bgClass: "bg-rose-light", textClass: "text-rose" },
+              { to: "/couple", icon: Users, title: "Вдвоём", desc: "Свайп имён для пары — реальное время", bgClass: "bg-coral-light", textClass: "text-primary" },
             ].map(item => (
               <Link key={item.to} to={item.to}
                 className="group flex flex-col items-center gap-3 rounded-2xl border border-border bg-card p-5 shadow-sm transition-all hover:shadow-lg hover:-translate-y-1">
