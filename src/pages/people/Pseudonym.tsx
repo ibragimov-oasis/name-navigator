@@ -5,6 +5,7 @@ import { Mic2, Search, Volume2, Star, UserPlus, History } from "lucide-react";
 import { getChildNames } from "@/lib/namesStore";
 import { usePeople } from "@/lib/people";
 import { toast } from "sonner";
+import NicknameGenerator from "@/components/NicknameGenerator";
 
 const VIBES = [
   { key: "short", label: "Короткое (≤5 букв)" },
@@ -218,6 +219,10 @@ const Pseudonym = () => {
             </p>
           )}
         </div>
+        <div className="mt-8">
+          <NicknameGenerator initialName={search || results[0]?.name || ""} />
+        </div>
+
 
         {history.length > 0 && (
           <div className="mt-8 rounded-2xl border border-border bg-card p-5">

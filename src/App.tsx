@@ -34,6 +34,7 @@ import Compatibility from "./pages/people/Compatibility";
 import Certificate from "./pages/Certificate";
 import Nasab from "./pages/people/Nasab";
 import StyleQuiz from "./pages/StyleQuiz";
+import CoupleSwipe from "./pages/CoupleSwipe";
 import ActivePersonBanner from "./components/ActivePersonBanner";
 import NotFound from "./pages/NotFound";
 
@@ -61,6 +62,7 @@ const App = () => (
             <Route path="/people/compatibility" element={<Compatibility />} />
             <Route path="/people/nasab" element={<Nasab />} />
             <Route path="/style-quiz" element={<StyleQuiz />} />
+            <Route path="/couple" element={<CoupleSwipe />} />
             <Route path="/certificate" element={<Certificate />} />
             <Route path="/pets" element={<PetNames />} />
             <Route path="/favorites" element={<Favorites />} />
