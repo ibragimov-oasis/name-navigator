@@ -49,7 +49,7 @@ export default function CoupleSwipe() {
   // Realtime подписка
   useEffect(() => {
     if (!session?.code) return;
-    const ch = supabase
+    const ch = db
       .channel(`couple-${session.code}`)
       .on(
         "postgres_changes",
