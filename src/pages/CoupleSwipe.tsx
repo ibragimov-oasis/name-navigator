@@ -9,8 +9,8 @@ import { toast } from "sonner";
 // Таблица создана миграцией, но types.ts ещё не перегенерирован
 const db = supabase as unknown as {
   from: (t: string) => any;
-  channel: typeof supabase.channel;
-  removeChannel: typeof supabase.removeChannel;
+  channel: typeof db.channel;
+  removeChannel: typeof db.removeChannel;
 };
 
 type Likes = Record<string, boolean>;
@@ -62,7 +62,7 @@ export default function CoupleSwipe() {
         },
       )
       .subscribe();
-    return () => { supabase.removeChannel(ch); };
+    return () => { db.removeChannel(ch); };
   }, [session?.code]);
 
   const loadSession = async (code: string) => {
