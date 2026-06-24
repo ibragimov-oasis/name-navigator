@@ -1,0 +1,892 @@
+{
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/components.json": {
+    "mtime": 1777001309.970042,
+    "ast_hash": "a547944ace00dc5d5373aaca70a40bc4",
+    "semantic_hash": "a547944ace00dc5d5373aaca70a40bc4"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/data/attributes.json": {
+    "mtime": 1777001309.9709907,
+    "ast_hash": "2cf3ff9069efb2031fe60018f126b51f",
+    "semantic_hash": "2cf3ff9069efb2031fe60018f126b51f"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/data/names.json": {
+    "mtime": 1777001309.9716914,
+    "ast_hash": "5d782d00979abbacb12a41e1170e413a",
+    "semantic_hash": "5d782d00979abbacb12a41e1170e413a"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/eslint.config.js": {
+    "mtime": 1777001309.9720247,
+    "ast_hash": "31c0881fdd8500aa4d0aa963079713ae",
+    "semantic_hash": "31c0881fdd8500aa4d0aa963079713ae"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/package.json": {
+    "mtime": 1777001309.9731565,
+    "ast_hash": "3e829e557e577697fc5975371bcd4681",
+    "semantic_hash": "3e829e557e577697fc5975371bcd4681"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/packages/namenavigator-db/index.ts": {
+    "mtime": 1777001309.9735208,
+    "ast_hash": "38e5ba672703a2119c2eb941574a3c27",
+    "semantic_hash": "38e5ba672703a2119c2eb941574a3c27"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/packages/namenavigator-db/package.json": {
+    "mtime": 1777001309.9736056,
+    "ast_hash": "347ab38a2cc2c89d734e17bcb910d332",
+    "semantic_hash": "347ab38a2cc2c89d734e17bcb910d332"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/postcss.config.js": {
+    "mtime": 1777001309.9737034,
+    "ast_hash": "c735540bb63936a123bc867d950c9f69",
+    "semantic_hash": "c735540bb63936a123bc867d950c9f69"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/App.tsx": {
+    "mtime": 1777372578.8800452,
+    "ast_hash": "cd823de1e2912e96864b4040d31e9670",
+    "semantic_hash": "cd823de1e2912e96864b4040d31e9670"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/AISearchDialog.tsx": {
+    "mtime": 1777372578.8802867,
+    "ast_hash": "5846fabbd59eaad3e8abe2f20930fdf5",
+    "semantic_hash": "5846fabbd59eaad3e8abe2f20930fdf5"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/FilterChips.tsx": {
+    "mtime": 1777001309.9745407,
+    "ast_hash": "6ff72e9818234095336d4ea42cf6d4db",
+    "semantic_hash": "6ff72e9818234095336d4ea42cf6d4db"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/Header.tsx": {
+    "mtime": 1777219098.5406046,
+    "ast_hash": "53ca192b4aa3e571a4108700180a616d",
+    "semantic_hash": "53ca192b4aa3e571a4108700180a616d"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/IslamicWidget.tsx": {
+    "mtime": 1777001309.9747534,
+    "ast_hash": "70a335cf90c7c27649b89eb570f37e49",
+    "semantic_hash": "70a335cf90c7c27649b89eb570f37e49"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/NameCard.tsx": {
+    "mtime": 1777372578.8807037,
+    "ast_hash": "cd778dfc458b9a10b42212a01c404d1e",
+    "semantic_hash": "cd778dfc458b9a10b42212a01c404d1e"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/NavLink.tsx": {
+    "mtime": 1777001309.9749744,
+    "ast_hash": "8f7c178b4776787e58e1011855ca28f6",
+    "semantic_hash": "8f7c178b4776787e58e1011855ca28f6"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/PersonCard.tsx": {
+    "mtime": 1777372578.8809083,
+    "ast_hash": "d2a13c5598a8415bfa30122c2d83f30f",
+    "semantic_hash": "d2a13c5598a8415bfa30122c2d83f30f"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/PersonForm.tsx": {
+    "mtime": 1777372578.8810682,
+    "ast_hash": "3d662e26fb01f0c3baa10d02762b1e2e",
+    "semantic_hash": "3d662e26fb01f0c3baa10d02762b1e2e"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/SEO.tsx": {
+    "mtime": 1777372578.8811808,
+    "ast_hash": "8a47793a7a75cf91dfa9b5853e49867a",
+    "semantic_hash": "8a47793a7a75cf91dfa9b5853e49867a"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ShareButton.tsx": {
+    "mtime": 1777372578.8814154,
+    "ast_hash": "c7e241727c4c1c85e9dc3a35b49cc215",
+    "semantic_hash": "c7e241727c4c1c85e9dc3a35b49cc215"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/SortBar.tsx": {
+    "mtime": 1777001309.975084,
+    "ast_hash": "b88004bd8f16fe59ed4788a11cfc88f8",
+    "semantic_hash": "b88004bd8f16fe59ed4788a11cfc88f8"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/accordion.tsx": {
+    "mtime": 1777001309.9752643,
+    "ast_hash": "f9ebb6ee913b44e5f3e06fe1d9679784",
+    "semantic_hash": "f9ebb6ee913b44e5f3e06fe1d9679784"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/alert-dialog.tsx": {
+    "mtime": 1777001309.975373,
+    "ast_hash": "2ee6c5e5e070315114319bc060d17a52",
+    "semantic_hash": "2ee6c5e5e070315114319bc060d17a52"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/alert.tsx": {
+    "mtime": 1777001309.9754725,
+    "ast_hash": "354d0206f924d48bcebbb023c3940a6b",
+    "semantic_hash": "354d0206f924d48bcebbb023c3940a6b"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/aspect-ratio.tsx": {
+    "mtime": 1777001309.9755785,
+    "ast_hash": "c5c364545e1b25a94e9e752cd67ad048",
+    "semantic_hash": "c5c364545e1b25a94e9e752cd67ad048"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/avatar.tsx": {
+    "mtime": 1777001309.9756887,
+    "ast_hash": "53921dca0903c74cd72fada89388d9f8",
+    "semantic_hash": "53921dca0903c74cd72fada89388d9f8"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/badge.tsx": {
+    "mtime": 1777001309.9758086,
+    "ast_hash": "8db4e6d330f88f4041f81e7cde43782b",
+    "semantic_hash": "8db4e6d330f88f4041f81e7cde43782b"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/breadcrumb.tsx": {
+    "mtime": 1777001309.9759164,
+    "ast_hash": "c200fc41e9b214ebb6ccd19a300c42c5",
+    "semantic_hash": "c200fc41e9b214ebb6ccd19a300c42c5"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/button.tsx": {
+    "mtime": 1777001309.976031,
+    "ast_hash": "b59f5a3c54b63cf3ea4eb2523151f617",
+    "semantic_hash": "b59f5a3c54b63cf3ea4eb2523151f617"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/calendar.tsx": {
+    "mtime": 1777001309.9762475,
+    "ast_hash": "1da7a387f28cdb11722da319c0295a6c",
+    "semantic_hash": "1da7a387f28cdb11722da319c0295a6c"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/card.tsx": {
+    "mtime": 1777001309.9763768,
+    "ast_hash": "202402023747c80d975f48b906e6eb1b",
+    "semantic_hash": "202402023747c80d975f48b906e6eb1b"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/carousel.tsx": {
+    "mtime": 1777001309.9764888,
+    "ast_hash": "63a7442a3088b58113c8a8cfc1defe26",
+    "semantic_hash": "63a7442a3088b58113c8a8cfc1defe26"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/chart.tsx": {
+    "mtime": 1777001309.9766686,
+    "ast_hash": "29cfd7470f3197deccd58b2b4f00fbae",
+    "semantic_hash": "29cfd7470f3197deccd58b2b4f00fbae"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/checkbox.tsx": {
+    "mtime": 1777001309.9767854,
+    "ast_hash": "cb12d2f3410761f7a678add95c90ac5d",
+    "semantic_hash": "cb12d2f3410761f7a678add95c90ac5d"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/collapsible.tsx": {
+    "mtime": 1777001309.9769127,
+    "ast_hash": "934b00582dae08af749fb55469081de6",
+    "semantic_hash": "934b00582dae08af749fb55469081de6"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/command.tsx": {
+    "mtime": 1777001309.977074,
+    "ast_hash": "e911f182b4136a63c601c3fc48b2e9c7",
+    "semantic_hash": "e911f182b4136a63c601c3fc48b2e9c7"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/context-menu.tsx": {
+    "mtime": 1777001309.977203,
+    "ast_hash": "9b8e8efdf0456cd542e32d341b071cac",
+    "semantic_hash": "9b8e8efdf0456cd542e32d341b071cac"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/dialog.tsx": {
+    "mtime": 1777001309.977324,
+    "ast_hash": "fc3a9626ba52435552c93ac3a74374ec",
+    "semantic_hash": "fc3a9626ba52435552c93ac3a74374ec"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/drawer.tsx": {
+    "mtime": 1777001309.9774382,
+    "ast_hash": "05e2b536fe11649e9b4c6e73678e32a6",
+    "semantic_hash": "05e2b536fe11649e9b4c6e73678e32a6"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/dropdown-menu.tsx": {
+    "mtime": 1777001309.9775748,
+    "ast_hash": "f308eb98a2e21bf8bd1e30dbcb741dc0",
+    "semantic_hash": "f308eb98a2e21bf8bd1e30dbcb741dc0"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/form.tsx": {
+    "mtime": 1777001309.9776866,
+    "ast_hash": "4bb820d59aad3ee5bc78097596298ace",
+    "semantic_hash": "4bb820d59aad3ee5bc78097596298ace"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/hover-card.tsx": {
+    "mtime": 1777001309.9777968,
+    "ast_hash": "f77f80ed64ff8f3549e5d7e9d837e08e",
+    "semantic_hash": "f77f80ed64ff8f3549e5d7e9d837e08e"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/input-otp.tsx": {
+    "mtime": 1777001309.9778733,
+    "ast_hash": "3fb5994635434d5168bee869689fc2aa",
+    "semantic_hash": "3fb5994635434d5168bee869689fc2aa"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/input.tsx": {
+    "mtime": 1777001309.9779453,
+    "ast_hash": "b8279d768c2a1ce78a05a369a0502877",
+    "semantic_hash": "b8279d768c2a1ce78a05a369a0502877"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/label.tsx": {
+    "mtime": 1777001309.97803,
+    "ast_hash": "cd2b2255bbe519cb0865dfeaa6615797",
+    "semantic_hash": "cd2b2255bbe519cb0865dfeaa6615797"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/menubar.tsx": {
+    "mtime": 1777001309.9781241,
+    "ast_hash": "163c3fa58a2b4ea2caa00166f4d862c7",
+    "semantic_hash": "163c3fa58a2b4ea2caa00166f4d862c7"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/navigation-menu.tsx": {
+    "mtime": 1777001309.9782224,
+    "ast_hash": "77e94b0c299d10c3763d2755bf556916",
+    "semantic_hash": "77e94b0c299d10c3763d2755bf556916"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/pagination.tsx": {
+    "mtime": 1777001309.9783258,
+    "ast_hash": "a3ced9f9b19826b467d788b1bf01746f",
+    "semantic_hash": "a3ced9f9b19826b467d788b1bf01746f"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/popover.tsx": {
+    "mtime": 1777001309.978432,
+    "ast_hash": "c056d22288a642b756b77c7691ad4532",
+    "semantic_hash": "c056d22288a642b756b77c7691ad4532"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/progress.tsx": {
+    "mtime": 1777001309.9785285,
+    "ast_hash": "9a8b05beca19e008a562a10e489f5968",
+    "semantic_hash": "9a8b05beca19e008a562a10e489f5968"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/radio-group.tsx": {
+    "mtime": 1777001309.9786115,
+    "ast_hash": "3773798b5b2f334a5db0dc9c8d06f1b8",
+    "semantic_hash": "3773798b5b2f334a5db0dc9c8d06f1b8"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/resizable.tsx": {
+    "mtime": 1777001309.978709,
+    "ast_hash": "ec681e92cbe705b5571ded11b5227a2a",
+    "semantic_hash": "ec681e92cbe705b5571ded11b5227a2a"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/scroll-area.tsx": {
+    "mtime": 1777001309.9787943,
+    "ast_hash": "cfbc224001af0e6daba676de225a2a47",
+    "semantic_hash": "cfbc224001af0e6daba676de225a2a47"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/select.tsx": {
+    "mtime": 1777001309.9788883,
+    "ast_hash": "25de64d0126624cbd8efa50cfb64bd21",
+    "semantic_hash": "25de64d0126624cbd8efa50cfb64bd21"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/separator.tsx": {
+    "mtime": 1777001309.9789972,
+    "ast_hash": "ed1101f185e9dc801712593e3330a75d",
+    "semantic_hash": "ed1101f185e9dc801712593e3330a75d"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/sheet.tsx": {
+    "mtime": 1777001309.9790924,
+    "ast_hash": "3660be09e2e40467a22fd46b354c1b50",
+    "semantic_hash": "3660be09e2e40467a22fd46b354c1b50"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/sidebar.tsx": {
+    "mtime": 1777001309.9792178,
+    "ast_hash": "9eab1256b1ffe3f1336eebfd07b319c9",
+    "semantic_hash": "9eab1256b1ffe3f1336eebfd07b319c9"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/skeleton.tsx": {
+    "mtime": 1777001309.9793243,
+    "ast_hash": "c55f76f4faa1d6e888dbc51d41eaa586",
+    "semantic_hash": "c55f76f4faa1d6e888dbc51d41eaa586"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/slider.tsx": {
+    "mtime": 1777001309.9794135,
+    "ast_hash": "e3bf7b6116ddbdbe8c7b3597d07daee0",
+    "semantic_hash": "e3bf7b6116ddbdbe8c7b3597d07daee0"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/sonner.tsx": {
+    "mtime": 1777001309.979504,
+    "ast_hash": "88644703cc00886c56e0e3b7df0e21d8",
+    "semantic_hash": "88644703cc00886c56e0e3b7df0e21d8"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/switch.tsx": {
+    "mtime": 1777001309.979586,
+    "ast_hash": "eccd8c41c46e782eaaa1f8be0111e089",
+    "semantic_hash": "eccd8c41c46e782eaaa1f8be0111e089"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/table.tsx": {
+    "mtime": 1777001309.9796803,
+    "ast_hash": "d0ff87c4734c23839337811378ad07df",
+    "semantic_hash": "d0ff87c4734c23839337811378ad07df"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/tabs.tsx": {
+    "mtime": 1777001309.9797623,
+    "ast_hash": "26b15e1ffce0f831be4da95b8f8a43df",
+    "semantic_hash": "26b15e1ffce0f831be4da95b8f8a43df"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/textarea.tsx": {
+    "mtime": 1777001309.979848,
+    "ast_hash": "29ab470ee59e9da5070d4fba251bce81",
+    "semantic_hash": "29ab470ee59e9da5070d4fba251bce81"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/toast.tsx": {
+    "mtime": 1777001309.9799325,
+    "ast_hash": "7c08b5cb6026058514672a4ebc53847e",
+    "semantic_hash": "7c08b5cb6026058514672a4ebc53847e"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/toaster.tsx": {
+    "mtime": 1777001309.9801223,
+    "ast_hash": "1903846ab268620de6356ef667e3fa21",
+    "semantic_hash": "1903846ab268620de6356ef667e3fa21"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/toggle-group.tsx": {
+    "mtime": 1777001309.9802048,
+    "ast_hash": "e82bf234e3877ad708ea3d1dba614def",
+    "semantic_hash": "e82bf234e3877ad708ea3d1dba614def"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/toggle.tsx": {
+    "mtime": 1777001309.9802918,
+    "ast_hash": "ff7a7deebff23c3488e79ad72ee47e4b",
+    "semantic_hash": "ff7a7deebff23c3488e79ad72ee47e4b"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/tooltip.tsx": {
+    "mtime": 1777001309.9803965,
+    "ast_hash": "d7e923341b9e91d77db45ba5f2fa0cf9",
+    "semantic_hash": "d7e923341b9e91d77db45ba5f2fa0cf9"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/components/ui/use-toast.ts": {
+    "mtime": 1777001309.980474,
+    "ast_hash": "4f094014a1315ca1081cbdc7f78d55cc",
+    "semantic_hash": "4f094014a1315ca1081cbdc7f78d55cc"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/childNames.ts": {
+    "mtime": 1777001309.9806225,
+    "ast_hash": "b5a3105c99634fbb579f7c7e9f782a26",
+    "semantic_hash": "b5a3105c99634fbb579f7c7e9f782a26"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/duas.ts": {
+    "mtime": 1777001309.980753,
+    "ast_hash": "c9ff5575ed89ec960a336d6a32bb72ee",
+    "semantic_hash": "c9ff5575ed89ec960a336d6a32bb72ee"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/historicalFigures.ts": {
+    "mtime": 1777219098.5407836,
+    "ast_hash": "271dbec8cbc5d1b98f7865c40e2dbcc5",
+    "semantic_hash": "271dbec8cbc5d1b98f7865c40e2dbcc5"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/_registry.json": {
+    "mtime": 1777001309.981069,
+    "ast_hash": "bb3f62aa8fcb3ed1c06295921104b30a",
+    "semantic_hash": "bb3f62aa8fcb3ed1c06295921104b30a"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/asian.ts": {
+    "mtime": 1777001309.9812365,
+    "ast_hash": "fdb3a66c5721b4c8e5b28d3852d475d1",
+    "semantic_hash": "fdb3a66c5721b4c8e5b28d3852d475d1"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/asian/batch_001.ts": {
+    "mtime": 1777001309.9814312,
+    "ast_hash": "a7fc1693dcf6cee3d245c952a4875c30",
+    "semantic_hash": "a7fc1693dcf6cee3d245c952a4875c30"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/asian/index.ts": {
+    "mtime": 1777001309.981524,
+    "ast_hash": "c74b4762ddfaf749f17324b9378736dc",
+    "semantic_hash": "c74b4762ddfaf749f17324b9378736dc"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/european.ts": {
+    "mtime": 1777001309.9816246,
+    "ast_hash": "ac9f6a75f08a81bdadff836bbf57ebbb",
+    "semantic_hash": "ac9f6a75f08a81bdadff836bbf57ebbb"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/european/batch_001.ts": {
+    "mtime": 1777001309.9817939,
+    "ast_hash": "4ec8e2abdf729090019aa77a0f7e9878",
+    "semantic_hash": "4ec8e2abdf729090019aa77a0f7e9878"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/european/index.ts": {
+    "mtime": 1777001309.9818914,
+    "ast_hash": "514abaa36d07069602062b4241534802",
+    "semantic_hash": "514abaa36d07069602062b4241534802"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/islamic.ts": {
+    "mtime": 1777001309.9822037,
+    "ast_hash": "7860151124d2fa8a50352fb3b64f0888",
+    "semantic_hash": "7860151124d2fa8a50352fb3b64f0888"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/islamic/batch_001.ts": {
+    "mtime": 1777001309.9827254,
+    "ast_hash": "9f730b61fc1a6eb5b6a5558834ea2a64",
+    "semantic_hash": "9f730b61fc1a6eb5b6a5558834ea2a64"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/islamic/batch_002.ts": {
+    "mtime": 1777001309.9828932,
+    "ast_hash": "5a31356789b9f3a58a7f3e966020774d",
+    "semantic_hash": "5a31356789b9f3a58a7f3e966020774d"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/islamic/batch_003.ts": {
+    "mtime": 1777001309.9830835,
+    "ast_hash": "966a7852c73b6801cb09e19892d68882",
+    "semantic_hash": "966a7852c73b6801cb09e19892d68882"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/islamic/batch_004.ts": {
+    "mtime": 1777001309.9832675,
+    "ast_hash": "718f498dae9dfedcf7546fc6af3ab299",
+    "semantic_hash": "718f498dae9dfedcf7546fc6af3ab299"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/islamic/batch_005.ts": {
+    "mtime": 1777001309.9834118,
+    "ast_hash": "829374d69968bbd0fc420a8efea9fdee",
+    "semantic_hash": "829374d69968bbd0fc420a8efea9fdee"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/islamic/batch_006.ts": {
+    "mtime": 1777001309.9835706,
+    "ast_hash": "403e944a89622be4d6a951bb6bf0e8f3",
+    "semantic_hash": "403e944a89622be4d6a951bb6bf0e8f3"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/islamic/batch_007.ts": {
+    "mtime": 1777001309.9837198,
+    "ast_hash": "21ef3a110e3e66b62cf5c81d5990165c",
+    "semantic_hash": "21ef3a110e3e66b62cf5c81d5990165c"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/islamic/batch_008.ts": {
+    "mtime": 1777001309.9838865,
+    "ast_hash": "a48990620001478f3087f08c8d674771",
+    "semantic_hash": "a48990620001478f3087f08c8d674771"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/islamic/batch_009.ts": {
+    "mtime": 1777001309.984026,
+    "ast_hash": "dd14e1a9650e558e6dfbe8027dba4c36",
+    "semantic_hash": "dd14e1a9650e558e6dfbe8027dba4c36"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/islamic/batch_010.ts": {
+    "mtime": 1777001309.9842045,
+    "ast_hash": "47bb0d399943f21e41cd9932d8563e81",
+    "semantic_hash": "47bb0d399943f21e41cd9932d8563e81"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/islamic/batch_011.ts": {
+    "mtime": 1777001309.9843853,
+    "ast_hash": "70f1ad24c1c624a1661be995177ce8e8",
+    "semantic_hash": "70f1ad24c1c624a1661be995177ce8e8"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/islamic/batch_012.ts": {
+    "mtime": 1777001309.984553,
+    "ast_hash": "6181928bb3d784a9514b70429401caa4",
+    "semantic_hash": "6181928bb3d784a9514b70429401caa4"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/islamic/batch_013.ts": {
+    "mtime": 1777001309.9847302,
+    "ast_hash": "5f2c6621cdaab2cfe5b11a25ea93c761",
+    "semantic_hash": "5f2c6621cdaab2cfe5b11a25ea93c761"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/islamic/batch_014.ts": {
+    "mtime": 1777001309.984896,
+    "ast_hash": "d15cdc55876cae54688a038dfcd37e37",
+    "semantic_hash": "d15cdc55876cae54688a038dfcd37e37"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/islamic/batch_015.ts": {
+    "mtime": 1777001309.9850616,
+    "ast_hash": "084580055aed5c283e30c00531dbffcb",
+    "semantic_hash": "084580055aed5c283e30c00531dbffcb"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/islamic/batch_016.ts": {
+    "mtime": 1777001309.9852638,
+    "ast_hash": "69baffb0c253d50840a462403d71dbdb",
+    "semantic_hash": "69baffb0c253d50840a462403d71dbdb"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/islamic/batch_017.ts": {
+    "mtime": 1777001309.9854183,
+    "ast_hash": "364313ee65f69e793307b3758c48bdbe",
+    "semantic_hash": "364313ee65f69e793307b3758c48bdbe"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/islamic/batch_018.ts": {
+    "mtime": 1777001309.9856222,
+    "ast_hash": "231150708714c8a4ab7c26422555aa06",
+    "semantic_hash": "231150708714c8a4ab7c26422555aa06"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/islamic/batch_019.ts": {
+    "mtime": 1777001309.9858193,
+    "ast_hash": "dcb55f6e695f3a31953cabf3f0a03a01",
+    "semantic_hash": "dcb55f6e695f3a31953cabf3f0a03a01"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/islamic/batch_020.ts": {
+    "mtime": 1777001309.9861019,
+    "ast_hash": "896545b6dfc358629c1db8f06f422c33",
+    "semantic_hash": "896545b6dfc358629c1db8f06f422c33"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/islamic/batch_021.ts": {
+    "mtime": 1777001309.9862864,
+    "ast_hash": "f29f99fcf2add03bad5a1f4cddbf856e",
+    "semantic_hash": "f29f99fcf2add03bad5a1f4cddbf856e"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/islamic/batch_022.ts": {
+    "mtime": 1777001309.9864633,
+    "ast_hash": "645feda93b4600f232e45769c643e24c",
+    "semantic_hash": "645feda93b4600f232e45769c643e24c"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/islamic/index.ts": {
+    "mtime": 1777001309.986568,
+    "ast_hash": "82d6d138f3c61ca22db9311b9b5a7ec6",
+    "semantic_hash": "82d6d138f3c61ca22db9311b9b5a7ec6"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/japanese.ts": {
+    "mtime": 1777001309.9866667,
+    "ast_hash": "2519476525a95834be8f6bdc75d78513",
+    "semantic_hash": "2519476525a95834be8f6bdc75d78513"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/japanese/batch_001.ts": {
+    "mtime": 1777001309.9868329,
+    "ast_hash": "d5bdc6779e935f24bb3d92a3ef590424",
+    "semantic_hash": "d5bdc6779e935f24bb3d92a3ef590424"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/japanese/index.ts": {
+    "mtime": 1777001309.9869292,
+    "ast_hash": "f17f62598772c0428725878d235bce6a",
+    "semantic_hash": "f17f62598772c0428725878d235bce6a"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/other.ts": {
+    "mtime": 1777001309.9870613,
+    "ast_hash": "bb269dd757f34dfc05cb44ef2a4bac6c",
+    "semantic_hash": "bb269dd757f34dfc05cb44ef2a4bac6c"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/other/batch_001.ts": {
+    "mtime": 1777001309.9873133,
+    "ast_hash": "e200dfbe7db15acab73ca7daff7e7d0b",
+    "semantic_hash": "e200dfbe7db15acab73ca7daff7e7d0b"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/other/index.ts": {
+    "mtime": 1777001309.987416,
+    "ast_hash": "15950665a25a8210cb3f05e2ebb53d5a",
+    "semantic_hash": "15950665a25a8210cb3f05e2ebb53d5a"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/russian.ts": {
+    "mtime": 1777001309.9875314,
+    "ast_hash": "44e625563db91ea5c77a95c51a840233",
+    "semantic_hash": "44e625563db91ea5c77a95c51a840233"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/russian/batch_001.ts": {
+    "mtime": 1777001309.9876912,
+    "ast_hash": "fc0f82863cee1bd1d6c7f09fa06068a5",
+    "semantic_hash": "fc0f82863cee1bd1d6c7f09fa06068a5"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/names/russian/index.ts": {
+    "mtime": 1777001309.987832,
+    "ast_hash": "032ee06d79cf62feb2f89128f1ba2d82",
+    "semantic_hash": "032ee06d79cf62feb2f89128f1ba2d82"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/peopleKnowledge.ts": {
+    "mtime": 1777372578.8815632,
+    "ast_hash": "40df5d2351ce85d81b27dab49a37ebbd",
+    "semantic_hash": "40df5d2351ce85d81b27dab49a37ebbd"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/petNames.ts": {
+    "mtime": 1777001309.9880114,
+    "ast_hash": "fab6e5cfcc745b352cac95f99cc44681",
+    "semantic_hash": "fab6e5cfcc745b352cac95f99cc44681"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/prophets.ts": {
+    "mtime": 1777001309.9881177,
+    "ast_hash": "7dea56e059a392a36d5542f7097b8c12",
+    "semantic_hash": "7dea56e059a392a36d5542f7097b8c12"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/data/types.ts": {
+    "mtime": 1777001309.988346,
+    "ast_hash": "3cf46e524b7e590e746e4aa79afb6aa6",
+    "semantic_hash": "3cf46e524b7e590e746e4aa79afb6aa6"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/hooks/use-mobile.tsx": {
+    "mtime": 1777001309.988512,
+    "ast_hash": "c0a0bdd4638c391a1dd06ac82074e60b",
+    "semantic_hash": "c0a0bdd4638c391a1dd06ac82074e60b"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/hooks/use-toast.ts": {
+    "mtime": 1777001309.9886127,
+    "ast_hash": "e706bc004c87e17db559a113637eddea",
+    "semantic_hash": "e706bc004c87e17db559a113637eddea"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/integrations/supabase/client.ts": {
+    "mtime": 1777001309.9889255,
+    "ast_hash": "f699d6047d16b2838b95d1a496861f53",
+    "semantic_hash": "f699d6047d16b2838b95d1a496861f53"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/integrations/supabase/types.ts": {
+    "mtime": 1777001309.9891002,
+    "ast_hash": "f003b8d685dc7c66b041c37ba719072f",
+    "semantic_hash": "f003b8d685dc7c66b041c37ba719072f"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/lib/api/aladhanApi.ts": {
+    "mtime": 1777001309.9893591,
+    "ast_hash": "617094a7261789a18c71ba2075d84586",
+    "semantic_hash": "617094a7261789a18c71ba2075d84586"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/lib/api/nameAnalysisApi.ts": {
+    "mtime": 1777001309.9894664,
+    "ast_hash": "b56360cc0f8fa952bc89a9cb5c3e7db6",
+    "semantic_hash": "b56360cc0f8fa952bc89a9cb5c3e7db6"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/lib/api/quranApi.ts": {
+    "mtime": 1777001309.9895742,
+    "ast_hash": "1f550cc29d45791c5b99390f43d414bd",
+    "semantic_hash": "1f550cc29d45791c5b99390f43d414bd"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/lib/arabicTranslit.ts": {
+    "mtime": 1777001309.989679,
+    "ast_hash": "2d456fe76b4058a19ac1c3399d3949a7",
+    "semantic_hash": "2d456fe76b4058a19ac1c3399d3949a7"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/lib/csvParser.ts": {
+    "mtime": 1777001309.9897952,
+    "ast_hash": "9477eb82c50f4cf71def02f77a976faa",
+    "semantic_hash": "9477eb82c50f4cf71def02f77a976faa"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/lib/favorites.tsx": {
+    "mtime": 1777001309.9899032,
+    "ast_hash": "5fb39da054a24b30fe2b9cf5a0171f4c",
+    "semantic_hash": "5fb39da054a24b30fe2b9cf5a0171f4c"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/lib/hijriDate.ts": {
+    "mtime": 1777001309.9900076,
+    "ast_hash": "b5dd54d92ab54aef2ba9046cbb82afd8",
+    "semantic_hash": "b5dd54d92ab54aef2ba9046cbb82afd8"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/lib/nameDNA.ts": {
+    "mtime": 1777001309.9901183,
+    "ast_hash": "9b06dddb47f245a8436eaf9a0349e798",
+    "semantic_hash": "9b06dddb47f245a8436eaf9a0349e798"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/lib/nameHarmony.test.ts": {
+    "mtime": 1777001309.9902215,
+    "ast_hash": "ae70eeac0ffa2f990ca764394dbeb34e",
+    "semantic_hash": "ae70eeac0ffa2f990ca764394dbeb34e"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/lib/nameHarmony.ts": {
+    "mtime": 1777001309.9903147,
+    "ast_hash": "38e5ba672703a2119c2eb941574a3c27",
+    "semantic_hash": "38e5ba672703a2119c2eb941574a3c27"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/lib/namesStore.ts": {
+    "mtime": 1777001309.9904177,
+    "ast_hash": "acdc9dbe6eed606455f2eab543e1dbea",
+    "semantic_hash": "acdc9dbe6eed606455f2eab543e1dbea"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/lib/numerology.ts": {
+    "mtime": 1777001309.9905326,
+    "ast_hash": "a2b55eede00991d2f69bf90ada7eb6e3",
+    "semantic_hash": "a2b55eede00991d2f69bf90ada7eb6e3"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/lib/people.tsx": {
+    "mtime": 1777372578.8817158,
+    "ast_hash": "a1ea4428b700ca21bda61cbf532c7f63",
+    "semantic_hash": "a1ea4428b700ca21bda61cbf532c7f63"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/lib/personCompatibility.ts": {
+    "mtime": 1777372578.881885,
+    "ast_hash": "f052633e2bb5aa283c72895b3076f241",
+    "semantic_hash": "f052633e2bb5aa283c72895b3076f241"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/lib/rag/knowledgeIndex.ts": {
+    "mtime": 1777372578.8824053,
+    "ast_hash": "dad579c0652742679c01a9ca168748c3",
+    "semantic_hash": "dad579c0652742679c01a9ca168748c3"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/lib/signatureGenerator.ts": {
+    "mtime": 1777001309.9906518,
+    "ast_hash": "d6897d78a5572dd5c3fd766976baf81d",
+    "semantic_hash": "d6897d78a5572dd5c3fd766976baf81d"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/lib/tts.ts": {
+    "mtime": 1777372578.882507,
+    "ast_hash": "64b1239bc305d18988166038de1540c4",
+    "semantic_hash": "64b1239bc305d18988166038de1540c4"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/lib/utils.ts": {
+    "mtime": 1777001309.990759,
+    "ast_hash": "d9837f38cc05303254571985e3164050",
+    "semantic_hash": "d9837f38cc05303254571985e3164050"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/main.tsx": {
+    "mtime": 1777001309.9908578,
+    "ast_hash": "092c6937f28c1dff19a7d561f5f98360",
+    "semantic_hash": "092c6937f28c1dff19a7d561f5f98360"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/pages/Certificate.tsx": {
+    "mtime": 1777372578.8826478,
+    "ast_hash": "3e73c1eb1ee589a7632d6edfc00e26e0",
+    "semantic_hash": "3e73c1eb1ee589a7632d6edfc00e26e0"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/pages/ChildrenNames.tsx": {
+    "mtime": 1777001309.9910953,
+    "ast_hash": "f7935276b05482931b9c4628e99cae91",
+    "semantic_hash": "f7935276b05482931b9c4628e99cae91"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/pages/DuaCollection.tsx": {
+    "mtime": 1777001309.9912245,
+    "ast_hash": "a3a45667fb61642c0f4da2f3686ca02a",
+    "semantic_hash": "a3a45667fb61642c0f4da2f3686ca02a"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/pages/Favorites.tsx": {
+    "mtime": 1777001309.991343,
+    "ast_hash": "e2f504f87cbc444c29ee39834e9bd542",
+    "semantic_hash": "e2f504f87cbc444c29ee39834e9bd542"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/pages/ImportData.tsx": {
+    "mtime": 1777001309.991467,
+    "ast_hash": "669d20f36995447bcbc321f7f746f31d",
+    "semantic_hash": "669d20f36995447bcbc321f7f746f31d"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/pages/Index.tsx": {
+    "mtime": 1777219098.5414495,
+    "ast_hash": "23b7ecb12c7abdb2cc2d8ddfde7b4766",
+    "semantic_hash": "23b7ecb12c7abdb2cc2d8ddfde7b4766"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/pages/NameAnalytics.tsx": {
+    "mtime": 1777001309.9917457,
+    "ast_hash": "67b91e57e47dc940b96fd9c196e3aa23",
+    "semantic_hash": "67b91e57e47dc940b96fd9c196e3aa23"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/pages/NameBattle.tsx": {
+    "mtime": 1777001309.9918535,
+    "ast_hash": "35d727339451dc08f62b0ed60b4a6238",
+    "semantic_hash": "35d727339451dc08f62b0ed60b4a6238"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/pages/NameCalendar.tsx": {
+    "mtime": 1777001309.9920366,
+    "ast_hash": "8cb582ea4858ddb1c07f06035de238d1",
+    "semantic_hash": "8cb582ea4858ddb1c07f06035de238d1"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/pages/NameCompare.tsx": {
+    "mtime": 1777001309.9921346,
+    "ast_hash": "bcf93d86b38f06ca41ff24b1b69d91fc",
+    "semantic_hash": "bcf93d86b38f06ca41ff24b1b69d91fc"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/pages/NameDNA.tsx": {
+    "mtime": 1777001309.9922798,
+    "ast_hash": "329a994cd913c289db8a2bd46eed7a25",
+    "semantic_hash": "329a994cd913c289db8a2bd46eed7a25"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/pages/NameNumerology.tsx": {
+    "mtime": 1777001309.9924033,
+    "ast_hash": "38b3e61dcf019ffbec747c03b0fff16e",
+    "semantic_hash": "38b3e61dcf019ffbec747c03b0fff16e"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/pages/NameSignature.tsx": {
+    "mtime": 1777001309.9925349,
+    "ast_hash": "bd86fc139e9f5dbacb34b2810c83e549",
+    "semantic_hash": "bd86fc139e9f5dbacb34b2810c83e549"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/pages/NameStats.tsx": {
+    "mtime": 1777001309.9926403,
+    "ast_hash": "6202fb5bfea0a713ea58cbe6dd885eed",
+    "semantic_hash": "6202fb5bfea0a713ea58cbe6dd885eed"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/pages/NameTafsir.tsx": {
+    "mtime": 1777001309.9927776,
+    "ast_hash": "ef73c39504fa187e142bcad65526c3e3",
+    "semantic_hash": "ef73c39504fa187e142bcad65526c3e3"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/pages/NameWizard.tsx": {
+    "mtime": 1777001309.992937,
+    "ast_hash": "4acd4164c7b0fcb3fcd39fd5e42572d0",
+    "semantic_hash": "4acd4164c7b0fcb3fcd39fd5e42572d0"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/pages/NamingGuide.tsx": {
+    "mtime": 1777001309.9930727,
+    "ast_hash": "84c85ce7fc4fe20ecbc0785c8a25dfd6",
+    "semantic_hash": "84c85ce7fc4fe20ecbc0785c8a25dfd6"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/pages/NotFound.tsx": {
+    "mtime": 1777001309.9931808,
+    "ast_hash": "233617e24ded7876ea905f003f0f2889",
+    "semantic_hash": "233617e24ded7876ea905f003f0f2889"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/pages/People.tsx": {
+    "mtime": 1777372578.8828714,
+    "ast_hash": "eed675425cd7d939211057cd855920b2",
+    "semantic_hash": "eed675425cd7d939211057cd855920b2"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/pages/PetNames.tsx": {
+    "mtime": 1777001309.9932723,
+    "ast_hash": "dd0ffa3a643d238b5faa5ee5ddde641b",
+    "semantic_hash": "dd0ffa3a643d238b5faa5ee5ddde641b"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/pages/ProphetsGuide.tsx": {
+    "mtime": 1777001309.9933674,
+    "ast_hash": "3db0d0a90e4ae9507ae70a3a4163bf3e",
+    "semantic_hash": "3db0d0a90e4ae9507ae70a3a4163bf3e"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/pages/people/AdultNames.tsx": {
+    "mtime": 1777219098.541907,
+    "ast_hash": "57b1af8062b09ca12fbeeb27ee2d38d5",
+    "semantic_hash": "57b1af8062b09ca12fbeeb27ee2d38d5"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/pages/people/CharacterName.tsx": {
+    "mtime": 1777219098.5424292,
+    "ast_hash": "2ebac6a8dd6e175a7fdf170a1b14c8d2",
+    "semantic_hash": "2ebac6a8dd6e175a7fdf170a1b14c8d2"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/pages/people/Compatibility.tsx": {
+    "mtime": 1777372578.883088,
+    "ast_hash": "b84175eab02b5e5138f880d8430791b5",
+    "semantic_hash": "b84175eab02b5e5138f880d8430791b5"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/pages/people/HistoricalFigures.tsx": {
+    "mtime": 1777219098.542623,
+    "ast_hash": "c5257b334752934acb76974dfecaf762",
+    "semantic_hash": "c5257b334752934acb76974dfecaf762"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/pages/people/Profiles.tsx": {
+    "mtime": 1777372578.8832233,
+    "ast_hash": "88c5bd076c326ac2f3ed73e8874cc970",
+    "semantic_hash": "88c5bd076c326ac2f3ed73e8874cc970"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/pages/people/Pseudonym.tsx": {
+    "mtime": 1777219098.5427995,
+    "ast_hash": "86bc2f4b855a1381963710addc0dff78",
+    "semantic_hash": "86bc2f4b855a1381963710addc0dff78"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/pages/people/RevertName.tsx": {
+    "mtime": 1777219098.544357,
+    "ast_hash": "6e92835bd460b118fba6058f45d678aa",
+    "semantic_hash": "6e92835bd460b118fba6058f45d678aa"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/test/example.test.ts": {
+    "mtime": 1777001309.9936166,
+    "ast_hash": "f7aec10728902324d57cf05ee8a8e57e",
+    "semantic_hash": "f7aec10728902324d57cf05ee8a8e57e"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/test/setup.ts": {
+    "mtime": 1777001309.9937758,
+    "ast_hash": "3ed816a7adf0e76610ce76bd32744ea0",
+    "semantic_hash": "3ed816a7adf0e76610ce76bd32744ea0"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/src/vite-env.d.ts": {
+    "mtime": 1777001309.9939039,
+    "ast_hash": "0352474ba2918efe13895edbc3780d94",
+    "semantic_hash": "0352474ba2918efe13895edbc3780d94"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/supabase/functions/rag-query/index.ts": {
+    "mtime": 1777372578.8836377,
+    "ast_hash": "e3e10f565a215e62392ec1e07ce9cc1f",
+    "semantic_hash": "e3e10f565a215e62392ec1e07ce9cc1f"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/supabase/migrations/20260321054813_ff7af1cb-ab9c-4a33-b725-1e510936082b.sql": {
+    "mtime": 1777001309.9942245,
+    "ast_hash": "f83e835661c9cecfd119a4be575e4897",
+    "semantic_hash": "f83e835661c9cecfd119a4be575e4897"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/tailwind.config.ts": {
+    "mtime": 1777001309.9944773,
+    "ast_hash": "052a881aff5fa3cefa8099994de73895",
+    "semantic_hash": "052a881aff5fa3cefa8099994de73895"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/tsconfig.app.json": {
+    "mtime": 1777001309.9945803,
+    "ast_hash": "9036c95ea413f9a07f9aa5c7650861a6",
+    "semantic_hash": "9036c95ea413f9a07f9aa5c7650861a6"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/tsconfig.json": {
+    "mtime": 1777001309.9946754,
+    "ast_hash": "bb72695c901d34a52a46196ba258371d",
+    "semantic_hash": "bb72695c901d34a52a46196ba258371d"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/tsconfig.node.json": {
+    "mtime": 1777001309.9947724,
+    "ast_hash": "1417fb05378a1d1102f085e60b20db0e",
+    "semantic_hash": "1417fb05378a1d1102f085e60b20db0e"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/vite.config.ts": {
+    "mtime": 1777001309.994881,
+    "ast_hash": "978c0733ad7195aa171e5d7f71b2dccf",
+    "semantic_hash": "978c0733ad7195aa171e5d7f71b2dccf"
+  },
+  "/Users/ibragimov/Desktop/obsidian/Projects/GitHub/name-navigator/vitest.config.ts": {
+    "mtime": 1777001309.9949846,
+    "ast_hash": "9285ab80c07d5cd1a71aa20c1687352a",
+    "semantic_hash": "9285ab80c07d5cd1a71aa20c1687352a"
+  }
+}

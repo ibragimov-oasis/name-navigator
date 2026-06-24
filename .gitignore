@@ -25,3 +25,12 @@ SENSITIVE_DATA_AUDIT.md
 *.njsproj
 *.sln
 *.sw?
+
+# agent tooling (exclude from code index)
+.claude/
+.antigravity/
+.github/
+.gemini/
+.codex/
+.cursor/
+.agents/
