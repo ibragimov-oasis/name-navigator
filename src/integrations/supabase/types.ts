@@ -2543,6 +2543,33 @@ export type Database = {
         }
         Relationships: []
       }
+      swipe_sessions: {
+        Row: {
+          code: string
+          created_at: string
+          names: Json
+          partner_a: Json
+          partner_b: Json
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          names?: Json
+          partner_a?: Json
+          partner_b?: Json
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          names?: Json
+          partner_a?: Json
+          partner_b?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       sync_tracker: {
         Row: {
           cursor: string | null
