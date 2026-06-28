@@ -85,6 +85,7 @@ const App = () => {
             <Route path="/stats" element={<NameStats />} />
             <Route path="/import" element={<ImportData />} />
             <Route path="/analytics" element={<NameAnalytics />} />
+            <Route path="/admin/enrich" element={<AdminEnrich />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
@@ -92,6 +93,7 @@ const App = () => {
       </FavoritesProvider>
     </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
