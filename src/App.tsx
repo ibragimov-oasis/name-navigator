@@ -43,7 +43,9 @@ import { loadEnrichedNames } from "@/lib/namesStore";
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const App = () => {
+  useEffect(() => { loadEnrichedNames(); }, []);
+  return (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <FavoritesProvider>
