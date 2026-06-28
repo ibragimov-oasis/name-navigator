@@ -815,6 +815,42 @@ export type Database = {
         }
         Relationships: []
       }
+      enrich_runs: {
+        Row: {
+          added: number
+          errors: Json | null
+          finished_at: string | null
+          id: string
+          model: string | null
+          skipped: number
+          source: string | null
+          started_at: string
+          status: string
+        }
+        Insert: {
+          added?: number
+          errors?: Json | null
+          finished_at?: string | null
+          id?: string
+          model?: string | null
+          skipped?: number
+          source?: string | null
+          started_at?: string
+          status?: string
+        }
+        Update: {
+          added?: number
+          errors?: Json | null
+          finished_at?: string | null
+          id?: string
+          model?: string | null
+          skipped?: number
+          source?: string | null
+          started_at?: string
+          status?: string
+        }
+        Relationships: []
+      }
       eth_candles: {
         Row: {
           close_price: number
@@ -1093,6 +1129,27 @@ export type Database = {
           tp_percent?: number
           tp_price?: number
           trend_at_entry?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      llm_quota_usage: {
+        Row: {
+          day: string
+          model: string
+          requests: number
+          updated_at: string
+        }
+        Insert: {
+          day?: string
+          model: string
+          requests?: number
+          updated_at?: string
+        }
+        Update: {
+          day?: string
+          model?: string
+          requests?: number
           updated_at?: string
         }
         Relationships: []
@@ -1433,6 +1490,69 @@ export type Database = {
           name?: string
           style?: string
           svg_data?: string | null
+        }
+        Relationships: []
+      }
+      names_enriched: {
+        Row: {
+          attributes: Json
+          confidence: number
+          created_at: string
+          culture: string | null
+          gender: string
+          history: string | null
+          id: string
+          languages: Json
+          llm_model: string | null
+          meaning: string | null
+          name: string
+          name_lower: string | null
+          origin: string | null
+          religion: string | null
+          source_kind: string | null
+          source_url: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          attributes?: Json
+          confidence?: number
+          created_at?: string
+          culture?: string | null
+          gender: string
+          history?: string | null
+          id?: string
+          languages?: Json
+          llm_model?: string | null
+          meaning?: string | null
+          name: string
+          name_lower?: string | null
+          origin?: string | null
+          religion?: string | null
+          source_kind?: string | null
+          source_url?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          attributes?: Json
+          confidence?: number
+          created_at?: string
+          culture?: string | null
+          gender?: string
+          history?: string | null
+          id?: string
+          languages?: Json
+          llm_model?: string | null
+          meaning?: string | null
+          name?: string
+          name_lower?: string | null
+          origin?: string | null
+          religion?: string | null
+          source_kind?: string | null
+          source_url?: string | null
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }
