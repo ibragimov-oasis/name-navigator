@@ -36,7 +36,10 @@ import Nasab from "./pages/people/Nasab";
 import StyleQuiz from "./pages/StyleQuiz";
 import CoupleSwipe from "./pages/CoupleSwipe";
 import ActivePersonBanner from "./components/ActivePersonBanner";
+import AdminEnrich from "./pages/AdminEnrich";
 import NotFound from "./pages/NotFound";
+import { useEffect } from "react";
+import { loadEnrichedNames } from "@/lib/namesStore";
 
 const queryClient = new QueryClient();
 
