@@ -1,75 +1,75 @@
+## Часть 1 — Чинить белый экран
 
-# Реестр разрешённых имён Таджикистана (Феҳристи номҳои миллии тоҷикӣ — 2023)
+**Диагноз:** `Error: supabaseUrl is required` в `index-Bh7RpW0J.js`. Локальный `.env` содержит `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_PROJECT_ID` (проверил). Остальные ошибки в консоли (`googleadservices`, `linkedin`, `Resource blocked by content blocker`, sandbox-флаги, cross-origin postMessage) — это шум от рекламных пикселей самого `lovable.dev` и блокировщика в браузере, к падению приложения отношения не имеют.
 
-## Источник
-Официальный PDF Комитета по языку и терминологии при Правительстве РТ, ред. 2023 (Постановление Правительства № 83 от 02.03.2023):
-`https://www.kumitaizabon.tj/sites/default/files/articleattachments/Fehristi_nomhoi_milli_2023.pdf`
+Значит билд, который сейчас отдаётся в превью (`index-Bh7RpW0J.js`), был собран до того, как `.env` появился/обновился, и в бандл попали `undefined` для Supabase. Нужно пересобрать превью с актуальным `.env`.
 
-Это **единственный** источник правды. Остальные сайты — копии. В PDF имена разделены на «номҳои мардона» (мужские) и «номҳои занона» (женские), отсортированы по алфавиту таджикской кириллицы, с краткими значениями.
+**Действия:**
+1. Перезапустить dev-сервер Vite, чтобы `import.meta.env.VITE_SUPABASE_*` подхватились заново (`code--restart_dev_server`).
+2. Проверить, что hash бандла поменялся и в `src/integrations/supabase/client.ts` URL не пустой (открыть превью, посмотреть консоль).
+3. Если ошибка осталась — дописать fallback в `client.ts`: если `import.meta.env.VITE_SUPABASE_URL` пустой, использовать жёстко зашитые публичные значения из `<supabase-configuration>` (URL = `https://xvpngscmnasjuwxjoqyp.supabase.co`, anon key уже известен — он публичный, можно в коде). Это сделает приложение устойчивым к пропавшему `.env`.
 
-## Что делаем
+## Часть 2 — Авто-обогащение БД именами (непрерывный пайплайн)
 
-### 1. Парсинг PDF → JSON (одноразовый скрипт)
-- Скачиваем PDF, извлекаем текст (`pdftotext -layout`), чистим колонтитулы.
-- Делим на блоки «мардона / занона».
-- Каждая строка → `{ name, gender, meaning }`. Транслитерация в латиницу/русский — детерминированная функция (без AI).
-- Результат сохраняем как **статический батч**: `src/data/names/tajik/registry_2023.ts` (массив `ChildName[]` с `culture: "Таджикская"`, `origin: "Таджикский"`, `religion: "Ислам"`, флаг `tajikRegistry: true`).
-- Память проекта: статические батчи, нет AI — ноль токенов.
+**Цель:** скрипт сам ищет имена в интернете и заливает в базу, Gemini проверяет/чистит. Работает круглосуточно через `pg_cron`, не упирается в дневные лимиты Gemini за счёт ротации моделей.
 
-### 2. Расширение типа
-В `src/data/types.ts` добавить опциональное поле:
-```ts
-tajikRegistry?: boolean; // имя из официального Феҳристи РТ
-```
-Существующие имена не трогаем (память: «NEVER delete existing code»).
+### Лимиты Gemini (по таблице пользователя)
+| Модель | RPM | RPD | роль |
+|---|---|---|---|
+| Gemini 3.5 Flash | 5 | **20** | главный «контролёр качества» |
+| Gemini 3 Flash | 5 | 20 | резерв качества |
+| Gemini 2.5 Flash | 5 | 20 | резерв |
+| Gemini 2.5 Flash Lite | 10 | 20 | резерв |
+| **Gemini 3.1 Flash Lite** | 15 | **500** | основной «рабочий» (массовое обогащение) |
+| Gemma 4 26B / 31B | 15 | **1500 каждая** | дешёвый bulk-валидатор/переписыватель |
 
-### 3. Интеграция в общий стор
-`src/lib/namesStore.ts`: при инициализации мерджим `registry_2023` со статикой (дедуп по `lower(name)+gender`; если совпадает — проставляем `tajikRegistry=true` существующему).
+Суммарно реальных вызовов в день: **≈ 3580**. При batch=10 имён/вызов это ~35 800 имён/день — выше любой разумной потребности.
 
-### 4. UI: фильтр «Только Таджикистан»
-На странице `/children` (`ChildrenNames.tsx`):
-- Новый toggle в `FilterChips` / сортбаре: **«🇹🇯 Только разрешённые в Таджикистане»**.
-- Когда включён: показываются только имена с `tajikRegistry === true`.
-- В заголовке списка — короткая плашка-объяснение: «По закону РТ детям регистрируют только имена из Феҳристи номҳои миллӣ 2023 (≈ N имён). Источник: Комитет по языку РТ.» + ссылка на официальный PDF.
-- На `NameCard` для таких имён — маленький бейдж `🇹🇯 Феҳрист`.
-
-### 5. Страница реестра
-Новый роут `/tajik-registry` (+ ссылка из меню «Гайды»):
-- Заголовок, объяснение закона.
-- Поиск по имени (instant filter).
-- Таб «Мардона / Занона», алфавитный указатель (А Б В …).
-- Кнопка «Скачать оригинал PDF».
-- SEO: title «Реестр разрешённых имён Таджикистана 2023», meta description, JSON-LD `Dataset`.
-
-### 6. Что НЕ делаем
-- Не трогаем существующие батчи и страницы кроме нужных.
-- Не зовём Gemini/Firecrawl — данные берём из PDF один раз.
-- Не блокируем имена из других культур — фильтр опциональный.
-
-## Технические детали
+### Архитектура
 
 ```text
-src/
-├── data/names/tajik/
-│   ├── registry_2023.ts        # сгенерированный массив ChildName[]
-│   ├── registry_2023.meta.ts   # { totalMale, totalFemale, sourceUrl, version: "2023-03-02" }
-│   └── index.ts
-├── lib/namesStore.ts            # мердж + флаг
-├── pages/
-│   ├── ChildrenNames.tsx        # + тоггл "Только Таджикистан"
-│   └── TajikRegistry.tsx        # новая страница
-├── components/
-│   ├── TajikRegistryBadge.tsx   # 🇹🇯 Феҳрист
-│   └── FilterChips.tsx          # + новый чип
-└── App.tsx                      # + Route /tajik-registry
-
-scripts/parse_tajik_registry.mjs # одноразовый: PDF → TS
+[pg_cron каждые 15 мин]
+        ▼
+[edge: enrich-names-v2]
+        ├─ источники сидов:
+        │    1) Firecrawl /search "<culture> baby names"
+        │    2) Firecrawl /scrape Behind the Name, Nameberry, Quran.com, kumitaizabon.tj
+        │    3) Wikipedia REST API (бесплатно, без ключа)
+        ├─ дедуп против names_enriched по lower(name)+gender
+        ├─ LLM router:
+        │    bulk → Gemini 3.1 Flash Lite (500/день)
+        │    quality check → Gemini 3.5 Flash (20/день)
+        │    rewrite/translate → Gemma 4 26B (1500/день)
+        ├─ запись в names_enriched (status='auto', confidence)
+        └─ авто-публикация, если confidence ≥ 0.8
 ```
 
-Скрипт парсинга кладём в `scripts/`, запускаем локально через `node`. Результат коммитим как обычный код — никаких рантайм-зависимостей от PDF.
+### Что меняем в коде/БД
 
-## Открытые вопросы перед стартом
+1. **Миграция** (один вызов `supabase--migration`):
+   - таблица `names_enriched` (name, gender, culture, origin, religion, meaning, history, attributes jsonb, source_url, llm_model, confidence numeric, status text, created_at)
+   - таблица `enrich_runs` (started_at, finished_at, model, source, added int, skipped int, errors jsonb)
+   - таблица `llm_quota_usage` (model, day date, requests int, PK(model, day)) — счётчик для router
+   - GRANTs + RLS (`SELECT` для anon на `names_enriched`, остальное только service_role)
+   - `cron.schedule('enrich-names', '*/15 * * * *', ...)` → POST на edge-функцию с anon-ключом
 
-1. **Имена в каком алфавите хранить?** В таджикской кириллице как в оригинале (Аброр, Ғафур, Ҷамшед) + латинская транслитерация (Abror, Ghafur, Jamshed) + русская (Аброр, Гафур, Джамшед). Согласны на все три? Это даст лучший поиск.
-2. **Значения**: брать строго из PDF (часто 1–3 слова) или дополнять историей через Gemini позже (по запросу пользователя, не автоматом)?
-3. **Фильтр по умолчанию для пользователя из Таджикистана**: автоопределять страну по таймзоне/языку и сразу включать тоггл, или всегда выключен и пользователь сам?
+2. **Edge-функция** `supabase/functions/enrich-names/index.ts`:
+   - читает `llm_quota_usage` за сегодня, выбирает первую модель с остатком ≥ 1 в порядке: `gemini-3.1-flash-lite` → `gemma-4-31b` → `gemma-4-26b` → `gemini-2.5-flash-lite` → `gemini-2.5-flash` → `gemini-3-flash` → `gemini-3.5-flash`
+   - тянет 1 источник через Firecrawl (`FIRECRAWL_API_KEY` уже в connectors flow — попросить connect)
+   - 1 batch = 10 имён, JSON-схема через `responseMimeType:application/json`
+   - инкремент `llm_quota_usage`, лог в `enrich_runs`
+   - валидатор (Gemini 3.5 Flash) запускается раз в час: берёт 50 случайных `status='auto'`, ставит `confidence` и `status='published'` или `'rejected'`
+
+3. **Клиент:**
+   - `src/lib/namesStore.ts` — при загрузке мерджит статические батчи + `select * from names_enriched where status='published'`
+   - страница `/admin/enrich` — таблица `enrich_runs`, кнопка «Запустить сейчас», график квот по моделям
+
+4. **Что НЕ трогаем:** существующие статические батчи, текущие страницы, gemini-chat (он остаётся для UI).
+
+### Открытые вопросы
+
+1. **Firecrawl коннектор** ещё не привязан к проекту (в connectors его нет среди установленных). Подключаем сейчас через `standard_connectors--connect firecrawl`? Без него останутся только Wikipedia + ручные сиды — медленнее, но бесплатно.
+2. **Авто-публикация:** confidence ≥ 0.8 ставим сразу `published`, или всё в `pending` и публикуется только после ручного апрува в `/admin/enrich`? (Раньше выбрали авто — подтверждаем?)
+3. **Частота cron:** оставляем 15 минут (≈ 96 запусков/день, по 10 имён = ~960 новых имён/день при основной модели Flash Lite), или редить до 30/60 мин?
+
+После ответов — сразу часть 1 (рестарт + fallback), затем миграция и edge-функция.
