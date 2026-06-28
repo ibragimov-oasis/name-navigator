@@ -114,3 +114,8 @@ export async function sendFeedback(params: SendFeedbackParams): Promise<string |
 
   return eventId ?? null;
 }
+
+export function openFeedbackPanel(): void {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent("feedback:open"));
+}
