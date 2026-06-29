@@ -12,9 +12,6 @@ const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 // Real model IDs (verified against generativelanguage v1beta).
 // Order = preference (cheapest/widest quota first).
 const MODELS: { id: string; rpd: number }[] = [
-  { id: "gemma-3-27b-it", rpd: 14400 },
-  { id: "gemma-3-12b-it", rpd: 14400 },
-  { id: "gemma-3-4b-it", rpd: 14400 },
   { id: "gemini-2.5-flash-lite", rpd: 1000 },
   { id: "gemini-2.0-flash-lite", rpd: 200 },
   { id: "gemini-2.0-flash", rpd: 200 },
