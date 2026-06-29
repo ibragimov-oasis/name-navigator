@@ -210,7 +210,7 @@ Deno.serve(async (req) => {
   const runId = runRow.data?.id;
 
   try {
-    if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY missing");
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY missing");
 
     const usage = await getUsage(supa);
 
