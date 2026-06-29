@@ -1,24 +1,20 @@
 // Auto-enrichment of names. Triggered by pg_cron every 15 min or manually.
-// - Rotates across Gemini/Gemma models within free-tier daily limits.
-// - Seeds from a built-in culture rotation (no Firecrawl needed).
-// - LLM returns JSON batch of 10 names with full enrichment.
-// - Dedups against names_enriched, auto-publishes if confidence >= 0.8.
+// - Rotates across real Gemini/Gemma models within free-tier daily limits.
+// - Reserves quota BEFORE the call; marks model exhausted on 429/403.
+// - Runs multiple culture batches per invocation.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-// model id → daily request limit (per user's quota table)
-const MODELS: { id: string; rpd: number; api: string }[] = [
-  { id: "gemini-3.1-flash-lite", rpd: 500, api: "gemini-2.5-flash-lite" }, // fallback API name if 3.1 alias unavailable
-  { id: "gemma-3-27b-it", rpd: 1500, api: "gemma-3-27b-it" },
-  { id: "gemma-3-12b-it", rpd: 1500, api: "gemma-3-12b-it" },
-  { id: "gemini-2.5-flash-lite", rpd: 20, api: "gemini-2.5-flash-lite" },
-  { id: "gemini-2.5-flash", rpd: 20, api: "gemini-2.5-flash" },
-  { id: "gemini-2.0-flash", rpd: 20, api: "gemini-2.0-flash" },
-  { id: "gemini-2.5-pro", rpd: 20, api: "gemini-2.5-flash" }, // alias for "3.5 flash" experimental
+// Models via Lovable AI Gateway (OpenAI-compatible /chat/completions).
+const MODELS: { id: string; rpd: number }[] = [
+  { id: "google/gemini-2.5-flash-lite", rpd: 5000 },
+  { id: "google/gemini-2.5-flash", rpd: 2000 },
+  { id: "google/gemini-2.0-flash-lite", rpd: 2000 },
+  { id: "google/gemini-2.0-flash", rpd: 2000 },
 ];
 
 const CULTURE_ROTATION = [
@@ -26,6 +22,10 @@ const CULTURE_ROTATION = [
   { culture: "Персидская", religion: "Ислам", origin: "Персидский", lang: "fa" },
   { culture: "Турецкая", religion: "Ислам", origin: "Турецкий", lang: "tr" },
   { culture: "Таджикская", religion: "Ислам", origin: "Таджикский", lang: "tg" },
+  { culture: "Узбекская", religion: "Ислам", origin: "Тюркский", lang: "uz" },
+  { culture: "Казахская", religion: "Ислам", origin: "Тюркский", lang: "kk" },
+  { culture: "Чеченская", religion: "Ислам", origin: "Нахский", lang: "ce" },
+  { culture: "Татарская", religion: "Ислам", origin: "Тюркский", lang: "tt" },
   { culture: "Русская", religion: "Православие", origin: "Славянский", lang: "ru" },
   { culture: "Японская", origin: "Японский", lang: "ja" },
   { culture: "Китайская", origin: "Китайский", lang: "zh" },
@@ -52,22 +52,17 @@ const SYSTEM = `Ты — эксперт по именам разных куль�
  "attributes": ["3-6 черт характера или ассоциаций"],
  "confidence": 0.0-1.0
 }
-Только JSON, без markdown. Имена должны быть РАЗНЫЕ и реальные.`;
+Только JSON-массив, без markdown, без префиксов. Имена должны быть РАЗНЫЕ и реальные.`;
 
-async function pickModel(supa: any): Promise<{ id: string; api: string } | null> {
+async function getUsage(supa: any): Promise<Map<string, number>> {
   const today = new Date().toISOString().slice(0, 10);
   const { data } = await supa.from("llm_quota_usage").select("model,requests").eq("day", today);
-  const used = new Map<string, number>((data ?? []).map((r: any) => [r.model, r.requests]));
-  for (const m of MODELS) {
-    if ((used.get(m.id) ?? 0) < m.rpd) return { id: m.id, api: m.api };
-  }
-  return null;
+  return new Map<string, number>((data ?? []).map((r: any) => [r.model, r.requests]));
 }
 
-async function bumpQuota(supa: any, model: string) {
+async function reserveQuota(supa: any, model: string): Promise<void> {
+  // Optimistic increment — bumps BEFORE the API call.
   const today = new Date().toISOString().slice(0, 10);
-  await supa.rpc("exec", {}).then(() => {}, () => {}); // ignore
-  // simple upsert
   const { data } = await supa
     .from("llm_quota_usage")
     .select("requests")
@@ -77,7 +72,7 @@ async function bumpQuota(supa: any, model: string) {
   if (data) {
     await supa
       .from("llm_quota_usage")
-      .update({ requests: data.requests + 1, updated_at: new Date().toISOString() })
+      .update({ requests: (data.requests ?? 0) + 1, updated_at: new Date().toISOString() })
       .eq("model", model)
       .eq("day", today);
   } else {
@@ -85,33 +80,122 @@ async function bumpQuota(supa: any, model: string) {
   }
 }
 
-async function callGemini(apiModel: string, prompt: string): Promise<any[]> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${apiModel}:generateContent?key=${GEMINI_API_KEY}`;
+async function markExhausted(supa: any, model: string, rpd: number) {
+  const today = new Date().toISOString().slice(0, 10);
+  const { data } = await supa
+    .from("llm_quota_usage")
+    .select("requests")
+    .eq("model", model)
+    .eq("day", today)
+    .maybeSingle();
+  if (data) {
+    await supa
+      .from("llm_quota_usage")
+      .update({ requests: Math.max(rpd, data.requests), updated_at: new Date().toISOString() })
+      .eq("model", model)
+      .eq("day", today);
+  } else {
+    await supa.from("llm_quota_usage").insert({ model, day: today, requests: rpd });
+  }
+}
+
+function extractJsonArray(text: string): any[] {
+  const trimmed = text.trim();
+  try {
+    const j = JSON.parse(trimmed);
+    if (Array.isArray(j)) return j;
+    if (Array.isArray(j?.names)) return j.names;
+  } catch {}
+  // try to find a [...] block
+  const m = trimmed.match(/\[[\s\S]*\]/);
+  if (m) {
+    try {
+      const j = JSON.parse(m[0]);
+      if (Array.isArray(j)) return j;
+    } catch {}
+  }
+  return [];
+}
+
+async function callGemini(modelId: string, prompt: string): Promise<{ items: any[]; status: number; raw: string }> {
+  const url = "https://ai.gateway.lovable.dev/v1/chat/completions";
   const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+    },
     body: JSON.stringify({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      systemInstruction: { role: "system", parts: [{ text: SYSTEM }] },
-      generationConfig: {
-        temperature: 0.9,
-        maxOutputTokens: 2048,
-        responseMimeType: "application/json",
-      },
+      model: modelId,
+      messages: [
+        { role: "system", content: SYSTEM },
+        { role: "user", content: prompt },
+      ],
+      temperature: 0.9,
+      max_tokens: 2048,
+      response_format: { type: "json_object" },
     }),
   });
-  if (!res.ok) {
-    const t = await res.text();
-    throw new Error(`gemini ${res.status}: ${t.slice(0, 200)}`);
+  const txt = await res.text();
+  if (!res.ok) return { items: [], status: res.status, raw: txt.slice(0, 400) };
+  let parsed: any = {};
+  try { parsed = JSON.parse(txt); } catch {}
+  const text = parsed?.choices?.[0]?.message?.content ?? "";
+  return { items: extractJsonArray(text), status: 200, raw: text.slice(0, 300) };
+}
+
+async function runBatch(
+  supa: any,
+  culture: typeof CULTURE_ROTATION[number],
+  usage: Map<string, number>,
+): Promise<{ added: number; skipped: number; model: string | null; err?: string }> {
+  for (const m of MODELS) {
+    if ((usage.get(m.id) ?? 0) >= m.rpd) continue;
+    await reserveQuota(supa, m.id);
+    usage.set(m.id, (usage.get(m.id) ?? 0) + 1);
+
+    const prompt = `Сгенерируй 10 реальных имён культуры: ${culture.culture}. Происхождение: ${culture.origin}.${culture.religion ? " Религия: " + culture.religion + "." : ""} Включи и мужские и женские. Избегай самых распространённых — давай разнообразие.`;
+    const { items, status, raw } = await callGemini(m.id, prompt);
+
+    if (status === 429 || status === 403 || status === 404) {
+      await markExhausted(supa, m.id, m.rpd);
+      usage.set(m.id, m.rpd);
+      continue; // try next model
+    }
+    if (status !== 200) {
+      return { added: 0, skipped: 0, model: m.id, err: `http ${status}: ${raw}` };
+    }
+    if (items.length === 0) {
+      return { added: 0, skipped: 0, model: m.id, err: `empty parse: ${raw}` };
+    }
+
+    let added = 0, skipped = 0;
+    for (const it of items) {
+      if (!it?.name || !it?.gender) { skipped++; continue; }
+      const confidence = Math.max(0, Math.min(1, Number(it.confidence) || 0.75));
+      const status = confidence >= 0.7 ? "published" : "auto";
+      const row = {
+        name: String(it.name).trim().slice(0, 80),
+        gender: ["male", "female", "unisex"].includes(it.gender) ? it.gender : "unisex",
+        culture: culture.culture,
+        origin: culture.origin,
+        religion: culture.religion ?? null,
+        meaning: String(it.meaning ?? "").slice(0, 500),
+        history: String(it.history ?? "").slice(0, 2000),
+        attributes: Array.isArray(it.attributes) ? it.attributes.slice(0, 10) : [],
+        languages: [culture.lang],
+        source_kind: "llm",
+        source_url: `gemini:${m.id}`,
+        llm_model: m.id,
+        confidence,
+        status,
+      };
+      const { error } = await supa.from("names_enriched").insert(row);
+      if (error) skipped++; else added++;
+    }
+    return { added, skipped, model: m.id };
   }
-  const j = await res.json();
-  const text = j?.candidates?.[0]?.content?.parts?.map((p: any) => p?.text ?? "").join("") ?? "[]";
-  try {
-    const parsed = JSON.parse(text);
-    return Array.isArray(parsed) ? parsed : parsed?.names ?? [];
-  } catch {
-    return [];
-  }
+  return { added: 0, skipped: 0, model: null, err: "all models exhausted today" };
 }
 
 Deno.serve(async (req) => {
@@ -126,72 +210,47 @@ Deno.serve(async (req) => {
   const runId = runRow.data?.id;
 
   try {
-    if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY missing");
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY missing");
 
-    const model = await pickModel(supa);
-    if (!model) {
-      await supa
-        .from("enrich_runs")
-        .update({ status: "skipped", finished_at: new Date().toISOString(), errors: { msg: "all models exhausted today" } })
-        .eq("id", runId);
-      return new Response(JSON.stringify({ ok: false, reason: "quota exhausted" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    const usage = await getUsage(supa);
+
+    // Run 3 batches over different cultures per invocation
+    const minute = new Date().getUTCMinutes();
+    const cultures = [0, 1, 2].map(
+      (i) => CULTURE_ROTATION[(minute + i * 7) % CULTURE_ROTATION.length],
+    );
+
+    let totalAdded = 0, totalSkipped = 0;
+    const details: any[] = [];
+    let lastModel: string | null = null;
+    let lastErr: string | undefined;
+
+    for (const c of cultures) {
+      const r = await runBatch(supa, c, usage);
+      totalAdded += r.added;
+      totalSkipped += r.skipped;
+      if (r.model) lastModel = r.model;
+      if (r.err) lastErr = r.err;
+      details.push({ culture: c.culture, ...r });
+      if (r.err === "all models exhausted today") break;
     }
 
-    // rotating culture by minute-of-hour
-    const culture = CULTURE_ROTATION[new Date().getUTCMinutes() % CULTURE_ROTATION.length];
-    const prompt = `Сгенерируй 10 реальных имён культуры: ${culture.culture}. Происхождение: ${culture.origin}.${culture.religion ? " Религия: " + culture.religion + "." : ""} Включи и мужские и женские. Избегай самых распространённых — давай разнообразие.`;
-
-    const items = await callGemini(model.api, prompt);
-    await bumpQuota(supa, model.id);
-
-    let added = 0;
-    let skipped = 0;
-    for (const it of items) {
-      if (!it?.name || !it?.gender) {
-        skipped++;
-        continue;
-      }
-      const confidence = Math.max(0, Math.min(1, Number(it.confidence) || 0.75));
-      const status = confidence >= 0.8 ? "published" : "auto";
-      const row = {
-        name: String(it.name).trim().slice(0, 80),
-        gender: ["male", "female", "unisex"].includes(it.gender) ? it.gender : "unisex",
-        culture: culture.culture,
-        origin: culture.origin,
-        religion: culture.religion ?? null,
-        meaning: String(it.meaning ?? "").slice(0, 500),
-        history: String(it.history ?? "").slice(0, 2000),
-        attributes: Array.isArray(it.attributes) ? it.attributes.slice(0, 10) : [],
-        languages: [culture.lang],
-        source_kind: "llm",
-        source_url: `gemini:${model.id}`,
-        llm_model: model.id,
-        confidence,
-        status,
-      };
-      const { error } = await supa.from("names_enriched").insert(row);
-      if (error) {
-        skipped++;
-      } else {
-        added++;
-      }
-    }
+    const status = totalAdded > 0 ? "done" : lastErr === "all models exhausted today" ? "skipped" : "error";
 
     await supa
       .from("enrich_runs")
       .update({
-        status: "done",
+        status,
         finished_at: new Date().toISOString(),
-        model: model.id,
-        source: `culture:${culture.culture}`,
-        added,
-        skipped,
+        model: lastModel,
+        source: `cultures:${cultures.map((c) => c.culture).join(",")}`,
+        added: totalAdded,
+        skipped: totalSkipped,
+        errors: lastErr ? { msg: lastErr, details } : { details },
       })
       .eq("id", runId);
 
-    return new Response(JSON.stringify({ ok: true, model: model.id, culture: culture.culture, added, skipped }), {
+    return new Response(JSON.stringify({ ok: totalAdded > 0, added: totalAdded, skipped: totalSkipped, details }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
