@@ -118,29 +118,29 @@ function extractJsonArray(text: string): any[] {
 }
 
 async function callGemini(modelId: string, prompt: string): Promise<{ items: any[]; status: number; raw: string }> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${GEMINI_API_KEY}`;
-  const isGemma = modelId.startsWith("gemma");
-  const body: any = {
-    contents: [{ role: "user", parts: [{ text: isGemma ? `${SYSTEM}\n\n${prompt}` : prompt }] }],
-    generationConfig: {
-      temperature: 0.9,
-      maxOutputTokens: 2048,
-    },
-  };
-  if (!isGemma) {
-    body.systemInstruction = { role: "system", parts: [{ text: SYSTEM }] };
-    body.generationConfig.responseMimeType = "application/json";
-  }
+  const url = "https://ai.gateway.lovable.dev/v1/chat/completions";
   const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: modelId,
+      messages: [
+        { role: "system", content: SYSTEM },
+        { role: "user", content: prompt },
+      ],
+      temperature: 0.9,
+      max_tokens: 2048,
+      response_format: { type: "json_object" },
+    }),
   });
   const txt = await res.text();
-  if (!res.ok) return { items: [], status: res.status, raw: txt.slice(0, 300) };
+  if (!res.ok) return { items: [], status: res.status, raw: txt.slice(0, 400) };
   let parsed: any = {};
   try { parsed = JSON.parse(txt); } catch {}
-  const text = parsed?.candidates?.[0]?.content?.parts?.map((p: any) => p?.text ?? "").join("") ?? "";
+  const text = parsed?.choices?.[0]?.message?.content ?? "";
   return { items: extractJsonArray(text), status: 200, raw: text.slice(0, 300) };
 }
 
