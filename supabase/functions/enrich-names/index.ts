@@ -158,7 +158,7 @@ async function runBatch(
     const prompt = `Сгенерируй 10 реальных имён культуры: ${culture.culture}. Происхождение: ${culture.origin}.${culture.religion ? " Религия: " + culture.religion + "." : ""} Включи и мужские и женские. Избегай самых распространённых — давай разнообразие.`;
     const { items, status, raw } = await callGemini(m.id, prompt);
 
-    if (status === 429 || status === 403) {
+    if (status === 429 || status === 403 || status === 404) {
       await markExhausted(supa, m.id, m.rpd);
       usage.set(m.id, m.rpd);
       continue; // try next model
