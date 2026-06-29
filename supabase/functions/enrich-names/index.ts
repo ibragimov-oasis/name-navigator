@@ -5,17 +5,16 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-// Real model IDs (verified against generativelanguage v1beta).
-// Order = preference (cheapest/widest quota first).
+// Models via Lovable AI Gateway (OpenAI-compatible /chat/completions).
 const MODELS: { id: string; rpd: number }[] = [
-  { id: "gemini-2.5-flash-lite", rpd: 1000 },
-  { id: "gemini-2.0-flash-lite", rpd: 200 },
-  { id: "gemini-2.0-flash", rpd: 200 },
-  { id: "gemini-2.5-flash", rpd: 250 },
+  { id: "google/gemini-2.5-flash-lite", rpd: 5000 },
+  { id: "google/gemini-2.5-flash", rpd: 2000 },
+  { id: "google/gemini-2.0-flash-lite", rpd: 2000 },
+  { id: "google/gemini-2.0-flash", rpd: 2000 },
 ];
 
 const CULTURE_ROTATION = [
