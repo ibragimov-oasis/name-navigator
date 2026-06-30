@@ -54,19 +54,46 @@ export default function AdminEnrich() {
     }
   };
 
+  const downloadDump = async () => {
+    setBusy(true);
+    try {
+      const url = `https://xvpngscmnasjuwxjoqyp.supabase.co/functions/v1/names-dump`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const blob = await res.blob();
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "ai-names.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      toast.success("Скачано. Положите файл в public/data/ai-names.json и закоммитьте.");
+    } catch (e: any) {
+      toast.error(e.message ?? String(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <div className="container mx-auto py-8 space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
         <h1 className="text-3xl font-bold">Авто-обогащение имён</h1>
-        <Button onClick={runNow} disabled={busy}>
-          {busy ? "Запускаю…" : "Запустить сейчас"}
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={runNow} disabled={busy} variant="default">
+            {busy ? "…" : "Запустить сейчас"}
+          </Button>
+          <Button onClick={downloadDump} disabled={busy} variant="secondary">
+            Скачать JSON-дамп
+          </Button>
+        </div>
       </div>
 
       <Card className="p-4">
         <div className="text-sm text-muted-foreground">Опубликовано AI-имён в БД</div>
         <div className="text-3xl font-bold">{count}</div>
-        <div className="text-xs text-muted-foreground mt-1">Cron работает каждые 15 минут</div>
+        <div className="text-xs text-muted-foreground mt-1">
+          Cron каждые 15 мин. Для разгрузки БД скачайте дамп и положите в <code>public/data/ai-names.json</code> — сайт будет читать имена статически из репо.
+        </div>
       </Card>
 
       <Card className="p-4">

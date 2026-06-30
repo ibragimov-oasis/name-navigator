@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.enrich-names]
 verify_jwt = false
+
+[functions.names-dump]
+verify_jwt = false
