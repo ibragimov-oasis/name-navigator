@@ -76,11 +76,16 @@ export default function AdminEnrich() {
 
   return (
     <div className="container mx-auto py-8 space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
         <h1 className="text-3xl font-bold">Авто-обогащение имён</h1>
-        <Button onClick={runNow} disabled={busy}>
-          {busy ? "Запускаю…" : "Запустить сейчас"}
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={runNow} disabled={busy} variant="default">
+            {busy ? "…" : "Запустить сейчас"}
+          </Button>
+          <Button onClick={downloadDump} disabled={busy} variant="secondary">
+            Скачать JSON-дамп
+          </Button>
+        </div>
       </div>
 
       <Card className="p-4">
