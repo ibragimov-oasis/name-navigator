@@ -1,48 +1,71 @@
-import { ChildName, childNames as defaultChildNames, cultures as defaultCultures, religions as defaultReligions, uniqueAttributes as defaultChildAttributes } from "@/data/childNames";
-import { PetName, petNames as defaultPetNames, animalTypes as defaultAnimalTypes, petAttributes as defaultPetAttributes } from "@/data/petNames";
-import { supabase } from "@/integrations/supabase/client";
+import { ChildName, childNames as defaultChildNames } from "@/data/childNames";
+import { PetName, petNames as defaultPetNames } from "@/data/petNames";
 
-// Runtime store — starts with defaults, can be extended via CSV import or auto-enrichment
+// Runtime store — starts with defaults, extended via static JSON or edge-function dump
 let childNamesStore: ChildName[] = [...defaultChildNames];
 let petNamesStore: PetName[] = [...defaultPetNames];
 let enrichedLoaded = false;
 
-// Lazy-load AI-enriched names from Supabase (fire-and-forget, dedupes by name+gender)
+const SUPABASE_PROJECT = "xvpngscmnasjuwxjoqyp";
+const DUMP_URL = `https://${SUPABASE_PROJECT}.supabase.co/functions/v1/names-dump`;
+const STATIC_URL = "/data/ai-names.json";
+
+function mergeEnriched(rows: any[]): number {
+  const existing = new Set(
+    childNamesStore.map((n) => `${n.name.toLowerCase()}|${n.gender}`),
+  );
+  const mapped: ChildName[] = rows
+    .filter(
+      (r) =>
+        r?.name &&
+        r?.gender &&
+        !existing.has(`${String(r.name).toLowerCase()}|${r.gender}`),
+    )
+    .map((r) => ({
+      id: `enriched-${r.id}`,
+      name: r.name,
+      gender: r.gender,
+      origin: r.origin ?? "",
+      culture: r.culture ?? "",
+      religion: r.religion ?? undefined,
+      meaning: r.meaning ?? "",
+      attributes: Array.isArray(r.attributes) ? r.attributes : [],
+      popularity: 50,
+      history: r.history ?? "",
+      languages: Array.isArray(r.languages) ? r.languages : [],
+    }));
+  childNamesStore = [...childNamesStore, ...mapped];
+  return mapped.length;
+}
+
+// 1) Try static repo file (no DB hit). 2) Fall back to cached edge-function dump.
 export async function loadEnrichedNames(): Promise<number> {
   if (enrichedLoaded) return 0;
   enrichedLoaded = true;
+
+  // Static file from repo
   try {
-    const { data, error } = await supabase
-      .from("names_enriched")
-      .select("id,name,gender,culture,origin,religion,meaning,history,attributes,languages")
-      .eq("status", "published")
-      .limit(1000);
-    if (error || !data) return 0;
-    const existing = new Set(
-      childNamesStore.map((n) => `${n.name.toLowerCase()}|${n.gender}`),
-    );
-    const mapped: ChildName[] = data
-      .filter((r: any) => !existing.has(`${(r.name as string).toLowerCase()}|${r.gender}`))
-      .map((r: any) => ({
-        id: `enriched-${r.id}`,
-        name: r.name,
-        gender: r.gender,
-        origin: r.origin ?? "",
-        culture: r.culture ?? "",
-        religion: r.religion ?? undefined,
-        meaning: r.meaning ?? "",
-        attributes: Array.isArray(r.attributes) ? r.attributes : [],
-        popularity: 50,
-        history: r.history ?? "",
-        languages: Array.isArray(r.languages) ? r.languages : [],
-      }));
-    childNamesStore = [...childNamesStore, ...mapped];
-    return mapped.length;
+    const res = await fetch(STATIC_URL, { cache: "force-cache" });
+    if (res.ok) {
+      const json = await res.json();
+      if (Array.isArray(json?.names) && json.names.length > 0) {
+        return mergeEnriched(json.names);
+      }
+    }
+  } catch {
+    /* ignore, try edge */
+  }
+
+  // Edge function dump (CDN-cached, hits DB at most once per hour globally)
+  try {
+    const res = await fetch(DUMP_URL);
+    if (!res.ok) return 0;
+    const json = await res.json();
+    return mergeEnriched(json?.names ?? []);
   } catch {
     return 0;
   }
 }
-
 
 export function getChildNames(): ChildName[] {
   return childNamesStore;
