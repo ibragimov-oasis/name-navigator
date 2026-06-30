@@ -54,6 +54,26 @@ export default function AdminEnrich() {
     }
   };
 
+  const downloadDump = async () => {
+    setBusy(true);
+    try {
+      const url = `https://xvpngscmnasjuwxjoqyp.supabase.co/functions/v1/names-dump`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const blob = await res.blob();
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "ai-names.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      toast.success("Скачано. Положите файл в public/data/ai-names.json и закоммитьте.");
+    } catch (e: any) {
+      toast.error(e.message ?? String(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <div className="container mx-auto py-8 space-y-6">
       <div className="flex items-center justify-between">
