@@ -91,7 +91,9 @@ export default function AdminEnrich() {
       <Card className="p-4">
         <div className="text-sm text-muted-foreground">Опубликовано AI-имён в БД</div>
         <div className="text-3xl font-bold">{count}</div>
-        <div className="text-xs text-muted-foreground mt-1">Cron работает каждые 15 минут</div>
+        <div className="text-xs text-muted-foreground mt-1">
+          Cron каждые 15 мин. Для разгрузки БД скачайте дамп и положите в <code>public/data/ai-names.json</code> — сайт будет читать имена статически из репо.
+        </div>
       </Card>
 
       <Card className="p-4">
