@@ -6,6 +6,7 @@ import { parseFeedbackLocation } from "../../lib/feedback/feedbackLocation";
 import {
   FEEDBACK_CATEGORIES,
   sendFeedback,
+  type FeedbackCategoryId,
 } from "../../lib/feedback/feedbackSignal";
 
 export default function FeedbackWidget() {
