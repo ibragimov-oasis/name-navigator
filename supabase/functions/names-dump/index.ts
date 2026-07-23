@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
       const { data, error } = await supabase
         .from("names_enriched")
         .select(
-          "id,name,gender,culture,origin,religion,meaning,history,attributes,languages,updated_at",
+          "id,name,name_native,name_latin,gender,culture,origin,religion,meaning,history,attributes,famous_people,name_day,popularity,languages,updated_at",
         )
         .eq("status", "published")
         .order("updated_at", { ascending: false })

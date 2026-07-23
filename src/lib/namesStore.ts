@@ -30,9 +30,13 @@ function mergeEnriched(rows: any[]): number {
       religion: r.religion ?? undefined,
       meaning: r.meaning ?? "",
       attributes: Array.isArray(r.attributes) ? r.attributes : [],
-      popularity: 50,
+      popularity: Number.isFinite(Number(r.popularity)) ? Number(r.popularity) : 50,
       history: r.history ?? "",
       languages: Array.isArray(r.languages) ? r.languages : [],
+      nameNative: r.name_native ?? undefined,
+      nameLatin: r.name_latin ?? undefined,
+      nameDay: r.name_day ?? undefined,
+      famousPeople: Array.isArray(r.famous_people) ? r.famous_people : undefined,
     }));
   childNamesStore = [...childNamesStore, ...mapped];
   return mapped.length;

@@ -13,4 +13,6 @@ export interface ChildName {
   history: string;
   nameDay?: string;
   languages: string[];
+  nameNative?: string;
+  nameLatin?: string;
 }
