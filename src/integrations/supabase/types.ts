@@ -1499,6 +1499,7 @@ export type Database = {
           confidence: number
           created_at: string
           culture: string | null
+          famous_people: Json
           gender: string
           history: string | null
           id: string
@@ -1506,8 +1507,12 @@ export type Database = {
           llm_model: string | null
           meaning: string | null
           name: string
+          name_day: string | null
+          name_latin: string | null
           name_lower: string | null
+          name_native: string | null
           origin: string | null
+          popularity: number | null
           religion: string | null
           source_kind: string | null
           source_url: string | null
@@ -1519,6 +1524,7 @@ export type Database = {
           confidence?: number
           created_at?: string
           culture?: string | null
+          famous_people?: Json
           gender: string
           history?: string | null
           id?: string
@@ -1526,8 +1532,12 @@ export type Database = {
           llm_model?: string | null
           meaning?: string | null
           name: string
+          name_day?: string | null
+          name_latin?: string | null
           name_lower?: string | null
+          name_native?: string | null
           origin?: string | null
+          popularity?: number | null
           religion?: string | null
           source_kind?: string | null
           source_url?: string | null
@@ -1539,6 +1549,7 @@ export type Database = {
           confidence?: number
           created_at?: string
           culture?: string | null
+          famous_people?: Json
           gender?: string
           history?: string | null
           id?: string
@@ -1546,8 +1557,12 @@ export type Database = {
           llm_model?: string | null
           meaning?: string | null
           name?: string
+          name_day?: string | null
+          name_latin?: string | null
           name_lower?: string | null
+          name_native?: string | null
           origin?: string | null
+          popularity?: number | null
           religion?: string | null
           source_kind?: string | null
           source_url?: string | null
