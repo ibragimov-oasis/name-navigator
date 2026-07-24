@@ -13,7 +13,7 @@ type Run = {
   added: number;
   skipped: number;
   status: string;
-  errors: any;
+  errors: { reason?: string; msg?: string } | null;
 };
 type Quota = { model: string; day: string; requests: number };
 type CultureRow = { culture: string; count: number };
@@ -32,11 +32,11 @@ export default function AdminEnrich() {
       supabase.from("names_enriched").select("id", { count: "exact", head: true }).eq("status", "published"),
       supabase.from("names_enriched").select("culture").eq("status", "published"),
     ]);
-    setRuns((r.data as any) ?? []);
-    setQuota((q.data as any) ?? []);
+    setRuns((r.data as Run[] | null) ?? []);
+    setQuota((q.data as Quota[] | null) ?? []);
     setCount(n.count ?? 0);
     const counts = new Map<string, number>();
-    for (const row of ((c.data as any) ?? [])) {
+    for (const row of ((c.data as { culture: string }[] | null) ?? [])) {
       counts.set(row.culture, (counts.get(row.culture) ?? 0) + 1);
     }
     setCultures(
@@ -59,14 +59,15 @@ export default function AdminEnrich() {
         body: { trigger: "manual", batches },
       });
       if (error) throw error;
-      const added = (data as any)?.added ?? 0;
-      const exhausted = (data as any)?.exhausted;
+      const d = data as { added?: number; exhausted?: boolean } | null;
+      const added = d?.added ?? 0;
+      const exhausted = d?.exhausted;
       toast.success(
         `${label}: +${added} имён${exhausted ? " (лимиты моделей на сегодня исчерпаны)" : ""}`,
       );
       load();
-    } catch (e: any) {
-      toast.error(e.message ?? String(e));
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : String(e));
     } finally {
       setBusy(false);
     }
@@ -85,8 +86,8 @@ export default function AdminEnrich() {
       a.click();
       URL.revokeObjectURL(a.href);
       toast.success("Скачано. Положите файл в public/data/ai-names.json и закоммитьте.");
-    } catch (e: any) {
-      toast.error(e.message ?? String(e));
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : String(e));
     } finally {
       setBusy(false);
     }

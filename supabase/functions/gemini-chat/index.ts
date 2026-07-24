@@ -38,7 +38,19 @@ Deno.serve(async (req) => {
     const temperature = typeof body.temperature === "number" ? body.temperature : 0.7;
     const wantStream = body.stream === true;
 
-    const contents: any[] = [];
+    type GeminiPart = { text: string };
+    type GeminiContent = { role: "user" | "model"; parts: GeminiPart[] };
+    type GeminiPayload = {
+      contents: GeminiContent[];
+      generationConfig: {
+        temperature: number;
+        maxOutputTokens: number;
+        responseMimeType?: string;
+      };
+      systemInstruction?: { role: string; parts: GeminiPart[] };
+    };
+
+    const contents: GeminiContent[] = [];
     if (Array.isArray(body.history)) {
       for (const h of body.history.slice(-12)) {
         if (!h?.text) continue;
@@ -47,7 +59,7 @@ Deno.serve(async (req) => {
     }
     contents.push({ role: "user", parts: [{ text: prompt }] });
 
-    const payload: any = {
+    const payload: GeminiPayload = {
       contents,
       generationConfig: {
         temperature,
@@ -96,7 +108,7 @@ Deno.serve(async (req) => {
 
     const json = await res.json();
     const answer =
-      json?.candidates?.[0]?.content?.parts?.map((p: any) => p?.text ?? "").join("") ?? "";
+      json?.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p?.text ?? "").join("") ?? "";
     return new Response(JSON.stringify({ answer, model }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

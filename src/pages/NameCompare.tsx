@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
 import { getChildNames } from "@/lib/namesStore";
+import type { ChildName } from "@/data/types";
 import { calculateNumerology } from "@/lib/numerology";
 import { GitCompare, Search, X } from "lucide-react";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts";
@@ -128,15 +129,15 @@ const NameCompare = () => {
                 </tr>
               </thead>
               <tbody>
-                {[
-                  { label: "Значение", fn: (n: any) => n.meaning },
-                  { label: "Происхождение", fn: (n: any) => n.origin },
-                  { label: "Культура", fn: (n: any) => n.culture },
-                  { label: "Пол", fn: (n: any) => n.gender === "male" ? "♂ Муж" : n.gender === "female" ? "♀ Жен" : "⚥" },
-                  { label: "Популярность", fn: (n: any) => `${n.popularity}/100` },
-                  { label: "Число судьбы", fn: (n: any) => String(calculateNumerology(n.name).destinyNumber) },
-                  { label: "Атрибуты", fn: (n: any) => n.attributes.slice(0, 4).join(", ") },
-                ].map(row => (
+                {([
+                  { label: "Значение", fn: (n) => n.meaning },
+                  { label: "Происхождение", fn: (n) => n.origin },
+                  { label: "Культура", fn: (n) => n.culture },
+                  { label: "Пол", fn: (n) => n.gender === "male" ? "♂ Муж" : n.gender === "female" ? "♀ Жен" : "⚥" },
+                  { label: "Популярность", fn: (n) => `${n.popularity}/100` },
+                  { label: "Число судьбы", fn: (n) => String(calculateNumerology(n.name).destinyNumber) },
+                  { label: "Атрибуты", fn: (n) => n.attributes.slice(0, 4).join(", ") },
+                ] satisfies { label: string; fn: (n: ChildName) => string }[]).map(row => (
                   <tr key={row.label} className="border-b border-border last:border-0">
                     <td className="p-3 font-semibold text-muted-foreground">{row.label}</td>
                     {selectedNames.map((name, i) => name && (

@@ -54,8 +54,9 @@ const GeminiChatWidget = () => {
         cache: false,
       });
       setMessages([...next, { role: "model", text: answer }]);
-    } catch (e: any) {
-      setMessages([...next, { role: "model", text: `⚠️ ${e?.message ?? "Ошибка"}` }]);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Ошибка";
+      setMessages([...next, { role: "model", text: `⚠️ ${msg}` }]);
     } finally {
       setBusy(false);
     }

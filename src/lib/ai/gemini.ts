@@ -93,7 +93,7 @@ export async function askGemini(prompt: string, opts: GeminiOptions = {}): Promi
   });
 
   if (error) throw new Error(error.message || "Gemini ошибка");
-  const answer: string = (data as any)?.answer ?? "";
+  const answer: string = (data as { answer?: string } | null)?.answer ?? "";
   if (!answer) throw new Error("Пустой ответ от Gemini");
 
   if (useCache) writeCache(cacheKey, answer);
@@ -111,7 +111,7 @@ export async function askGeminiJSON<T = unknown>(prompt: string, opts: GeminiOpt
     },
   });
   if (error) throw new Error(error.message || "Gemini ошибка");
-  const answer: string = (data as any)?.answer ?? "{}";
+  const answer: string = (data as { answer?: string } | null)?.answer ?? "{}";
   return JSON.parse(answer) as T;
 }
 

@@ -5,7 +5,23 @@
 // - Pre-checks duplicates so quota isn't wasted on names we already have.
 // - Requests rich fields: native script, latin transliteration, famous people, popularity.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2";
+
+type Supa = SupabaseClient;
+
+interface GeminiItem {
+  name?: string;
+  nameNative?: string;
+  nameLatin?: string;
+  gender?: string;
+  meaning?: string;
+  history?: string;
+  attributes?: string[];
+  famousPeople?: string[];
+  nameDay?: string | null;
+  popularity?: number | string;
+  confidence?: number | string;
+}
 
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -75,13 +91,15 @@ const SYSTEM = `Ты — эксперт по именам разных куль�
 }
 Только JSON-массив, без markdown, без префиксов. Имена реальные и разнообразные, включай и мужские и женские, избегай самых очевидных.`;
 
-async function getUsage(supa: any): Promise<Map<string, number>> {
+async function getUsage(supa: Supa): Promise<Map<string, number>> {
   const today = new Date().toISOString().slice(0, 10);
   const { data } = await supa.from("llm_quota_usage").select("model,requests").eq("day", today);
-  return new Map<string, number>((data ?? []).map((r: any) => [r.model, r.requests]));
+  return new Map<string, number>(
+    ((data ?? []) as { model: string; requests: number }[]).map((r) => [r.model, r.requests]),
+  );
 }
 
-async function reserveQuota(supa: any, model: string): Promise<void> {
+async function reserveQuota(supa: Supa, model: string): Promise<void> {
   const today = new Date().toISOString().slice(0, 10);
   const { data } = await supa
     .from("llm_quota_usage")
@@ -92,7 +110,7 @@ async function reserveQuota(supa: any, model: string): Promise<void> {
   if (data) {
     await supa
       .from("llm_quota_usage")
-      .update({ requests: (data.requests ?? 0) + 1, updated_at: new Date().toISOString() })
+      .update({ requests: ((data as { requests?: number }).requests ?? 0) + 1, updated_at: new Date().toISOString() })
       .eq("model", model)
       .eq("day", today);
   } else {
@@ -100,7 +118,7 @@ async function reserveQuota(supa: any, model: string): Promise<void> {
   }
 }
 
-async function markExhausted(supa: any, model: string, rpd: number) {
+async function markExhausted(supa: Supa, model: string, rpd: number) {
   const today = new Date().toISOString().slice(0, 10);
   const { data } = await supa
     .from("llm_quota_usage")
@@ -111,7 +129,7 @@ async function markExhausted(supa: any, model: string, rpd: number) {
   if (data) {
     await supa
       .from("llm_quota_usage")
-      .update({ requests: Math.max(rpd, data.requests ?? 0), updated_at: new Date().toISOString() })
+      .update({ requests: Math.max(rpd, (data as { requests?: number }).requests ?? 0), updated_at: new Date().toISOString() })
       .eq("model", model)
       .eq("day", today);
   } else {
@@ -119,20 +137,20 @@ async function markExhausted(supa: any, model: string, rpd: number) {
   }
 }
 
-function extractJsonArray(text: string): any[] {
+function extractJsonArray(text: string): GeminiItem[] {
   const trimmed = (text ?? "").trim().replace(/^```json\s*|\s*```$/g, "");
   try {
     const j = JSON.parse(trimmed);
-    if (Array.isArray(j)) return j;
-    if (Array.isArray(j?.names)) return j.names;
-    if (Array.isArray(j?.items)) return j.items;
-  } catch {}
+    if (Array.isArray(j)) return j as GeminiItem[];
+    if (Array.isArray(j?.names)) return j.names as GeminiItem[];
+    if (Array.isArray(j?.items)) return j.items as GeminiItem[];
+  } catch { /* fall through */ }
   const m = trimmed.match(/\[[\s\S]*\]/);
   if (m) {
     try {
       const j = JSON.parse(m[0]);
-      if (Array.isArray(j)) return j;
-    } catch {}
+      if (Array.isArray(j)) return j as GeminiItem[];
+    } catch { /* ignore */ }
   }
   return [];
 }
@@ -140,7 +158,7 @@ function extractJsonArray(text: string): any[] {
 async function callGemini(
   modelId: string,
   prompt: string,
-): Promise<{ items: any[]; status: number; raw: string }> {
+): Promise<{ items: GeminiItem[]; status: number; raw: string }> {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${GEMINI_API_KEY}`;
   const res = await fetch(url, {
     method: "POST",
@@ -157,20 +175,21 @@ async function callGemini(
   });
   const txt = await res.text();
   if (!res.ok) return { items: [], status: res.status, raw: txt.slice(0, 400) };
-  let parsed: any = {};
-  try { parsed = JSON.parse(txt); } catch {}
+  type GeminiResp = { candidates?: { content?: { parts?: { text?: string }[] } }[] };
+  let parsed: GeminiResp = {};
+  try { parsed = JSON.parse(txt) as GeminiResp; } catch { /* ignore */ }
   const text = parsed?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
   return { items: extractJsonArray(text), status: 200, raw: text.slice(0, 300) };
 }
 
-async function pickLeastCoveredCultures(supa: any, n: number) {
+async function pickLeastCoveredCultures(supa: Supa, n: number) {
   // Combine counts from names_enriched (published) with the CULTURE_ROTATION list.
   const { data } = await supa
     .from("names_enriched")
     .select("culture")
     .eq("status", "published");
   const counts = new Map<string, number>();
-  for (const r of (data ?? [])) {
+  for (const r of ((data ?? []) as { culture: string }[])) {
     counts.set(r.culture, (counts.get(r.culture) ?? 0) + 1);
   }
   const scored = CULTURE_ROTATION.map((c) => ({
@@ -178,7 +197,6 @@ async function pickLeastCoveredCultures(supa: any, n: number) {
     count: counts.get(c.culture) ?? 0,
   }));
   scored.sort((a, b) => a.count - b.count);
-  // Take the n least-covered, then shuffle a bit so we don't hit them in identical order.
   const bottom = scored.slice(0, Math.max(n, 6));
   for (let i = bottom.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -188,7 +206,7 @@ async function pickLeastCoveredCultures(supa: any, n: number) {
 }
 
 async function runBatch(
-  supa: any,
+  supa: Supa,
   culture: typeof CULTURE_ROTATION[number],
   usage: Map<string, number>,
 ): Promise<{ added: number; skipped: number; model: string | null; err?: string; reason?: string }> {
@@ -206,7 +224,6 @@ async function runBatch(
       continue; // fail over to next model
     }
     if (status === 404) {
-      // Model id not available on this key — burn it for today so we don't retry.
       await markExhausted(supa, m.id, m.rpd);
       usage.set(m.id, m.rpd);
       continue;
@@ -225,20 +242,21 @@ async function runBatch(
         it,
         key: String(it.name).trim().toLowerCase(),
       }));
-    const nameList = wanted.map((w) => w.key);
     const { data: existing } = await supa
       .from("names_enriched")
       .select("name,gender,culture")
       .in("name", wanted.map((w) => String(w.it.name).trim()))
       .eq("culture", culture.culture);
     const existSet = new Set(
-      (existing ?? []).map((r: any) => `${String(r.name).toLowerCase()}|${r.gender}`),
+      ((existing ?? []) as { name: string; gender: string }[]).map(
+        (r) => `${String(r.name).toLowerCase()}|${r.gender}`,
+      ),
     );
 
     let added = 0, skipped = 0;
     for (const w of wanted) {
       const it = w.it;
-      const gender = ["male", "female", "unisex"].includes(it.gender) ? it.gender : "unisex";
+      const gender = it.gender && ["male", "female", "unisex"].includes(it.gender) ? it.gender : "unisex";
       if (existSet.has(`${w.key}|${gender}`)) { skipped++; continue; }
       const confidence = Math.max(0, Math.min(1, Number(it.confidence) || 0.75));
       const rowStatus = confidence >= 0.7 ? "published" : "auto";
@@ -308,7 +326,7 @@ Deno.serve(async (req) => {
     const cultures = await pickLeastCoveredCultures(supa, batches);
 
     let totalAdded = 0, totalSkipped = 0;
-    const details: any[] = [];
+    const details: Record<string, unknown>[] = [];
     let lastModel: string | null = null;
     let lastErr: string | undefined;
     let exhausted = false;

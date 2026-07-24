@@ -21,7 +21,7 @@ Deno.serve(async (req) => {
     );
 
     // Pull all published rows in pages of 1000.
-    const all: any[] = [];
+    const all: Record<string, unknown>[] = [];
     let from = 0;
     const pageSize = 1000;
     while (true) {
