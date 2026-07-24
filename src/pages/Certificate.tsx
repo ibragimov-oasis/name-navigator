@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { Printer, ArrowLeft } from "lucide-react";
 import SEO from "@/components/SEO";
 import { calculateNumerology, DESTINY_TRAITS } from "@/lib/numerology";
