@@ -13,7 +13,7 @@ type Run = {
   added: number;
   skipped: number;
   status: string;
-  errors: any;
+  errors: { reason?: string; msg?: string } | null;
 };
 type Quota = { model: string; day: string; requests: number };
 type CultureRow = { culture: string; count: number };
