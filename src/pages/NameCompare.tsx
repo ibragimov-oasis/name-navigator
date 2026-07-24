@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
 import { getChildNames } from "@/lib/namesStore";
+import type { ChildName } from "@/data/types";
 import { calculateNumerology } from "@/lib/numerology";
 import { GitCompare, Search, X } from "lucide-react";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts";
