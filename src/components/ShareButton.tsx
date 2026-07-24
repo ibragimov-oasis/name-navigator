@@ -11,15 +11,17 @@ interface ShareButtonProps {
 const ShareButton = ({ title, text, url, className = "" }: ShareButtonProps) => {
   const [copied, setCopied] = useState(false);
   const finalUrl = url || (typeof window !== "undefined" ? window.location.href : "");
+  const canWebShare =
+    typeof navigator !== "undefined" && typeof navigator.share === "function";
 
   const handle = async () => {
-    try {
-      if (typeof navigator !== "undefined" && (navigator as any).share) {
-        await (navigator as any).share({ title, text, url: finalUrl });
+    if (canWebShare) {
+      try {
+        await navigator.share({ title, text, url: finalUrl });
         return;
+      } catch {
+        /* user cancelled — fall through to clipboard */
       }
-    } catch {
-      /* user cancelled — fall through */
     }
     try {
       await navigator.clipboard.writeText(finalUrl);
@@ -42,7 +44,7 @@ const ShareButton = ({ title, text, url, className = "" }: ShareButtonProps) => 
         </>
       ) : (
         <>
-          {typeof navigator !== "undefined" && (navigator as any).share ? (
+          {canWebShare ? (
             <Share2 className="h-3.5 w-3.5" />
           ) : (
             <Copy className="h-3.5 w-3.5" />
