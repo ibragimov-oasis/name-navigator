@@ -14,6 +14,7 @@ import { usePeople, RELATION_LABELS } from "@/lib/people";
  */
 const Certificate = () => {
   const [params] = useSearchParams();
+  const navigate = useNavigate();
   const { activePerson } = usePeople();
 
   const name = params.get("name")?.trim() || activePerson?.fullName || "—";
