@@ -59,14 +59,15 @@ export default function AdminEnrich() {
         body: { trigger: "manual", batches },
       });
       if (error) throw error;
-      const added = (data as any)?.added ?? 0;
-      const exhausted = (data as any)?.exhausted;
+      const d = data as { added?: number; exhausted?: boolean } | null;
+      const added = d?.added ?? 0;
+      const exhausted = d?.exhausted;
       toast.success(
         `${label}: +${added} имён${exhausted ? " (лимиты моделей на сегодня исчерпаны)" : ""}`,
       );
       load();
-    } catch (e: any) {
-      toast.error(e.message ?? String(e));
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : String(e));
     } finally {
       setBusy(false);
     }
