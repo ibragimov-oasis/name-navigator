@@ -10,7 +10,25 @@ const SUPABASE_PROJECT = "xvpngscmnasjuwxjoqyp";
 const DUMP_URL = `https://${SUPABASE_PROJECT}.supabase.co/functions/v1/names-dump`;
 const STATIC_URL = "/data/ai-names.json";
 
-function mergeEnriched(rows: any[]): number {
+type EnrichedRow = {
+  id?: string | number;
+  name?: string;
+  gender?: "male" | "female" | "unisex";
+  origin?: string | null;
+  culture?: string | null;
+  religion?: string | null;
+  meaning?: string | null;
+  history?: string | null;
+  attributes?: unknown;
+  languages?: unknown;
+  name_native?: string | null;
+  name_latin?: string | null;
+  name_day?: string | null;
+  famous_people?: unknown;
+  popularity?: number | string | null;
+};
+
+function mergeEnriched(rows: EnrichedRow[]): number {
   const existing = new Set(
     childNamesStore.map((n) => `${n.name.toLowerCase()}|${n.gender}`),
   );
