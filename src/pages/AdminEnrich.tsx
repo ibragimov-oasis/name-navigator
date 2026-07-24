@@ -86,8 +86,8 @@ export default function AdminEnrich() {
       a.click();
       URL.revokeObjectURL(a.href);
       toast.success("Скачано. Положите файл в public/data/ai-names.json и закоммитьте.");
-    } catch (e: any) {
-      toast.error(e.message ?? String(e));
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : String(e));
     } finally {
       setBusy(false);
     }
