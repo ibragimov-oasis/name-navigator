@@ -32,11 +32,11 @@ export default function AdminEnrich() {
       supabase.from("names_enriched").select("id", { count: "exact", head: true }).eq("status", "published"),
       supabase.from("names_enriched").select("culture").eq("status", "published"),
     ]);
-    setRuns((r.data as any) ?? []);
-    setQuota((q.data as any) ?? []);
+    setRuns((r.data as Run[] | null) ?? []);
+    setQuota((q.data as Quota[] | null) ?? []);
     setCount(n.count ?? 0);
     const counts = new Map<string, number>();
-    for (const row of ((c.data as any) ?? [])) {
+    for (const row of ((c.data as { culture: string }[] | null) ?? [])) {
       counts.set(row.culture, (counts.get(row.culture) ?? 0) + 1);
     }
     setCultures(
