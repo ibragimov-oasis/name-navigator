@@ -108,7 +108,7 @@ Deno.serve(async (req) => {
 
     const json = await res.json();
     const answer =
-      json?.candidates?.[0]?.content?.parts?.map((p: any) => p?.text ?? "").join("") ?? "";
+      json?.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p?.text ?? "").join("") ?? "";
     return new Response(JSON.stringify({ answer, model }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
