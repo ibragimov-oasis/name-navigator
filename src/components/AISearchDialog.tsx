@@ -225,9 +225,11 @@ export default function AISearchDialog({ open, onClose }: Props) {
           }
         }
       }
-    } catch (err: any) {
-      if (err.name !== "AbortError") {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name !== "AbortError") {
         setError(err.message || "Ошибка генерации ответа");
+      } else if (!(err instanceof Error)) {
+        setError("Ошибка генерации ответа");
       }
     } finally {
       setLoading(false);

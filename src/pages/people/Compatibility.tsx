@@ -153,8 +153,8 @@ const Compatibility = () => {
           }
         }
       }
-    } catch (err: any) {
-      setAiText(`Не удалось получить AI-ответ: ${err.message}`);
+    } catch (err: unknown) {
+      setAiText(`Не удалось получить AI-ответ: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setAiLoading(false);
     }

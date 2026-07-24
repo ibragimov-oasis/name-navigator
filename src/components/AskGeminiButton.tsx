@@ -24,8 +24,8 @@ const AskGeminiButton = ({ name, meaning, origin }: Props) => {
         system: "Ты эксперт по именам, мусульманской и общечеловеческой традиции. Отвечай на русском, тёплым тоном, без воды.",
       });
       setText(answer);
-    } catch (e: any) {
-      setText(`⚠️ ${e?.message ?? "Ошибка"}`);
+    } catch (e: unknown) {
+      setText(`⚠️ ${e instanceof Error ? e.message : "Ошибка"}`);
     } finally {
       setBusy(false);
     }

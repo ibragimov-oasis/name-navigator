@@ -35,7 +35,8 @@ const CharacterName = () => {
         body: { query, mode: "creative", stream: false },
       });
       if (error) throw error;
-      const answer = (data as any)?.answer ?? (data as any)?.text ?? JSON.stringify(data);
+      const d = data as { answer?: string; text?: string } | null;
+      const answer = d?.answer ?? d?.text ?? JSON.stringify(data);
       setResult(answer);
     } catch (e) {
       toast.error("Не удалось сгенерировать. Попробуйте ещё раз.");
