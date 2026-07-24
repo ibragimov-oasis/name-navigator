@@ -5,7 +5,23 @@
 // - Pre-checks duplicates so quota isn't wasted on names we already have.
 // - Requests rich fields: native script, latin transliteration, famous people, popularity.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2";
+
+type Supa = SupabaseClient;
+
+interface GeminiItem {
+  name?: string;
+  nameNative?: string;
+  nameLatin?: string;
+  gender?: string;
+  meaning?: string;
+  history?: string;
+  attributes?: string[];
+  famousPeople?: string[];
+  nameDay?: string | null;
+  popularity?: number | string;
+  confidence?: number | string;
+}
 
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
