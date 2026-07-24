@@ -256,7 +256,7 @@ async function runBatch(
     let added = 0, skipped = 0;
     for (const w of wanted) {
       const it = w.it;
-      const gender = ["male", "female", "unisex"].includes(it.gender) ? it.gender : "unisex";
+      const gender = it.gender && ["male", "female", "unisex"].includes(it.gender) ? it.gender : "unisex";
       if (existSet.has(`${w.key}|${gender}`)) { skipped++; continue; }
       const confidence = Math.max(0, Math.min(1, Number(it.confidence) || 0.75));
       const rowStatus = confidence >= 0.7 ? "published" : "auto";
@@ -326,7 +326,7 @@ Deno.serve(async (req) => {
     const cultures = await pickLeastCoveredCultures(supa, batches);
 
     let totalAdded = 0, totalSkipped = 0;
-    const details: any[] = [];
+    const details: Record<string, unknown>[] = [];
     let lastModel: string | null = null;
     let lastErr: string | undefined;
     let exhausted = false;
