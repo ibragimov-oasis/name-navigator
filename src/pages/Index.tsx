@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import IslamicWidget from "@/components/IslamicWidget";
-import { Baby, PawPrint, Sparkles, ArrowRight, Heart, Wand2, Swords, CalendarDays, BookOpen, Crown, BookHeart, ScrollText, GitCompare, BarChart3, Star, Globe, Users, UserCircle2 } from "lucide-react";
+import { Baby, PawPrint, Sparkles, ArrowRight, Heart, Wand2, Swords, CalendarDays, BookOpen, Crown, BookHeart, ScrollText, GitCompare, BarChart3, Star, Globe, Users, UserCircle2, ShieldCheck } from "lucide-react";
 import { useMemo } from "react";
 import { getChildNames } from "@/lib/namesStore";
 import { usePeople } from "@/lib/people";
@@ -136,6 +136,7 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6 mx-auto max-w-6xl">
             {[
+              { to: "/tajik-names", icon: ShieldCheck, title: "Реестр РТ", desc: "3,461 разрешённое имя Таджикистана", bgClass: "bg-emerald-500/15", textClass: "text-emerald-600 dark:text-emerald-400" },
               { to: "/children", icon: Baby, title: "Для детей", desc: "Мальчики и девочки", bgClass: "bg-coral-light", textClass: "text-primary" },
               { to: "/people", icon: Users, title: "Для людей", desc: "Взрослые, новообращённые, персонажи", bgClass: "bg-primary/10", textClass: "text-primary" },
               { to: "/pets", icon: PawPrint, title: "Для питомцев", desc: "Собаки, кошки и другие", bgClass: "bg-teal-light", textClass: "text-accent" },

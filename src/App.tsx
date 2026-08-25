@@ -7,6 +7,7 @@ import { FavoritesProvider } from "@/lib/favorites";
 import { PeopleProvider } from "@/lib/people";
 import Index from "./pages/Index";
 import ChildrenNames from "./pages/ChildrenNames";
+import TajikNames from "./pages/TajikNames";
 import PetNames from "./pages/PetNames";
 import Favorites from "./pages/Favorites";
 import ImportData from "./pages/ImportData";
@@ -53,6 +54,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/children" element={<ChildrenNames />} />
+            <Route path="/tajik-names" element={<TajikNames />} />
+            <Route path="/tajikistan" element={<TajikNames />} />
             <Route path="/people" element={<People />} />
             <Route path="/people/profiles" element={<Profiles />} />
             <Route path="/people/adult" element={<AdultNames />} />

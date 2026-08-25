@@ -1,11 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
-import { Baby, PawPrint, Sparkles, Upload, Wand2, Swords, CalendarDays, Heart, Menu, X, Pen, Hash, Dna, BookOpen, Crown, BookHeart, ScrollText, GitCompare, BarChart3, Search, Users } from "lucide-react";
+import { Baby, PawPrint, Sparkles, Upload, Wand2, Swords, CalendarDays, Heart, Menu, X, Pen, Hash, Dna, BookOpen, Crown, BookHeart, ScrollText, GitCompare, BarChart3, Search, Users, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useFavorites } from "@/lib/favorites";
 import AISearchDialog from "@/components/AISearchDialog";
 import GeminiChatWidget from "@/components/GeminiChatWidget";
 
 const navItems = [
+  { to: "/tajik-names", label: "Реестр РТ", icon: ShieldCheck, activeClass: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
   { to: "/children", label: "Дети", icon: Baby, activeClass: "bg-coral-light text-primary" },
   { to: "/people", label: "Люди", icon: Users, activeClass: "bg-coral-light text-primary" },
   { to: "/pets", label: "Питомцы", icon: PawPrint, activeClass: "bg-teal-light text-accent" },

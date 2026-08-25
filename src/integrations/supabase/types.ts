@@ -14,6 +14,81 @@ export type Database = {
   }
   public: {
     Tables: {
+      tajik_registry_names: {
+        Row: {
+          id: string
+          num: number
+          name_tj: string
+          name_tj_raw: string
+          name_cyrillic: string
+          name_cyrillic_raw: string
+          name_latin: string
+          name_latin_raw: string
+          gender: "male" | "female"
+          gender_label: string
+          gender_tj: string
+          letter: string
+          is_official_permitted: boolean
+          legal_decree: string
+          is_enriched: boolean
+          matched_child_name_id: string | null
+          meaning: string | null
+          origin: string | null
+          attributes: string[]
+          history: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          num: number
+          name_tj: string
+          name_tj_raw: string
+          name_cyrillic: string
+          name_cyrillic_raw: string
+          name_latin: string
+          name_latin_raw: string
+          gender: "male" | "female"
+          gender_label: string
+          gender_tj: string
+          letter: string
+          is_official_permitted?: boolean
+          legal_decree?: string
+          is_enriched?: boolean
+          matched_child_name_id?: string | null
+          meaning?: string | null
+          origin?: string | null
+          attributes?: string[]
+          history?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          num?: number
+          name_tj?: string
+          name_tj_raw?: string
+          name_cyrillic?: string
+          name_cyrillic_raw?: string
+          name_latin?: string
+          name_latin_raw?: string
+          gender?: "male" | "female"
+          gender_label?: string
+          gender_tj?: string
+          letter?: string
+          is_official_permitted?: boolean
+          legal_decree?: string
+          is_enriched?: boolean
+          matched_child_name_id?: string | null
+          meaning?: string | null
+          origin?: string | null
+          attributes?: string[]
+          history?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       api_keys: {
         Row: {
           api_key: string
