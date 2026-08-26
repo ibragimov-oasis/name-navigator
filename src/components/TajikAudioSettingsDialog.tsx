@@ -26,6 +26,7 @@ import {
   Filter,
   Users,
   User,
+  Star,
 } from "lucide-react";
 import { AudioReaderSettings } from "@/hooks/useTajikAudioReader";
 import { VoicePreset, SpeechReadingMode, speakName } from "@/lib/tts";
@@ -119,32 +120,47 @@ export function TajikAudioSettingsDialog({
 
   // Group system voices by language
   const categorizedVoices = useMemo(() => {
+    const english = availableVoices.filter((v) => v.lang.startsWith("en"));
     const persian = availableVoices.filter((v) => v.lang.startsWith("fa"));
     const arabic = availableVoices.filter((v) => v.lang.startsWith("ar"));
     const russian = availableVoices.filter((v) => v.lang.startsWith("ru"));
     const others = availableVoices.filter(
-      (v) => !v.lang.startsWith("fa") && !v.lang.startsWith("ar") && !v.lang.startsWith("ru")
+      (v) =>
+        !v.lang.startsWith("en") &&
+        !v.lang.startsWith("fa") &&
+        !v.lang.startsWith("ar") &&
+        !v.lang.startsWith("ru")
     );
 
-    return { persian, arabic, russian, others };
+    return { english, persian, arabic, russian, others };
   }, [availableVoices]);
 
-  // Voice presets config
+  // Voice presets config with English/Latin on top as recommended
   const voicePresets: {
     id: VoicePreset;
     title: string;
     sub: string;
     flag: string;
     badge: string;
+    isRecommended?: boolean;
     description: string;
   }[] = [
     {
+      id: "english",
+      title: "Англисӣ / Латинӣ (Романджи)",
+      sub: "Latin Passport (Samantha / Google / Siri)",
+      flag: "🇬🇧",
+      badge: "⭐ Тавсияшаванда (100% равшан)",
+      isRecommended: true,
+      description: "Дикторони олии англисӣ овонавишти лотинии номҳоро (passport Latin) 100% ҳарф ба ҳарф бе партофтани ҳарфҳои тоҷикӣ мехонанд",
+    },
+    {
       id: "auto",
       title: "Худкор (Автоподбор)",
-      sub: "Мутобиқсозии беҳтарин",
+      sub: "Оптималӣ барои номҳо",
       flag: "🤖",
-      badge: "Тавсияшаванда",
-      description: "Система овози беҳтарини мавҷударо (форсӣ, арабӣ ё русӣ) интихоб мекунад",
+      badge: "Системавӣ",
+      description: "Интихоби худкори овози беҳтарини мавҷуда дар компютер ё телефони шумо",
     },
     {
       id: "persian",
@@ -152,7 +168,7 @@ export function TajikAudioSettingsDialog({
       sub: "Farsi (fa-IR)",
       flag: "🇮🇷",
       badge: categorizedVoices.persian.length > 0 ? "Дар дастгоҳ ҳаст" : "Аутентикӣ",
-      description: "Талаффузи классикии шарқӣ барои номҳои форсӣ ва тоҷикӣ",
+      description: "Талаффузи шарқӣ ва оҳангдор барои номҳои форсӣ ва тоҷикӣ",
     },
     {
       id: "arabic",
@@ -160,25 +176,29 @@ export function TajikAudioSettingsDialog({
       sub: "Arabic (ar-SA)",
       flag: "🇸🇦",
       badge: categorizedVoices.arabic.length > 0 ? "Дар дастгоҳ ҳаст" : "Исломӣ",
-      description: "Хониши дурусти махориҷи ҳуруф барои номҳои решаи арабӣ",
+      description: "Хониши махориҷи ҳуруф барои номҳои решаи арабӣ",
     },
     {
       id: "russian",
-      title: "Русӣ / Тоҷикӣ",
+      title: "Русӣ / Кириллӣ",
       sub: "Cyrillic (ru-RU)",
       flag: "🇷🇺",
       badge: categorizedVoices.russian.length > 0 ? "Дар дастгоҳ ҳаст" : "Кириллӣ",
-      description: "Хониши равони алифбои кириллии тоҷикӣ (Ғ, Ӣ, Қ, Ӯ, Ҳ, Ҷ)",
+      description: "Хониши кириллии тоҷикӣ (барои баъзе ҳарфҳои махсус маҳдудият дорад)",
     },
   ];
 
   const handleTestVoice = () => {
     setIsTestingVoice(true);
-    const testText = sampleName
-      ? `Номи расмӣ: ${sampleName.name_tj}. ${sampleName.meaning ? "Маъно: " + sampleName.meaning : ""}`
-      : "Ассалому алайкум! Номи зебо ва расмии тоҷикӣ бо маъно ва талаффузи дуруст.";
+    const testName = sampleName?.name_latin || sampleName?.name_tj || "Abirafshon";
+    const testText =
+      settings.voicePreset === "english"
+        ? `${testName}. Meaning: ${sampleName?.meaning || "National official name"}`
+        : sampleName
+        ? `Номи расмӣ: ${sampleName.name_tj}. ${sampleName.meaning ? "Маъно: " + sampleName.meaning : ""}`
+        : "Ассалому алайкум! Номи зебо ва расмии тоҷикӣ бо маъно ва талаффузи дуруст.";
 
-    speakName(testText, "ru-RU", {
+    speakName(testText, settings.voicePreset === "english" ? "en-US" : "ru-RU", {
       rate: settings.speed,
       pitch: settings.pitch,
       volume: settings.volume,
@@ -213,7 +233,7 @@ export function TajikAudioSettingsDialog({
             </DialogTitle>
           </div>
           <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
-            Филтри номҳо (писарона/духтарона), диапазони саҳифаҳо, диктор (форсӣ, арабӣ, русӣ), суръат ва баландиро танзим кунед.
+            Филтри номҳо (писарона/духтарона), диктор (овози равшани лотинӣ/англисӣ, форсӣ, арабӣ), суръат аз 0.25x ва баландиро танзим кунед.
           </DialogDescription>
         </DialogHeader>
 
@@ -409,7 +429,7 @@ export function TajikAudioSettingsDialog({
             <div className="flex items-center justify-between">
               <Label className="font-bold text-foreground text-xs uppercase tracking-wider flex items-center gap-1.5">
                 <UserCheck className="h-4 w-4 text-emerald-500" />
-                Интихоби диктор ва забон (Голос):
+                Интихоби диктор ва лаҳҷа (Голос):
               </Label>
               <span className="text-[11px] text-muted-foreground">
                 {availableVoices.length} овози дастрас дар система
@@ -430,7 +450,9 @@ export function TajikAudioSettingsDialog({
                     }}
                     className={`p-3.5 rounded-2xl border cursor-pointer transition-all flex flex-col justify-between ${
                       isSelected
-                        ? "bg-emerald-500/10 border-emerald-500 text-emerald-950 dark:text-emerald-100 shadow-sm ring-1 ring-emerald-500/40"
+                        ? "bg-emerald-500/10 border-emerald-500 text-emerald-950 dark:text-emerald-100 shadow-sm ring-2 ring-emerald-500/50"
+                        : preset.isRecommended
+                        ? "bg-emerald-500/5 border-emerald-500/30 hover:border-emerald-500/60"
                         : "bg-card border-border/80 hover:border-emerald-500/40 hover:bg-secondary/40"
                     }`}
                   >
@@ -438,15 +460,19 @@ export function TajikAudioSettingsDialog({
                       <div className="flex items-center gap-2">
                         <span className="text-2xl">{preset.flag}</span>
                         <div>
-                          <h4 className="font-bold text-xs sm:text-sm text-foreground">{preset.title}</h4>
+                          <div className="flex items-center gap-1.5">
+                            <h4 className="font-bold text-xs sm:text-sm text-foreground">{preset.title}</h4>
+                          </div>
                           <span className="text-[10px] text-muted-foreground block">{preset.sub}</span>
                         </div>
                       </div>
                       <Badge
                         variant="outline"
-                        className={`text-[9px] font-semibold px-1.5 py-0.5 rounded ${
+                        className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
                           isSelected
                             ? "bg-emerald-600 text-white border-transparent"
+                            : preset.isRecommended
+                            ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/30"
                             : "bg-secondary text-muted-foreground"
                         }`}
                       >
@@ -488,34 +514,48 @@ export function TajikAudioSettingsDialog({
             )}
           </div>
 
-          {/* SECTION 4: Speed, Volume, Pitch */}
+          {/* SECTION 4: Speed (0.25x - 2.0x), Volume, Pitch */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-card border border-border">
             {/* Speed Control */}
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-semibold text-foreground flex items-center gap-1.5">
                   <Gauge className="h-4 w-4 text-primary" />
                   Суръати хониш (Скорость):
                 </span>
-                <span className="font-bold text-primary font-mono text-xs">{settings.speed.toFixed(2)}x</span>
+                <span className="font-bold text-emerald-600 dark:text-emerald-400 font-mono text-xs">
+                  {settings.speed.toFixed(2)}x
+                </span>
               </div>
               <Slider
                 value={[settings.speed]}
-                min={0.5}
+                min={0.25}
                 max={1.75}
                 step={0.05}
                 onValueChange={(val) => onUpdateSettings({ speed: val[0] })}
                 className="py-1"
               />
-              <div className="flex justify-between text-[10px] text-muted-foreground font-mono">
-                <span>0.5x (оҳиста)</span>
-                <span>1.0x (муқаррарӣ)</span>
-                <span>1.75x (тез)</span>
+              {/* Quick speed buttons including 0.25x and 0.5x */}
+              <div className="flex flex-wrap items-center gap-1 pt-1">
+                {[0.25, 0.5, 0.75, 1.0, 1.25, 1.5].map((spd) => (
+                  <button
+                    key={spd}
+                    type="button"
+                    onClick={() => onUpdateSettings({ speed: spd })}
+                    className={`px-2 py-0.5 rounded-md text-[10px] font-bold border transition-colors ${
+                      Math.abs(settings.speed - spd) < 0.01
+                        ? "bg-emerald-600 text-white border-transparent"
+                        : "bg-secondary text-muted-foreground hover:text-foreground border-border/80"
+                    }`}
+                  >
+                    {spd}x
+                  </button>
+                ))}
               </div>
             </div>
 
             {/* Volume Control */}
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-semibold text-foreground flex items-center gap-1.5">
                   {settings.volume === 0 ? (
@@ -538,9 +578,9 @@ export function TajikAudioSettingsDialog({
                 className="py-1"
               />
               <div className="flex justify-between text-[10px] text-muted-foreground font-mono">
-                <span>0%</span>
+                <span>0% (Хомӯш)</span>
                 <span>50%</span>
-                <span>100%</span>
+                <span>100% (Пурра)</span>
               </div>
             </div>
           </div>
@@ -554,9 +594,9 @@ export function TajikAudioSettingsDialog({
               </Label>
               <div className="space-y-1.5">
                 {[
-                  { id: "name_only", label: "Танҳо ном", desc: "«Абирафшон»" },
-                  { id: "name_meaning", label: "Ном ва маъно", desc: "«Абирафшон. Маъно: Рӯи тобон»" },
-                  { id: "full", label: "Хониши пурра", desc: "«№1. Абирафшон. Номи писарона...»" },
+                  { id: "name_only", label: "Танҳо ном", desc: "«Abirafshon»" },
+                  { id: "name_meaning", label: "Ном ва маъно", desc: "«Abirafshon. Meaning: ...»" },
+                  { id: "full", label: "Хониши пурра", desc: "«Number 1. Abirafshon. Male name...»" },
                 ].map((m) => (
                   <button
                     key={m.id}

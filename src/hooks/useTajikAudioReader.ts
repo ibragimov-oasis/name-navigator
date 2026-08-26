@@ -45,10 +45,10 @@ export function useTajikAudioReader({
   const [settings, setSettings] = useState<AudioReaderSettings>({
     startPage: 1,
     endPage: 1,
-    speed: 0.95,
+    speed: 0.75,
     volume: 1.0,
     pitch: 1.0,
-    voicePreset: "auto",
+    voicePreset: "english",
     selectedVoiceUri: "auto",
     mode: "name_only",
     pauseBetween: 700,
@@ -184,7 +184,7 @@ export function useTajikAudioReader({
       const utterance = new SpeechSynthesisUtterance(textToSpeak);
       utteranceRef.current = utterance;
 
-      utterance.rate = Math.max(0.5, Math.min(2.0, currentConfig.speed));
+      utterance.rate = Math.max(0.25, Math.min(2.0, currentConfig.speed));
       utterance.pitch = Math.max(0.5, Math.min(1.5, currentConfig.pitch));
       utterance.volume = Math.max(0.0, Math.min(1.0, currentConfig.volume));
 
@@ -192,7 +192,7 @@ export function useTajikAudioReader({
         utterance.voice = activeVoice;
         utterance.lang = activeVoice.lang;
       } else {
-        utterance.lang = "ru-RU";
+        utterance.lang = "en-US";
       }
 
       utterance.onend = () => {

@@ -73,6 +73,7 @@ export function TajikAudioPlayerBar({
 
   // Voice Flag & Name resolver
   const getVoiceBadge = () => {
+    if (settings.voicePreset === "english") return { flag: "🇬🇧", label: "Англисӣ (Латинӣ)" };
     if (settings.voicePreset === "persian") return { flag: "🇮🇷", label: "Форсӣ (fa-IR)" };
     if (settings.voicePreset === "arabic") return { flag: "🇸🇦", label: "Арабӣ (ar-SA)" };
     if (settings.voicePreset === "russian") return { flag: "🇷🇺", label: "Русӣ (ru-RU)" };
@@ -334,12 +335,12 @@ export function TajikAudioPlayerBar({
                       <span className="font-mono text-emerald-500">{settings.speed}x</span>
                     </div>
                     <div className="grid grid-cols-3 gap-1">
-                      {[0.75, 0.9, 1.0, 1.25, 1.5, 1.75].map((spd) => (
+                      {[0.25, 0.5, 0.75, 1.0, 1.25, 1.5].map((spd) => (
                         <button
                           key={spd}
                           onClick={() => onUpdateSettings({ speed: spd })}
                           className={`h-7 rounded-lg text-xs font-semibold ${
-                            settings.speed === spd
+                            Math.abs(settings.speed - spd) < 0.01
                               ? "bg-primary text-primary-foreground"
                               : "bg-secondary text-muted-foreground hover:text-foreground"
                           }`}

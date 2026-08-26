@@ -1,6 +1,8 @@
 /**
- * Web Speech TTS helper with support for Persian (Farsi), Arabic, Russian, and System Voices.
- * Optimized for reading Tajik National Registry names with custom voices, speed, volume, and playback modes.
+ * Web Speech TTS helper with support for English (Latin/Romanization), Persian (Farsi),
+ * Arabic, Russian, and System Voices.
+ * Optimized for reading Tajik National Registry names with custom voices, speed (down to 0.25x),
+ * volume, and playback modes.
  */
 import { TajikRegistryName } from "@/data/tajikTypes";
 
@@ -12,14 +14,14 @@ export interface SpeechVoiceCategory {
   voices: SpeechSynthesisVoice[];
 }
 
-export type VoicePreset = "auto" | "persian" | "arabic" | "russian" | "system";
+export type VoicePreset = "english" | "auto" | "persian" | "arabic" | "russian" | "system";
 
 export type SpeechReadingMode = "name_only" | "name_meaning" | "full";
 
 export interface SpeechOptions {
   voice?: SpeechSynthesisVoice | null;
   voicePreset?: VoicePreset;
-  rate?: number; // 0.5 - 2.0
+  rate?: number; // 0.25 - 2.0
   pitch?: number; // 0.5 - 1.5
   volume?: number; // 0.0 - 1.0
   onStart?: () => void;
@@ -98,31 +100,45 @@ export function resolveBestVoice(
     if (found) return found;
   }
 
-  // 2. Preset specific matching
+  // 2. English / Latin preset (Recommended for 100% letter articulation without skipping)
+  if (preset === "english") {
+    // Look for top English voices: Samantha, Daniel, Google US English, Alex, Karen, Siri
+    const preferredNames = ["Samantha", "Daniel", "Google US English", "Alex", "Karen", "Victoria", "Natural"];
+    for (const name of preferredNames) {
+      const match = voices.find((v) => v.lang.startsWith("en") && v.name.includes(name));
+      if (match) return match;
+    }
+    const anyEn = voices.find((v) => v.lang.startsWith("en-US")) || voices.find((v) => v.lang.startsWith("en"));
+    if (anyEn) return anyEn;
+  }
+
+  // 3. Persian preset
   if (preset === "persian") {
     const persianVoice = voices.find((v) => v.lang.startsWith("fa"));
     if (persianVoice) return persianVoice;
   }
 
+  // 4. Arabic preset
   if (preset === "arabic") {
     const arabicVoice = voices.find((v) => v.lang.startsWith("ar"));
     if (arabicVoice) return arabicVoice;
   }
 
+  // 5. Russian preset
   if (preset === "russian") {
     const russianVoice = voices.find((v) => v.lang.startsWith("ru"));
     if (russianVoice) return russianVoice;
   }
 
-  // 3. Auto preset - Persian -> Arabic -> Tajik -> Russian -> Default
+  // 6. Auto preset: English (for clean Latin pronunciation) -> Persian -> Arabic -> Russian -> Default
+  const enMatch = voices.find((v) => v.lang.startsWith("en-US")) || voices.find((v) => v.lang.startsWith("en"));
+  if (enMatch) return enMatch;
+
   const persian = voices.find((v) => v.lang.startsWith("fa"));
   if (persian) return persian;
 
   const arabic = voices.find((v) => v.lang.startsWith("ar"));
   if (arabic) return arabic;
-
-  const tajik = voices.find((v) => v.lang.startsWith("tg"));
-  if (tajik) return tajik;
 
   const russian = voices.find((v) => v.lang.startsWith("ru"));
   if (russian) return russian;
@@ -137,13 +153,14 @@ export function formatSpeechText(
   mode: SpeechReadingMode = "name_only",
   voiceLang?: string
 ): string {
+  const isEnglish = voiceLang?.startsWith("en");
   const isPersian = voiceLang?.startsWith("fa");
   const isArabic = voiceLang?.startsWith("ar");
 
+  // When reading with English or foreign voice, use official Latin transcription (name_latin)
+  // which reads all letters accurately without skipping special Tajik Cyrillic characters!
   let baseName = name.name_tj;
-  if (isPersian || isArabic) {
-    // If voice is Arabic or Persian and Cyrillic isn't native to that engine,
-    // Latin or Arabic phonetic transcription provides crystal clear pronunciation
+  if (isEnglish || isPersian || isArabic) {
     baseName = name.name_latin ? name.name_latin : cyrillicToPhoneticLatin(name.name_tj);
   }
 
@@ -153,12 +170,23 @@ export function formatSpeechText(
 
   if (mode === "name_meaning") {
     if (name.meaning) {
+      if (isEnglish) {
+        return `${baseName}. Meaning: ${name.meaning}`;
+      }
       return `${baseName}. Маъно: ${name.meaning}`;
     }
     return baseName;
   }
 
   // Full mode
+  if (isEnglish) {
+    const genderWord = name.gender === "male" ? "Male name" : "Female name";
+    if (name.meaning) {
+      return `Number ${name.num}. ${baseName}. ${genderWord}. Meaning: ${name.meaning}`;
+    }
+    return `Number ${name.num}. ${baseName}. ${genderWord}`;
+  }
+
   const genderWord = name.gender === "male" ? "Номи писарона" : "Номи духтарона";
   if (name.meaning) {
     return `Рақами ${name.num}. ${baseName}. ${genderWord}. Маъно: ${name.meaning}`;
@@ -169,7 +197,7 @@ export function formatSpeechText(
 // Single name quick speech
 export function speakName(
   text: string,
-  lang: "ru-RU" | "ar-SA" | "fa-IR" | "en-US" = "ru-RU",
+  lang: "en-US" | "ru-RU" | "ar-SA" | "fa-IR" = "en-US",
   options?: Partial<SpeechOptions>
 ): boolean {
   if (!ttsSupported()) return false;
@@ -179,7 +207,7 @@ export function speakName(
     synth.cancel();
 
     const utter = new SpeechSynthesisUtterance(text);
-    utter.rate = options?.rate ?? 0.92;
+    utter.rate = options?.rate ?? 0.75; // Slower default for clarity
     utter.pitch = options?.pitch ?? 1.0;
     utter.volume = options?.volume ?? 1.0;
 

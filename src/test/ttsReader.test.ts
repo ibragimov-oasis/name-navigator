@@ -46,7 +46,15 @@ describe("TTS & Audio Reader Engine", () => {
     expect(fullText).toContain("Номи писарона");
   });
 
-  it("formats latin phonetic text when voice is Persian or Arabic", () => {
+  it("formats clean Latin phonetic text when voice is English, Persian, or Arabic", () => {
+    const textForEnglish = formatSpeechText(sampleName, "name_only", "en-US");
+    expect(textForEnglish).toBe("Abirafshon");
+
+    const textForEnglishFull = formatSpeechText(sampleName, "full", "en-US");
+    expect(textForEnglishFull).toContain("Number 1");
+    expect(textForEnglishFull).toContain("Abirafshon");
+    expect(textForEnglishFull).toContain("Male name");
+
     const textForPersian = formatSpeechText(sampleName, "name_only", "fa-IR");
     expect(textForPersian).toBe("Abirafshon");
 
@@ -54,12 +62,17 @@ describe("TTS & Audio Reader Engine", () => {
     expect(textForArabic).toBe("Abirafshon");
   });
 
-  it("resolves best voice preset", () => {
+  it("resolves best voice preset including English Latin recommendation", () => {
     const mockVoices = [
+      { name: "Samantha", lang: "en-US", voiceURI: "uri-en-1", default: false },
       { name: "Siri Russian", lang: "ru-RU", voiceURI: "uri-ru-1", default: false },
       { name: "Dariush Persian", lang: "fa-IR", voiceURI: "uri-fa-1", default: false },
       { name: "Maged Arabic", lang: "ar-SA", voiceURI: "uri-ar-1", default: false },
     ] as SpeechSynthesisVoice[];
+
+    const englishVoice = resolveBestVoice(mockVoices, "english");
+    expect(englishVoice?.lang).toBe("en-US");
+    expect(englishVoice?.name).toBe("Samantha");
 
     const persianVoice = resolveBestVoice(mockVoices, "persian");
     expect(persianVoice?.lang).toBe("fa-IR");
@@ -71,6 +84,6 @@ describe("TTS & Audio Reader Engine", () => {
     expect(russianVoice?.lang).toBe("ru-RU");
 
     const autoVoice = resolveBestVoice(mockVoices, "auto");
-    expect(autoVoice?.lang).toBe("fa-IR");
+    expect(autoVoice?.lang).toBe("en-US");
   });
 });
