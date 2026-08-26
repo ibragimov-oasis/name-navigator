@@ -3,12 +3,18 @@ import Header from "@/components/Header";
 import { tajikRegistryNames, TAJIK_ALPHABET, checkTajikNameLegality, getTajikAlphabetStats } from "@/data/tajikRegistry";
 import { TajikRegistryName, NameCheckResult } from "@/data/tajikTypes";
 import { TajikNameDetailDialog } from "@/components/TajikNameDetailDialog";
+import { TajikCertificateDialog } from "@/components/TajikCertificateDialog";
+import { TajikRandomGeneratorDialog } from "@/components/TajikRandomGeneratorDialog";
+import { TajikAudioSettingsDialog } from "@/components/TajikAudioSettingsDialog";
+import { TajikAudioPlayerBar } from "@/components/TajikAudioPlayerBar";
+import { useTajikAudioReader } from "@/hooks/useTajikAudioReader";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useFavorites } from "@/lib/favorites";
+import { speakName } from "@/lib/tts";
 import { toast } from "sonner";
 import {
   ShieldCheck,
@@ -27,17 +33,33 @@ import {
   Clock,
   ArrowUpDown,
   Copy,
-  Check
+  Check,
+  Volume2,
+  Dices,
+  FileText,
+  Scale,
+  BarChart3,
+  HelpCircle,
+  Share2,
+  ExternalLink,
+  Flame,
+  Star,
+  Headphones,
+  Play,
+  Pause,
+  Radio,
 } from "lucide-react";
 
 type GenderFilter = "all" | "male" | "female";
 type EnrichedFilter = "all" | "enriched" | "pending";
 type ViewMode = "grid" | "table";
-type SortOrder = "num-asc" | "alpha-asc" | "alpha-desc";
+type SortOrder = "num-asc" | "alpha-asc" | "alpha-desc" | "length-asc" | "length-desc";
+type ActiveTab = "catalog" | "checker" | "generator" | "analytics" | "legal";
 
 const ITEMS_PER_PAGE = 36;
 
 const TajikNames = () => {
+  const [activeTab, setActiveTab] = useState<ActiveTab>("catalog");
   const [search, setSearch] = useState("");
   const [selectedGender, setSelectedGender] = useState<GenderFilter>("all");
   const [selectedLetter, setSelectedLetter] = useState<string>("all");
@@ -50,9 +72,11 @@ const TajikNames = () => {
   const [checkerQuery, setCheckerQuery] = useState("");
   const [checkResult, setCheckResult] = useState<NameCheckResult | null>(null);
 
-  // Detail Modal state
+  // Detail & Certificate & Generator Dialog states
   const [selectedName, setSelectedName] = useState<TajikRegistryName | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [certOpen, setCertOpen] = useState(false);
+  const [generatorOpen, setGeneratorOpen] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const { isFavorite, toggleFavorite } = useFavorites();
@@ -96,27 +120,66 @@ const TajikNames = () => {
       if (sortOrder === "alpha-desc") {
         return b.name_tj.localeCompare(a.name_tj, "tg");
       }
+      if (sortOrder === "length-asc") {
+        return a.name_tj.length - b.name_tj.length;
+      }
+      if (sortOrder === "length-desc") {
+        return b.name_tj.length - a.name_tj.length;
+      }
       return a.num - b.num;
     });
   }, [search, selectedGender, selectedLetter, selectedEnriched, sortOrder]);
+
+  // Total pages
+  const totalPages = Math.ceil(filteredNames.length / ITEMS_PER_PAGE) || 1;
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [search, selectedGender, selectedLetter, selectedEnriched, sortOrder]);
 
-  const totalPages = Math.ceil(filteredNames.length / ITEMS_PER_PAGE) || 1;
+  // Audio Reader Hook Integration
+  const {
+    isPlaying: isAudioPlaying,
+    isPaused: isAudioPaused,
+    currentIndex: audioCurrentIndex,
+    currentName: audioCurrentName,
+    totalCount: audioTotalCount,
+    progress: audioProgress,
+    settings: audioSettings,
+    activeVoice,
+    availableVoices,
+    isAudioSettingsOpen,
+    setIsAudioSettingsOpen,
+    startReading,
+    startReadingPages,
+    pause: pauseAudio,
+    resume: resumeAudio,
+    togglePlay: toggleAudioPlay,
+    stop: stopAudio,
+    next: nextAudio,
+    previous: prevAudio,
+    skip: skipAudio,
+    updateSettings: updateAudioSettings,
+  } = useTajikAudioReader({
+    itemsPerPage: ITEMS_PER_PAGE,
+    onPageChange: (newPage) => {
+      setCurrentPage(newPage);
+    },
+  });
+
   const paginatedNames = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     return filteredNames.slice(start, start + ITEMS_PER_PAGE);
   }, [filteredNames, currentPage]);
 
-  const handleRunChecker = () => {
-    if (!checkerQuery.trim()) {
+  const handleRunChecker = (overrideQuery?: string) => {
+    const target = (overrideQuery ?? checkerQuery).trim();
+    if (!target) {
       setCheckResult(null);
       return;
     }
-    const res = checkTajikNameLegality(checkerQuery);
+    const res = checkTajikNameLegality(target);
     setCheckResult(res);
   };
 
@@ -153,6 +216,21 @@ const TajikNames = () => {
     setTimeout(() => setCopiedId(null), 1500);
   };
 
+  const handleSpeakCard = (e: React.MouseEvent, text: string) => {
+    e.stopPropagation();
+    speakName(text, "ru-RU");
+  };
+
+  // Start reading from a specific card index in current filtered list
+  const handleStartAudioFromCard = (e: React.MouseEvent, nameItem: TajikRegistryName) => {
+    e.stopPropagation();
+    const indexInFiltered = filteredNames.findIndex((n) => n.id === nameItem.id);
+    if (indexInFiltered !== -1) {
+      startReading(filteredNames, indexInFiltered);
+      toast.info(`Хониш аз номи «${nameItem.name_tj}» сар шуд`);
+    }
+  };
+
   const counts = useMemo(() => {
     return {
       total: tajikRegistryNames.length,
@@ -163,17 +241,88 @@ const TajikNames = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background text-foreground selection:bg-primary/20">
+    <div className="min-h-screen bg-background text-foreground selection:bg-emerald-500/20 pb-28">
       <Header />
+
+      {/* Detail Dialog */}
+      <TajikNameDetailDialog
+        name={selectedName}
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+      />
+
+      {/* Certificate Extract Dialog */}
+      <TajikCertificateDialog
+        name={selectedName}
+        open={certOpen}
+        onOpenChange={setCertOpen}
+      />
+
+      {/* Random Generator Dialog */}
+      <TajikRandomGeneratorDialog
+        open={generatorOpen}
+        onOpenChange={setGeneratorOpen}
+        onSelectName={(name) => {
+          setSelectedName(name);
+          setDetailOpen(true);
+        }}
+      />
+
+      {/* TTS Audio Reader Settings Dialog */}
+      <TajikAudioSettingsDialog
+        open={isAudioSettingsOpen}
+        onOpenChange={setIsAudioSettingsOpen}
+        settings={audioSettings}
+        onUpdateSettings={updateAudioSettings}
+        totalPages={totalPages}
+        totalNames={filteredNames.length}
+        availableVoices={availableVoices}
+        onStartReading={(startPage, endPage) => {
+          startReadingPages(filteredNames, startPage, endPage);
+        }}
+        sampleName={selectedName || paginatedNames[0]}
+      />
+
+      {/* Floating Docked Audio Player Bar */}
+      <TajikAudioPlayerBar
+        isPlaying={isAudioPlaying}
+        isPaused={isAudioPaused}
+        currentName={audioCurrentName}
+        currentIndex={audioCurrentIndex}
+        totalCount={audioTotalCount}
+        progress={audioProgress}
+        settings={audioSettings}
+        activeVoice={activeVoice}
+        onTogglePlay={toggleAudioPlay}
+        onStop={stopAudio}
+        onNext={nextAudio}
+        onPrevious={prevAudio}
+        onSkip={skipAudio}
+        onUpdateSettings={updateAudioSettings}
+        onOpenSettings={() => setIsAudioSettingsOpen(true)}
+        currentPage={currentPage}
+        totalPages={totalPages}
+      />
 
       <main className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Hero Section */}
-        <section className="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-background to-secondary/30 p-6 sm:p-10 mb-8 shadow-xl">
-          <div className="absolute top-0 right-0 -mt-8 -mr-8 w-72 h-72 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
+        <section className="relative overflow-hidden rounded-3xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-background to-secondary/30 p-6 sm:p-10 mb-8 shadow-xl">
+          <div className="absolute top-0 right-0 -mt-8 -mr-8 w-80 h-80 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
           <div className="relative z-10 space-y-4">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-semibold">
-              <ShieldCheck className="h-4 w-4" />
-              Тасдиқшуда бо Қарори Ҳукумати Ҷумҳурии Тоҷикистон №98
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-semibold">
+                <ShieldCheck className="h-4 w-4" />
+                Тасдиқшуда бо Қарори Ҳукумати Ҷумҳурии Тоҷикистон №98
+              </div>
+              <Badge variant="outline" className="text-xs bg-background/80 border-border">
+                Моддаи 20¹ Қонуни ҶТ дар бораи САҲШ
+              </Badge>
+              {isAudioPlaying && (
+                <Badge className="bg-emerald-600 text-white text-xs animate-pulse font-bold flex items-center gap-1">
+                  <Radio className="h-3 w-3" />
+                  Хониши овозӣ фаъол аст
+                </Badge>
+              )}
             </div>
 
             <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground font-display">
@@ -181,529 +330,857 @@ const TajikNames = () => {
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground max-w-3xl leading-relaxed">
               Ягона феҳристи расмии номҳои миллии тасдиқшуда ва иҷозатдодашудаи Тоҷикистон.
-              Тибқи қонунгузории ҶТ танҳо номҳои расмии ин феҳрист барои сабти асноди ҳолати шаҳрвандӣ (САҲШ / ЗАГС) иҷозат доранд.
+              Тибқи қонунгузории ҶТ танҳо номҳои ин феҳрист барои сабти асноди ҳолати шаҳрвандӣ (САҲШ / ЗАГС) ва шиноснома иҷозат доранд.
             </p>
 
-            {/* Quick Stats Badges */}
-            <div className="pt-2 flex flex-wrap items-center gap-3">
-              <div className="px-3.5 py-2 rounded-xl bg-card border border-border/80 text-xs font-medium flex items-center gap-2 shadow-sm">
-                <span className="font-bold text-foreground text-sm">{counts.total.toLocaleString()}</span>
-                <span className="text-muted-foreground">ҳамагӣ ном</span>
-              </div>
-              <div className="px-3.5 py-2 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-700 dark:text-sky-300 text-xs font-medium flex items-center gap-2">
-                <span className="font-bold text-sm">{counts.male.toLocaleString()}</span>
-                <span>писарона</span>
-              </div>
-              <div className="px-3.5 py-2 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-300 text-xs font-medium flex items-center gap-2">
-                <span className="font-bold text-sm">{counts.female.toLocaleString()}</span>
-                <span>духтарона</span>
-              </div>
-              <div className="px-3.5 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-xs font-medium flex items-center gap-2">
-                <span className="font-bold text-sm">{counts.enriched.toLocaleString()}</span>
-                <span>бо маълумоти пурра</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Name Legality Checker Tool (Санҷиши ном) */}
-        <section className="mb-10 p-6 rounded-2xl border border-border bg-card shadow-sm">
-          <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-bold text-foreground font-display">
-              Санҷиши ном ба феҳристи расмӣ (Проверка имени на разрешение)
-            </h2>
-          </div>
-          <p className="text-xs sm:text-sm text-muted-foreground mb-4">
-            Номеро ворид кунед, то санҷед, ки оё он дар феҳристи иҷозатдодашудаи ҶТ ҳаст ва чӣ тавр дуруст навишта мешавад:
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Номро ворид кунед (масалан: Абирафшон, Абдуваҳҳоб, Мадина, Юсуф)..."
-                value={checkerQuery}
-                onChange={(e) => {
-                  setCheckerQuery(e.target.value);
-                  if (!e.target.value.trim()) setCheckResult(null);
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleRunChecker();
-                }}
-                className="pl-10 h-11 rounded-xl bg-background text-sm"
-              />
-            </div>
-            <Button
-              onClick={handleRunChecker}
-              className="h-11 px-6 rounded-xl font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shrink-0"
-            >
-              Санҷидан
-            </Button>
-          </div>
-
-          {/* Checker Result Box */}
-          {checkResult && (
-            <div
-              className={`mt-4 p-4 rounded-xl border transition-all animate-fade-in ${
-                checkResult.isPermitted
-                  ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-950 dark:text-emerald-100"
-                  : "bg-amber-500/10 border-amber-500/30 text-amber-950 dark:text-amber-100"
-              }`}
-            >
-              <div className="flex items-start gap-3">
-                {checkResult.isPermitted ? (
-                  <CheckCircle2 className="h-6 w-6 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-                ) : (
-                  <AlertCircle className="h-6 w-6 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-                )}
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-bold text-base">
-                      {checkResult.isPermitted ? "✓ НОМ РАСМАН ИҶОЗАТ ДОДА ШУДААСТ" : "⚠ ДАР ФЕҲРИСТИ РАСМӢ ЁФТ НАШУД"}
-                    </span>
-                    {checkResult.exactMatch && (
-                      <Badge variant="secondary" className="text-xs bg-emerald-500/20 text-emerald-700 dark:text-emerald-300">
-                        {checkResult.exactMatch.gender_tj}
-                      </Badge>
-                    )}
-                  </div>
-                  <p className="text-xs sm:text-sm leading-relaxed">{checkResult.recommendation}</p>
-
-                  {checkResult.closeMatches.length > 0 && (
-                    <div className="pt-2 border-t border-border/40">
-                      <p className="text-xs font-semibold mb-1.5 opacity-90">Вариантҳои расмӣ дар феҳрист:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {checkResult.closeMatches.map((m) => (
-                          <Button
-                            key={m.id}
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedName(m);
-                              setDetailOpen(true);
-                            }}
-                            className="h-8 text-xs rounded-lg border-current bg-background/50 hover:bg-background"
-                          >
-                            {m.name_tj} ({m.name_latin}) — №{m.num}
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+            {/* Quick Stats Badges & Action Buttons */}
+            <div className="pt-2 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <div className="px-3.5 py-2 rounded-xl bg-card border border-border/80 text-xs font-medium flex items-center gap-2 shadow-sm">
+                  <span className="font-bold text-foreground text-sm">{counts.total.toLocaleString()}</span>
+                  <span className="text-muted-foreground">ҳамагӣ ном</span>
+                </div>
+                <div className="px-3.5 py-2 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-700 dark:text-sky-300 text-xs font-medium flex items-center gap-2">
+                  <span className="font-bold text-sm">{counts.male.toLocaleString()}</span>
+                  <span>писарона</span>
+                </div>
+                <div className="px-3.5 py-2 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-300 text-xs font-medium flex items-center gap-2">
+                  <span className="font-bold text-sm">{counts.female.toLocaleString()}</span>
+                  <span>духтарона</span>
+                </div>
+                <div className="px-3.5 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-xs font-medium flex items-center gap-2">
+                  <span className="font-bold text-sm">{counts.enriched.toLocaleString()}</span>
+                  <span>бо шарҳи маъно</span>
                 </div>
               </div>
-            </div>
-          )}
-        </section>
 
-        {/* Tajik Alphabet Bar */}
-        <section className="mb-6 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              Интихоби ҳарф (Алфавитный указатель):
-            </span>
-            {selectedLetter !== "all" && (
-              <button
-                onClick={() => setSelectedLetter("all")}
-                className="text-xs text-primary hover:underline font-semibold"
-              >
-                Ҳамаи ҳарфҳоро нишон деҳ
-              </button>
-            )}
-          </div>
-
-          <div className="flex flex-wrap gap-1.5 p-2 rounded-2xl bg-card border border-border">
-            <Button
-              variant={selectedLetter === "all" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setSelectedLetter("all")}
-              className={`h-9 px-3 text-xs rounded-xl font-semibold transition-all ${
-                selectedLetter === "all" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Ҳама ({counts.total})
-            </Button>
-            {alphabetStats.map((stat) => (
-              <Button
-                key={stat.letter}
-                variant={selectedLetter === stat.letter ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setSelectedLetter(stat.letter)}
-                className={`h-9 min-w-[38px] px-2 text-xs rounded-xl font-bold transition-all flex items-center gap-1 ${
-                  selectedLetter === stat.letter
-                    ? "bg-primary text-primary-foreground shadow-sm scale-105"
-                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                }`}
-                title={`Ҳарфи ${stat.letter}: ${stat.count} ном`}
-              >
-                <span>{stat.letter}</span>
-                <span className="text-[10px] opacity-60 font-normal">({stat.count})</span>
-              </Button>
-            ))}
-          </div>
-        </section>
-
-        {/* Filter Controls & Search */}
-        <section className="mb-6 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] gap-3 items-center">
-            {/* Live Search Input */}
-            <div className="relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Ҷустуҷӯ аз рӯи навишти тоҷикӣ, русӣ, лотинӣ ё маъно..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-10 h-10 rounded-xl bg-card border-border text-sm"
-              />
-              {search && (
-                <button
-                  onClick={() => setSearch("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground"
-                >
-                  Тоза кардан
-                </button>
-              )}
-            </div>
-
-            {/* Gender Switcher */}
-            <Tabs
-              value={selectedGender}
-              onValueChange={(v) => setSelectedGender(v as GenderFilter)}
-              className="w-full md:w-auto"
-            >
-              <TabsList className="h-10 rounded-xl bg-card border border-border p-1">
-                <TabsTrigger value="all" className="rounded-lg text-xs font-semibold">
-                  Ҳама ({counts.total})
-                </TabsTrigger>
-                <TabsTrigger value="male" className="rounded-lg text-xs font-semibold text-sky-600 dark:text-sky-400">
-                  Писарона ({counts.male})
-                </TabsTrigger>
-                <TabsTrigger value="female" className="rounded-lg text-xs font-semibold text-rose-600 dark:text-rose-400">
-                  Духтарона ({counts.female})
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-
-            {/* Export CSV Button */}
-            <Button
-              onClick={handleExportCSV}
-              variant="outline"
-              size="sm"
-              className="h-10 px-4 rounded-xl text-xs font-semibold flex items-center gap-2 border-border bg-card hover:bg-secondary text-foreground"
-            >
-              <Download className="h-4 w-4 text-primary" />
-              <span>Экспорт CSV</span>
-            </Button>
-          </div>
-
-          {/* Secondary Sub-filters & View Mode */}
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-border/50 text-xs">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-muted-foreground font-medium">Ҳолат:</span>
-              <Button
-                variant={selectedEnriched === "all" ? "secondary" : "ghost"}
-                size="sm"
-                onClick={() => setSelectedEnriched("all")}
-                className="h-7 text-xs rounded-lg px-2.5"
-              >
-                Ҳама
-              </Button>
-              <Button
-                variant={selectedEnriched === "enriched" ? "secondary" : "ghost"}
-                size="sm"
-                onClick={() => setSelectedEnriched("enriched")}
-                className="h-7 text-xs rounded-lg px-2.5 text-emerald-600 dark:text-emerald-400"
-              >
-                Бо маълумот ({counts.enriched})
-              </Button>
-              <Button
-                variant={selectedEnriched === "pending" ? "secondary" : "ghost"}
-                size="sm"
-                onClick={() => setSelectedEnriched("pending")}
-                className="h-7 text-xs rounded-lg px-2.5 text-amber-600 dark:text-amber-400"
-              >
-                Интизори такмил ({counts.total - counts.enriched})
-              </Button>
-            </div>
-
-            <div className="flex items-center gap-3">
-              {/* Sort selector */}
-              <div className="flex items-center gap-1.5 text-muted-foreground">
-                <ArrowUpDown className="h-3.5 w-3.5" />
-                <select
-                  value={sortOrder}
-                  onChange={(e) => setSortOrder(e.target.value as SortOrder)}
-                  className="bg-transparent text-xs font-medium text-foreground focus:outline-none cursor-pointer"
-                >
-                  <option value="num-asc">Аз рӯи рақам (1..N)</option>
-                  <option value="alpha-asc">Аз рӯи алифбо (А-Я)</option>
-                  <option value="alpha-desc">Аз рӯи алифбо (Я-А)</option>
-                </select>
-              </div>
-
-              {/* View mode toggle */}
-              <div className="flex items-center rounded-lg border border-border bg-card p-0.5">
-                <button
-                  onClick={() => setViewMode("grid")}
-                  className={`p-1.5 rounded-md ${viewMode === "grid" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
-                  title="Намуди кортҳо"
-                >
-                  <LayoutGrid className="h-3.5 w-3.5" />
-                </button>
-                <button
-                  onClick={() => setViewMode("table")}
-                  className={`p-1.5 rounded-md ${viewMode === "table" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
-                  title="Намуди ҷадвал"
-                >
-                  <TableIcon className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Results Count Bar */}
-        <div className="mb-4 flex items-center justify-between text-xs text-muted-foreground">
-          <span>
-            Ёфт шуд: <strong className="text-foreground font-semibold">{filteredNames.length}</strong> ном
-            {search && ` бо дархости «${search}»`}
-            {selectedLetter !== "all" && ` ба ҳарфи «${selectedLetter}»`}
-          </span>
-          <span>
-            Саҳифаи <strong className="text-foreground">{currentPage}</strong> аз <strong>{totalPages}</strong>
-          </span>
-        </div>
-
-        {/* Grid View */}
-        {viewMode === "grid" && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
-            {paginatedNames.map((item) => {
-              const isFav = isFavorite(item.id);
-              return (
-                <Card
-                  key={item.id}
+              <div className="flex items-center gap-2">
+                {/* Audio Reader Launch Button */}
+                <Button
                   onClick={() => {
-                    setSelectedName(item);
-                    setDetailOpen(true);
+                    if (isAudioPlaying) {
+                      toggleAudioPlay();
+                    } else {
+                      setIsAudioSettingsOpen(true);
+                    }
                   }}
-                  className="group relative cursor-pointer overflow-hidden rounded-2xl border-border/80 bg-card hover:border-primary/50 hover:shadow-lg transition-all duration-300 flex flex-col justify-between"
+                  className={`rounded-xl font-bold text-xs h-10 px-4 flex items-center gap-1.5 shadow-md transition-all ${
+                    isAudioPlaying
+                      ? "bg-emerald-600 hover:bg-emerald-700 text-white ring-2 ring-emerald-400"
+                      : "bg-card border border-emerald-500/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/10"
+                  }`}
                 >
-                  <CardContent className="p-4 sm:p-5 space-y-3">
-                    {/* Top Row: Gender Badge + Number + Favorite */}
-                    <div className="flex items-center justify-between gap-1">
-                      <div className="flex items-center gap-1.5">
-                        <Badge
-                          variant="outline"
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
-                            item.gender === "male"
-                              ? "bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20"
-                              : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
-                          }`}
-                        >
-                          {item.gender_tj}
-                        </Badge>
-                        <span className="text-[10px] text-muted-foreground font-medium">№{item.num}</span>
-                      </div>
+                  <Headphones className="h-4 w-4 text-emerald-500" />
+                  <span>{isAudioPlaying ? (isAudioPaused ? "Идомаи аудио" : "Таваққуфи аудио") : "🎧 Автохониш (Аудиоплеер)"}</span>
+                </Button>
 
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={(e) => handleCopyCard(e, item.name_tj, item.id)}
-                          className="p-1 text-muted-foreground hover:text-foreground transition-colors"
-                          title="Нусхабардорӣ"
-                        >
-                          {copiedId === item.id ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleFavorite({
-                              id: item.id,
-                              name: item.name_tj,
-                              gender: item.gender,
-                              origin: item.origin || "Тоҷикӣ",
-                              culture: "Таджикская",
-                              meaning: item.meaning || "Номи миллии тоҷикӣ",
-                              attributes: item.attributes || [],
-                              popularity: 90,
-                              history: item.legal_decree,
-                              languages: ["tg", "ru"]
-                            });
-                          }}
-                          className="p-1 text-muted-foreground hover:text-rose transition-colors"
-                          title="Илова ба мунтахаб"
-                        >
-                          <Heart className={`h-4 w-4 ${isFav ? "fill-rose text-rose" : ""}`} />
-                        </button>
-                      </div>
-                    </div>
+                <Button
+                  onClick={() => setGeneratorOpen(true)}
+                  className="rounded-xl font-bold bg-primary hover:bg-primary/90 text-primary-foreground text-xs h-10 px-4 flex items-center gap-1.5 shadow-md"
+                >
+                  <Dices className="h-4 w-4" />
+                  <span>Интихоби тасодуфӣ</span>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
 
-                    {/* Main Name Heading */}
-                    <div>
-                      <h3 className="text-xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors font-display">
-                        {item.name_tj}
-                      </h3>
-                      <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                        <span>{item.name_cyrillic}</span>
-                        <span>•</span>
-                        <span className="font-mono">{item.name_latin}</span>
-                      </div>
-                    </div>
-
-                    {/* Meaning preview or Pending badge */}
-                    {item.is_enriched && item.meaning ? (
-                      <p className="text-xs text-foreground/80 line-clamp-2 leading-relaxed bg-muted/30 p-2 rounded-lg">
-                        {item.meaning}
-                      </p>
-                    ) : (
-                      <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/80 pt-1">
-                        <Clock className="h-3 w-3 text-amber-500" />
-                        <span>Номи расмӣ (№98)</span>
-                      </div>
-                    )}
-                  </CardContent>
-
-                  {/* Card bottom bar */}
-                  <div className="px-4 py-2 border-t border-border/40 bg-muted/20 flex items-center justify-between text-[11px] text-muted-foreground">
-                    <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
-                      <ShieldCheck className="h-3 w-3" /> Қонунӣ
+        {/* Sub-Tools Tabs Bar */}
+        <div className="mb-8">
+          <div className="flex items-center gap-2 border-b border-border/60 overflow-x-auto pb-2 scrollbar-none">
+            {[
+              { id: "catalog", label: "Каталог ва Ҷустуҷӯ", icon: Search, count: counts.total },
+              { id: "audio", label: "Аудиохонӣ (TTS)", icon: Headphones, badge: "Овозӣ" },
+              { id: "checker", label: "Санҷиши ном (ЗАГС)", icon: Scale, badge: "Муҳим" },
+              { id: "generator", label: "Генератори ном", icon: Dices },
+              { id: "analytics", label: "Инфографика ва таҳлил", icon: BarChart3 },
+              { id: "legal", label: "Қонунгузорӣ ва қоидаҳо", icon: HelpCircle },
+            ].map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    if (tab.id === "generator") {
+                      setGeneratorOpen(true);
+                    } else if (tab.id === "audio") {
+                      setIsAudioSettingsOpen(true);
+                    } else {
+                      setActiveTab(tab.id as ActiveTab);
+                    }
+                  }}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
+                    isActive
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span>{tab.label}</span>
+                  {tab.count !== undefined && (
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${isActive ? "bg-white/20 text-white" : "bg-secondary text-muted-foreground"}`}>
+                      {tab.count}
                     </span>
-                    <span className="text-primary group-hover:underline">Тафсилот →</span>
-                  </div>
-                </Card>
+                  )}
+                  {tab.badge && (
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-300">
+                      {tab.badge}
+                    </span>
+                  )}
+                </button>
               );
             })}
           </div>
-        )}
+        </div>
 
-        {/* Table View */}
-        {viewMode === "table" && (
-          <div className="mb-8 rounded-2xl border border-border overflow-hidden bg-card shadow-sm">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-muted/50 border-b border-border text-muted-foreground font-semibold uppercase tracking-wider">
-                  <tr>
-                    <th className="p-3 text-center w-14">№</th>
-                    <th className="p-3">Тоҷикӣ (расмӣ)</th>
-                    <th className="p-3">Кириллӣ</th>
-                    <th className="p-3">Лотинӣ</th>
-                    <th className="p-3">Ҷинс</th>
-                    <th className="p-3">Ҳарф</th>
-                    <th className="p-3">Маъно / Тавсиф</th>
-                    <th className="p-3 text-center">Амал</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border/60">
-                  {paginatedNames.map((item) => (
-                    <tr
+        {/* TAB 1: CATALOG */}
+        {activeTab === "catalog" && (
+          <>
+            {/* Quick Check & Audio Play Mini-Banner */}
+            <div className="mb-6 p-4 rounded-2xl bg-card border border-border flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                  <Headphones className="h-5 w-5" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-bold text-foreground">Хониши худкори номҳо (Аудиоплеер)</h2>
+                  <p className="text-xs text-muted-foreground">
+                    Номҳоро пайдарпай бо овози форсӣ, арабӣ ё русӣ аз дилхоҳ саҳифа то ба охир гӯш кунед
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <Button
+                  size="sm"
+                  onClick={() => setIsAudioSettingsOpen(true)}
+                  className="h-9 px-4 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm flex items-center gap-1.5"
+                >
+                  <Play className="h-3.5 w-3.5 fill-white" />
+                  <span>Танзими аудиоплеер</span>
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setActiveTab("checker")}
+                  className="h-9 px-3 rounded-xl text-xs font-semibold border-border text-foreground hover:bg-secondary"
+                >
+                  Санҷиши ном
+                </Button>
+              </div>
+            </div>
+
+            {/* Tajik Alphabet Bar */}
+            <section className="mb-6 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Интихоби ҳарф (Алфавитный указатель):
+                </span>
+                {selectedLetter !== "all" && (
+                  <button
+                    onClick={() => setSelectedLetter("all")}
+                    className="text-xs text-primary hover:underline font-semibold"
+                  >
+                    Ҳамаи ҳарфҳоро нишон деҳ
+                  </button>
+                )}
+              </div>
+
+              <div className="flex flex-wrap gap-1.5 p-2 rounded-2xl bg-card border border-border">
+                <Button
+                  variant={selectedLetter === "all" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setSelectedLetter("all")}
+                  className={`h-9 px-3 text-xs rounded-xl font-semibold transition-all ${
+                    selectedLetter === "all" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Ҳама ({counts.total})
+                </Button>
+                {alphabetStats.map((stat) => (
+                  <Button
+                    key={stat.letter}
+                    variant={selectedLetter === stat.letter ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setSelectedLetter(stat.letter)}
+                    className={`h-9 min-w-[38px] px-2 text-xs rounded-xl font-bold transition-all flex items-center gap-1 ${
+                      selectedLetter === stat.letter
+                        ? "bg-primary text-primary-foreground shadow-sm scale-105"
+                        : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                    }`}
+                    title={`Ҳарфи ${stat.letter}: ${stat.count} ном`}
+                  >
+                    <span>{stat.letter}</span>
+                    <span className="text-[10px] opacity-60 font-normal">({stat.count})</span>
+                  </Button>
+                ))}
+              </div>
+            </section>
+
+            {/* Filter Controls & Search */}
+            <section className="mb-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] gap-3 items-center">
+                {/* Live Search Input */}
+                <div className="relative">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Ҷустуҷӯ аз рӯи навишти тоҷикӣ, русӣ, лотинӣ ё маъно..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="pl-10 h-11 rounded-xl bg-card border-border text-sm"
+                  />
+                  {search && (
+                    <button
+                      onClick={() => setSearch("")}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      Тоза кардан
+                    </button>
+                  )}
+                </div>
+
+                {/* Gender Switcher */}
+                <Tabs
+                  value={selectedGender}
+                  onValueChange={(v) => setSelectedGender(v as GenderFilter)}
+                  className="w-full md:w-auto"
+                >
+                  <TabsList className="h-11 rounded-xl bg-card border border-border p-1">
+                    <TabsTrigger value="all" className="rounded-lg text-xs font-semibold">
+                      Ҳама ({counts.total})
+                    </TabsTrigger>
+                    <TabsTrigger value="male" className="rounded-lg text-xs font-semibold text-sky-600 dark:text-sky-400">
+                      Писарона ({counts.male})
+                    </TabsTrigger>
+                    <TabsTrigger value="female" className="rounded-lg text-xs font-semibold text-rose-600 dark:text-rose-400">
+                      Духтарона ({counts.female})
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
+
+                {/* Export CSV Button */}
+                <Button
+                  onClick={handleExportCSV}
+                  variant="outline"
+                  size="sm"
+                  className="h-11 px-4 rounded-xl text-xs font-semibold flex items-center gap-2 border-border bg-card hover:bg-secondary text-foreground"
+                >
+                  <Download className="h-4 w-4 text-primary" />
+                  <span>Экспорт CSV</span>
+                </Button>
+              </div>
+
+              {/* Secondary Sub-filters & View Mode */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-border/50 text-xs">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-muted-foreground font-medium">Ҳолат:</span>
+                  <Button
+                    variant={selectedEnriched === "all" ? "secondary" : "ghost"}
+                    size="sm"
+                    onClick={() => setSelectedEnriched("all")}
+                    className="h-7 text-xs rounded-lg px-2.5"
+                  >
+                    Ҳама
+                  </Button>
+                  <Button
+                    variant={selectedEnriched === "enriched" ? "secondary" : "ghost"}
+                    size="sm"
+                    onClick={() => setSelectedEnriched("enriched")}
+                    className="h-7 text-xs rounded-lg px-2.5 text-emerald-600 dark:text-emerald-400"
+                  >
+                    Бо маълумот ({counts.enriched})
+                  </Button>
+                  <Button
+                    variant={selectedEnriched === "pending" ? "secondary" : "ghost"}
+                    size="sm"
+                    onClick={() => setSelectedEnriched("pending")}
+                    className="h-7 text-xs rounded-lg px-2.5 text-amber-600 dark:text-amber-400"
+                  >
+                    Интизори такмил ({counts.total - counts.enriched})
+                  </Button>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  {/* Sort selector */}
+                  <div className="flex items-center gap-1.5 text-muted-foreground">
+                    <ArrowUpDown className="h-3.5 w-3.5" />
+                    <select
+                      value={sortOrder}
+                      onChange={(e) => setSortOrder(e.target.value as SortOrder)}
+                      className="bg-transparent text-xs font-medium text-foreground focus:outline-none cursor-pointer"
+                    >
+                      <option value="num-asc">Аз рӯи рақам (1..N)</option>
+                      <option value="alpha-asc">Аз рӯи алифбо (А-Я)</option>
+                      <option value="alpha-desc">Аз рӯи алифбо (Я-А)</option>
+                      <option value="length-asc">Аз рӯи дарозии ном (кӯтоҳ)</option>
+                      <option value="length-desc">Аз рӯи дарозии ном (дароз)</option>
+                    </select>
+                  </div>
+
+                  {/* View mode toggle */}
+                  <div className="flex items-center rounded-lg border border-border bg-card p-0.5">
+                    <button
+                      onClick={() => setViewMode("grid")}
+                      className={`p-1.5 rounded-md ${viewMode === "grid" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                      title="Намуди кортҳо"
+                    >
+                      <LayoutGrid className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={() => setViewMode("table")}
+                      className={`p-1.5 rounded-md ${viewMode === "table" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                      title="Намуди ҷадвал"
+                    >
+                      <TableIcon className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Results Count Bar */}
+            <div className="mb-4 flex items-center justify-between text-xs text-muted-foreground">
+              <span>
+                Ёфт шуд: <strong className="text-foreground font-semibold">{filteredNames.length}</strong> ном
+                {search && ` бо дархости «${search}»`}
+                {selectedLetter !== "all" && ` ба ҳарфи «${selectedLetter}»`}
+              </span>
+              <span>
+                Саҳифаи <strong className="text-foreground">{currentPage}</strong> аз <strong>{totalPages}</strong>
+              </span>
+            </div>
+
+            {/* Grid View */}
+            {viewMode === "grid" && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+                {paginatedNames.map((item) => {
+                  const isFav = isFavorite(item.id);
+                  const isCurrentlyPlaying = audioCurrentName?.id === item.id;
+
+                  return (
+                    <Card
                       key={item.id}
+                      id={`name-card-${item.id}`}
                       onClick={() => {
                         setSelectedName(item);
                         setDetailOpen(true);
                       }}
-                      className="hover:bg-secondary/40 cursor-pointer transition-colors"
+                      className={`group relative cursor-pointer overflow-hidden rounded-2xl border bg-card hover:border-emerald-500/50 hover:shadow-lg transition-all duration-300 flex flex-col justify-between ${
+                        isCurrentlyPlaying
+                          ? "border-emerald-500 shadow-xl shadow-emerald-500/20 bg-emerald-500/5 ring-2 ring-emerald-500/50"
+                          : "border-border/80"
+                      }`}
                     >
-                      <td className="p-3 text-center font-mono text-muted-foreground">{item.num}</td>
-                      <td className="p-3 font-bold text-foreground text-sm">{item.name_tj}</td>
-                      <td className="p-3 text-foreground">{item.name_cyrillic}</td>
-                      <td className="p-3 font-mono text-muted-foreground">{item.name_latin}</td>
-                      <td className="p-3">
-                        <Badge
-                          variant="outline"
-                          className={`text-[10px] font-semibold ${
-                            item.gender === "male" ? "text-sky-600 bg-sky-500/10" : "text-rose-600 bg-rose-500/10"
-                          }`}
-                        >
-                          {item.gender_tj}
-                        </Badge>
-                      </td>
-                      <td className="p-3 font-bold">{item.letter}</td>
-                      <td className="p-3 max-w-xs truncate text-muted-foreground">
-                        {item.meaning || "—"}
-                      </td>
-                      <td className="p-3 text-center">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
+                      <CardContent className="p-4 sm:p-5 space-y-3">
+                        {/* Top Row: Gender Badge + Number + Favorite + Audio Actions */}
+                        <div className="flex items-center justify-between gap-1">
+                          <div className="flex items-center gap-1.5">
+                            <Badge
+                              variant="outline"
+                              className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
+                                item.gender === "male"
+                                  ? "bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20"
+                                  : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
+                              }`}
+                            >
+                              {item.gender_tj}
+                            </Badge>
+                            <span className="text-[11px] font-mono text-muted-foreground">
+                              №{item.num}
+                            </span>
+                            {isCurrentlyPlaying && (
+                              <span className="flex items-center gap-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 animate-pulse">
+                                <Radio className="h-3 w-3" />
+                                Овоз
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-0.5">
+                            {/* Start Continuous Audio Reading from this item */}
+                            <button
+                              onClick={(e) => handleStartAudioFromCard(e, item)}
+                              className={`p-1.5 rounded-full transition-colors ${
+                                isCurrentlyPlaying
+                                  ? "bg-emerald-600 text-white"
+                                  : "text-muted-foreground hover:text-emerald-600 hover:bg-emerald-500/10"
+                              }`}
+                              title="Хониши худкорро аз ин ном оғоз кунед"
+                            >
+                              <Headphones className="h-3.5 w-3.5" />
+                            </button>
+
+                            {/* Quick single-speak button */}
+                            <button
+                              onClick={(e) => handleSpeakCard(e, item.name_tj)}
+                              className="p-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                              title="Талаффузи ном"
+                            >
+                              <Volume2 className="h-3.5 w-3.5" />
+                            </button>
+
+                            {/* Favorite */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleFavorite({
+                                  id: item.id,
+                                  name: item.name_tj,
+                                  gender: item.gender,
+                                  origin: item.origin || "Тоҷикӣ",
+                                  culture: "Таджикская",
+                                  meaning: item.meaning || "Официальное разрешённое таджикское имя",
+                                  attributes: item.attributes || ["национальное", "официальное"],
+                                  popularity: 90,
+                                  history: item.legal_decree,
+                                  languages: ["tg", "ru"]
+                                });
+                                toast.success(isFav ? "Аз мунтахаб хориҷ шуд" : "Ба мунтахаб илова шуд");
+                              }}
+                              className="p-1.5 rounded-full text-muted-foreground hover:text-rose hover:bg-rose-500/10 transition-colors"
+                              title={isFav ? "Дар мунтахаб" : "Илова ба мунтахаб"}
+                            >
+                              <Heart
+                                className={`h-4 w-4 transition-transform ${isFav ? "fill-rose text-rose scale-110" : ""}`}
+                              />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Middle: Name in Tajik + Latin + Cyrillic */}
+                        <div>
+                          <h2 className="font-display text-xl sm:text-2xl font-black tracking-tight text-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                            {item.name_tj}
+                          </h2>
+                          <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
+                            <span>Лотинӣ: <strong className="font-medium text-foreground">{item.name_latin}</strong></span>
+                            <span>•</span>
+                            <span>Ҳарф: <strong>{item.letter}</strong></span>
+                          </div>
+                        </div>
+
+                        {/* Meaning Preview or Fallback */}
+                        <div className="text-xs text-muted-foreground line-clamp-2 min-h-[32px]">
+                          {item.meaning ? (
+                            <span className="text-foreground/90">{item.meaning}</span>
+                          ) : (
+                            <span className="italic opacity-60">Номи миллии расмӣ • Барои САҲШ тасдиқ шудааст</span>
+                          )}
+                        </div>
+
+                        {/* Bottom Row: Badges & Quick Action */}
+                        <div className="pt-2 flex items-center justify-between border-t border-border/50 text-xs">
+                          <div className="flex items-center gap-1">
+                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                              <ShieldCheck className="h-3.5 w-3.5" />
+                              Қонунӣ
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedName(item);
+                                setCertOpen(true);
+                              }}
+                              className="p-1 text-muted-foreground hover:text-emerald-600 transition-colors"
+                              title="Санади САҲШ (Выписка)"
+                            >
+                              <FileText className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              onClick={(e) => handleCopyCard(e, item.name_tj, item.id)}
+                              className="p-1 text-muted-foreground hover:text-foreground transition-colors"
+                              title="Нусхабардорӣ"
+                            >
+                              {copiedId === item.id ? (
+                                <Check className="h-3.5 w-3.5 text-emerald-500" />
+                              ) : (
+                                <Copy className="h-3.5 w-3.5" />
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Table View */}
+            {viewMode === "table" && (
+              <div className="overflow-x-auto rounded-2xl border border-border bg-card mb-8 shadow-sm">
+                <table className="w-full text-left text-xs sm:text-sm">
+                  <thead className="bg-secondary/60 text-muted-foreground font-semibold border-b border-border">
+                    <tr>
+                      <th className="p-3.5 w-16">Т/Р</th>
+                      <th className="p-3.5">Ном (Тоҷикӣ)</th>
+                      <th className="p-3.5">Кириллӣ</th>
+                      <th className="p-3.5">Лотинӣ</th>
+                      <th className="p-3.5">Ҷинс</th>
+                      <th className="p-3.5">Маъно</th>
+                      <th className="p-3.5 text-right">Амалҳо</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border/60">
+                    {paginatedNames.map((item) => {
+                      const isCurrentlyPlaying = audioCurrentName?.id === item.id;
+
+                      return (
+                        <tr
+                          key={item.id}
+                          id={`name-row-${item.id}`}
+                          onClick={() => {
                             setSelectedName(item);
                             setDetailOpen(true);
                           }}
-                          className="h-7 text-[11px] rounded-lg"
+                          className={`hover:bg-secondary/40 cursor-pointer transition-colors ${
+                            isCurrentlyPlaying
+                              ? "bg-emerald-500/10 border-l-4 border-l-emerald-500 font-medium"
+                              : ""
+                          }`}
                         >
-                          Кушодан
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                          <td className="p-3.5 font-mono text-muted-foreground">№{item.num}</td>
+                          <td className="p-3.5 font-bold text-foreground text-base">
+                            <div className="flex items-center gap-2">
+                              <span>{item.name_tj}</span>
+                              <button
+                                onClick={(e) => handleStartAudioFromCard(e, item)}
+                                className={`p-1 rounded-full ${
+                                  isCurrentlyPlaying ? "text-emerald-600 animate-pulse" : "text-muted-foreground hover:text-foreground"
+                                }`}
+                                title="Аз ин ном сар карда гӯш кардан"
+                              >
+                                <Headphones className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                          <td className="p-3.5 text-muted-foreground">{item.name_cyrillic}</td>
+                          <td className="p-3.5 font-medium text-foreground">{item.name_latin}</td>
+                          <td className="p-3.5">
+                            <Badge
+                              variant="outline"
+                              className={`text-[10px] font-bold ${
+                                item.gender === "male"
+                                  ? "bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20"
+                                  : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
+                              }`}
+                            >
+                              {item.gender_tj}
+                            </Badge>
+                          </td>
+                          <td className="p-3.5 text-muted-foreground max-w-xs truncate">
+                            {item.meaning || "—"}
+                          </td>
+                          <td className="p-3.5 text-right">
+                            <div className="flex items-center justify-end gap-1">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedName(item);
+                                  setCertOpen(true);
+                                }}
+                                className="p-1.5 rounded-md hover:bg-secondary text-muted-foreground hover:text-emerald-600"
+                                title="Санади САҲШ"
+                              >
+                                <FileText className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={(e) => handleCopyCard(e, item.name_tj, item.id)}
+                                className="p-1.5 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground"
+                                title="Нусхабардорӣ"
+                              >
+                                {copiedId === item.id ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex flex-wrap items-center justify-center gap-2 pt-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  className="h-9 px-3 rounded-xl text-xs border-border"
+                >
+                  <ChevronLeft className="h-4 w-4 mr-1" /> Қаблӣ
+                </Button>
+
+                <div className="flex items-center gap-1 text-xs font-semibold px-2">
+                  <span>Саҳифаи {currentPage} аз {totalPages}</span>
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  className="h-9 px-3 rounded-xl text-xs border-border"
+                >
+                  Баъдӣ <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* TAB 2: NAME LEGALITY CHECKER */}
+        {activeTab === "checker" && (
+          <section className="space-y-6 max-w-3xl mx-auto py-4">
+            <div className="p-6 sm:p-8 rounded-3xl border border-border bg-card shadow-md space-y-4">
+              <div className="flex items-center gap-2 text-primary">
+                <Scale className="h-6 w-6" />
+                <h2 className="text-xl sm:text-2xl font-bold font-display text-foreground">
+                  Санҷиши ном ба феҳристи расмӣ (Проверка имени в ЗАГС)
+                </h2>
+              </div>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                Тибқи қонунгузории Ҷумҳурии Тоҷикистон (Қарори №98 ва моддаи 20¹ Қонун дар бораи САҲШ), сабти номҳое, ки ба фарҳанги миллии тоҷикӣ бегонаанд ё дар феҳристи расмӣ вуҷуд надоранд, манъ аст. Номи дилхоҳро ворид кунед, то санҷед:
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Номро ворид кунед (масалан: Абирафшон, Абдуллоҳ, Сабрина, Фотима, Сомон)..."
+                    value={checkerQuery}
+                    onChange={(e) => {
+                      setCheckerQuery(e.target.value);
+                      if (!e.target.value.trim()) setCheckResult(null);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleRunChecker();
+                    }}
+                    className="pl-10 h-12 rounded-xl bg-background text-sm"
+                  />
+                </div>
+                <Button
+                  onClick={() => handleRunChecker()}
+                  className="h-12 px-8 rounded-xl font-bold bg-primary hover:bg-primary/90 text-primary-foreground shrink-0 shadow-md"
+                >
+                  Санҷидан
+                </Button>
+              </div>
+
+              {/* Sample Quick Searches */}
+              <div className="pt-2 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+                <span>Намунаҳо:</span>
+                {["Абдуллоҳ", "Фотима", "Рустам", "Заррина", "Сомон", "Фирӯз", "Мадина"].map((ex) => (
+                  <button
+                    key={ex}
+                    onClick={() => {
+                      setCheckerQuery(ex);
+                      handleRunChecker(ex);
+                    }}
+                    className="px-2 py-1 rounded-md bg-secondary hover:bg-primary/10 hover:text-primary transition-colors font-medium"
+                  >
+                    {ex}
+                  </button>
+                ))}
+              </div>
+
+              {/* Checker Result Box */}
+              {checkResult && (
+                <div
+                  className={`mt-6 p-5 sm:p-6 rounded-2xl border transition-all animate-fade-in ${
+                    checkResult.isPermitted
+                      ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-950 dark:text-emerald-100"
+                      : "bg-amber-500/10 border-amber-500/30 text-amber-950 dark:text-amber-100"
+                  }`}
+                >
+                  <div className="flex items-start gap-4">
+                    {checkResult.isPermitted ? (
+                      <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                    ) : (
+                      <AlertCircle className="h-8 w-8 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                    )}
+                    <div className="space-y-3 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-black text-lg">
+                          {checkResult.isPermitted ? "✓ НОМ РАСМАН ИҶОЗАТ ДОДА ШУДААСТ" : "⚠ ДАР ФЕҲРИСТИ РАСМӢ ЁФТ НАШУД"}
+                        </span>
+                        {checkResult.exactMatch && (
+                          <Badge className="text-xs bg-emerald-600 text-white font-bold">
+                            №{checkResult.exactMatch.num} • {checkResult.exactMatch.gender_tj}
+                          </Badge>
+                        )}
+                      </div>
+
+                      <p className="text-xs sm:text-sm leading-relaxed">{checkResult.recommendation}</p>
+
+                      {checkResult.exactMatch && (
+                        <div className="p-3.5 rounded-xl bg-background/80 border border-border/60 flex flex-wrap items-center justify-between gap-3">
+                          <div>
+                            <span className="text-xs text-muted-foreground block">Овонавишти дуруст барои шиноснома:</span>
+                            <span className="font-bold text-foreground text-sm">
+                              {checkResult.exactMatch.name_tj} / {checkResult.exactMatch.name_latin.toUpperCase()}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => {
+                                setSelectedName(checkResult.exactMatch!);
+                                setCertOpen(true);
+                              }}
+                              className="h-8 text-xs rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-1"
+                            >
+                              <FileText className="h-3.5 w-3.5" />
+                              Санади САҲШ
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setSelectedName(checkResult.exactMatch!);
+                                setDetailOpen(true);
+                              }}
+                              className="h-8 text-xs rounded-lg border-border"
+                            >
+                              Тафсилот
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+
+                      {checkResult.closeMatches.length > 0 && !checkResult.exactMatch && (
+                        <div className="pt-3 border-t border-border/40 space-y-2">
+                          <p className="text-xs font-bold uppercase tracking-wider opacity-90">Вариантҳои наздиктарини расмӣ дар феҳрист:</p>
+                          <div className="flex flex-wrap gap-2">
+                            {checkResult.closeMatches.map((m) => (
+                              <Button
+                                key={m.id}
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedName(m);
+                                  setDetailOpen(true);
+                                }}
+                                className="h-8 text-xs rounded-lg border-current bg-background/50 hover:bg-background"
+                              >
+                                {m.name_tj} ({m.name_latin}) — №{m.num}
+                              </Button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
+          </section>
         )}
 
-        {/* Empty State */}
-        {filteredNames.length === 0 && (
-          <div className="text-center py-16 px-4 rounded-3xl border border-dashed border-border bg-card/50">
-            <Info className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-            <h3 className="text-lg font-bold text-foreground">Ҳеҷ номе ёфт нашуд</h3>
-            <p className="text-xs text-muted-foreground max-w-sm mx-auto mt-1 mb-4">
-              Бо филтрҳо ё калимаи ҷустуҷӯии дигар санҷед.
-            </p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setSearch("");
-                setSelectedGender("all");
-                setSelectedLetter("all");
-                setSelectedEnriched("all");
-              }}
-              className="rounded-xl text-xs"
-            >
-              Тоза кардани филтрҳо
-            </Button>
-          </div>
-        )}
-
-        {/* Pagination Bar */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 mt-8">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              className="rounded-xl h-9 px-3 text-xs"
-            >
-              <ChevronLeft className="h-4 w-4 mr-1" /> Қаблӣ
-            </Button>
-
-            <div className="flex items-center gap-1 mx-2 text-xs font-semibold">
-              <span>{currentPage}</span>
-              <span className="text-muted-foreground">/</span>
-              <span className="text-muted-foreground">{totalPages}</span>
+        {/* TAB 3: ANALYTICS & INFOGRAPHICS */}
+        {activeTab === "analytics" && (
+          <section className="space-y-6 max-w-5xl mx-auto py-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="p-5 rounded-2xl bg-card border border-border space-y-1 shadow-sm">
+                <span className="text-xs text-muted-foreground">Шумораи умумии номҳо</span>
+                <div className="text-3xl font-black text-foreground font-display">{counts.total.toLocaleString()}</div>
+                <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">100% расман тасдиқшуда</p>
+              </div>
+              <div className="p-5 rounded-2xl bg-sky-500/10 border border-sky-500/20 space-y-1">
+                <span className="text-xs text-sky-700 dark:text-sky-300">Номҳои писарона</span>
+                <div className="text-3xl font-black text-sky-900 dark:text-sky-100 font-display">{counts.male.toLocaleString()}</div>
+                <p className="text-xs text-sky-600 dark:text-sky-400 font-medium">{Math.round((counts.male / counts.total) * 100)}% аз тамоми феҳрист</p>
+              </div>
+              <div className="p-5 rounded-2xl bg-rose-500/10 border border-rose-500/20 space-y-1">
+                <span className="text-xs text-rose-700 dark:text-rose-300">Номҳои духтарона</span>
+                <div className="text-3xl font-black text-rose-900 dark:text-rose-100 font-display">{counts.female.toLocaleString()}</div>
+                <p className="text-xs text-rose-600 dark:text-rose-400 font-medium">{Math.round((counts.female / counts.total) * 100)}% аз тамоми феҳрист</p>
+              </div>
             </div>
 
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              className="rounded-xl h-9 px-3 text-xs"
-            >
-              Баъдӣ <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
-          </div>
+            {/* Letter Frequency Chart */}
+            <div className="p-6 rounded-3xl bg-card border border-border space-y-4 shadow-sm">
+              <h3 className="font-display text-lg font-bold text-foreground">
+                Тақсимоти номҳо аз рӯи алифбои тоҷикӣ
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3">
+                {alphabetStats.map((st) => {
+                  return (
+                    <div
+                      key={st.letter}
+                      onClick={() => {
+                        setSelectedLetter(st.letter);
+                        setActiveTab("catalog");
+                      }}
+                      className="p-3 rounded-xl bg-background border border-border/80 hover:border-primary hover:shadow-md cursor-pointer transition-all text-center space-y-1 group"
+                    >
+                      <span className="font-display text-2xl font-black text-foreground group-hover:text-primary transition-colors">
+                        {st.letter}
+                      </span>
+                      <div className="text-xs font-bold text-muted-foreground">
+                        {st.count} ном
+                      </div>
+                      <div className="flex items-center justify-center gap-1 text-[10px] text-muted-foreground">
+                        <span className="text-sky-600 dark:text-sky-400">♂ {st.maleCount}</span>
+                        <span>•</span>
+                        <span className="text-rose-600 dark:text-rose-400">♀ {st.femaleCount}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
         )}
 
-        {/* Detail Modal */}
-        <TajikNameDetailDialog
-          name={selectedName}
-          open={detailOpen}
-          onOpenChange={setDetailOpen}
-        />
+        {/* TAB 4: LEGAL & RULES */}
+        {activeTab === "legal" && (
+          <section className="space-y-6 max-w-4xl mx-auto py-4">
+            <div className="p-6 sm:p-8 rounded-3xl border border-border bg-card shadow-sm space-y-5">
+              <div className="flex items-center gap-3 text-emerald-600 dark:text-emerald-400">
+                <ShieldCheck className="h-8 w-8" />
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-bold font-display text-foreground">
+                    Асосҳои ҳуқуқӣ ва қоидаҳои номгузорӣ дар Тоҷикистон
+                  </h2>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Қарори Ҳукумати Ҷумҳурии Тоҷикистон аз 26 феврали соли 2026, №98</p>
+                </div>
+              </div>
+
+              <div className="space-y-4 text-xs sm:text-sm leading-relaxed text-foreground/90">
+                <div className="p-4 rounded-2xl bg-secondary/50 border border-border/60 space-y-2">
+                  <h4 className="font-bold text-foreground">1. Моддаи 20¹ Қонуни ҶТ дар бораи САҲШ:</h4>
+                  <p>
+                    Тибқи қонунгузорӣ ба ҳар як кӯдак бояд номи миллии тоҷикӣ мутобиқи арзишҳои фарҳангӣ ва анъанаҳои миллии халқи тоҷик гузошта шавад.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-secondary/50 border border-border/60 space-y-2">
+                  <h4 className="font-bold text-foreground">2. Номҳои мамнӯъ ва номатлуб:</h4>
+                  <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
+                    <li>Гузоштани номҳое, ки ба шаъну шарафи инсон паст мезананд (масалан номи ашё, ҳайвонот ва ғайра);</li>
+                    <li>Гузоштани номҳое, ки ба фарҳанг ва забони миллӣ бегона мебошанд;</li>
+                    <li>Номҳое, ки дорои маънои манфӣ ё таҳқиромез мебошанд.</li>
+                  </ul>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-secondary/50 border border-border/60 space-y-2">
+                  <h4 className="font-bold text-foreground">3. Тартиби насаб ва номи падар:</h4>
+                  <p>
+                    Насаби кӯдак бо пасвандҳои миллии <strong>-зода</strong>, <strong>-зод</strong>, <strong>-ӣ</strong>, <strong>-пур</strong>, <strong>-духт</strong>, <strong>-фар</strong> ва ё бо номи падар бе пасванд ташаккул дода мешавад.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
       </main>
     </div>
   );
