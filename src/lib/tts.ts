@@ -24,6 +24,7 @@ export interface SpeechOptions {
   rate?: number; // 0.25 - 2.0
   pitch?: number; // 0.5 - 1.5
   volume?: number; // 0.0 - 1.0
+  forceLatin?: boolean;
   onStart?: () => void;
   onEnd?: () => void;
   onError?: (e: SpeechSynthesisErrorEvent | unknown) => void;
@@ -102,13 +103,15 @@ export function resolveBestVoice(
 
   // 2. English / Latin preset (Recommended for 100% letter articulation without skipping)
   if (preset === "english") {
-    // Look for top English voices: Samantha, Daniel, Google US English, Alex, Karen, Siri
-    const preferredNames = ["Samantha", "Daniel", "Google US English", "Alex", "Karen", "Victoria", "Natural"];
+    // Look for top English voices: Samantha, Daniel, Google US English, Alex, Karen, Siri, Natural
+    const preferredNames = ["Samantha", "Daniel", "Google US English", "Alex", "Karen", "Victoria", "Natural", "Siri"];
     for (const name of preferredNames) {
-      const match = voices.find((v) => v.lang.startsWith("en") && v.name.includes(name));
+      const match = voices.find((v) => v.lang.startsWith("en") && v.name.toLowerCase().includes(name.toLowerCase()));
       if (match) return match;
     }
-    const anyEn = voices.find((v) => v.lang.startsWith("en-US")) || voices.find((v) => v.lang.startsWith("en"));
+    const anyEnUs = voices.find((v) => v.lang === "en-US" || v.lang === "en_US");
+    if (anyEnUs) return anyEnUs;
+    const anyEn = voices.find((v) => v.lang.startsWith("en"));
     if (anyEn) return anyEn;
   }
 
@@ -151,16 +154,18 @@ export function resolveBestVoice(
 export function formatSpeechText(
   name: TajikRegistryName,
   mode: SpeechReadingMode = "name_only",
-  voiceLang?: string
+  voiceLang?: string,
+  forceLatin: boolean = false
 ): string {
   const isEnglish = voiceLang?.startsWith("en");
   const isPersian = voiceLang?.startsWith("fa");
   const isArabic = voiceLang?.startsWith("ar");
 
-  // When reading with English or foreign voice, use official Latin transcription (name_latin)
-  // which reads all letters accurately without skipping special Tajik Cyrillic characters!
+  // When reading with English or foreign voice, or when forceLatin is enabled,
+  // use official Latin transcription (name_latin) which reads all letters accurately
+  // without skipping special Tajik Cyrillic characters!
   let baseName = name.name_tj;
-  if (isEnglish || isPersian || isArabic) {
+  if (forceLatin || isEnglish || isPersian || isArabic) {
     baseName = name.name_latin ? name.name_latin : cyrillicToPhoneticLatin(name.name_tj);
   }
 

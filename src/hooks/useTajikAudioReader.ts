@@ -13,13 +13,14 @@ import { toast } from "sonner";
 export interface AudioReaderSettings {
   startPage: number;
   endPage: number;
-  speed: number; // 0.5 - 2.0
+  speed: number; // 0.25 - 2.0
   volume: number; // 0.0 - 1.0
   pitch: number; // 0.5 - 1.5
   voicePreset: VoicePreset;
   selectedVoiceUri: string;
   mode: SpeechReadingMode;
   pauseBetween: number; // in milliseconds, e.g. 700
+  useLatinTranscription: boolean;
   autoFlipPage: boolean;
   autoScroll: boolean;
 }
@@ -52,6 +53,7 @@ export function useTajikAudioReader({
     selectedVoiceUri: "auto",
     mode: "name_only",
     pauseBetween: 700,
+    useLatinTranscription: true,
     autoFlipPage: true,
     autoScroll: true,
   });
@@ -180,7 +182,12 @@ export function useTajikAudioReader({
       const synth = window.speechSynthesis;
       synth.cancel();
 
-      const textToSpeak = formatSpeechText(item, currentConfig.mode, activeVoice?.lang);
+      const textToSpeak = formatSpeechText(
+        item,
+        currentConfig.mode,
+        activeVoice?.lang,
+        currentConfig.useLatinTranscription ?? true
+      );
       const utterance = new SpeechSynthesisUtterance(textToSpeak);
       utteranceRef.current = utterance;
 

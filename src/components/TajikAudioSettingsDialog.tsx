@@ -27,6 +27,7 @@ import {
   Users,
   User,
   Star,
+  CheckCircle2,
 } from "lucide-react";
 import { AudioReaderSettings } from "@/hooks/useTajikAudioReader";
 import { VoicePreset, SpeechReadingMode, speakName } from "@/lib/tts";
@@ -142,17 +143,18 @@ export function TajikAudioSettingsDialog({
     sub: string;
     flag: string;
     badge: string;
-    isRecommended?: boolean;
+    isFeatured?: boolean;
     description: string;
   }[] = [
     {
       id: "english",
-      title: "Англисӣ / Латинӣ (Романджи)",
-      sub: "Latin Passport (Samantha / Google / Siri)",
+      title: "Англисӣ / Латинӣ (Романджи — 100% равшан)",
+      sub: "Latin Passport Transliteration (Samantha / Google / Siri)",
       flag: "🇬🇧",
-      badge: "⭐ Тавсияшаванда (100% равшан)",
-      isRecommended: true,
-      description: "Дикторони олии англисӣ овонавишти лотинии номҳоро (passport Latin) 100% ҳарф ба ҳарф бе партофтани ҳарфҳои тоҷикӣ мехонанд",
+      badge: "⭐ ТАВСИЯШАВАНДА (Бе партофтани ҳарф)",
+      isFeatured: true,
+      description:
+        "Чун дикторони кириллӣ баъзе ҳарфҳои тоҷикиро (Ғ, Ӣ, Қ, Ӯ, Ҳ, Ҷ) мепартоянд, диктори касбии англисӣ овонавишти лотинии номҳоро (passport Latin) 100% ҳарф ба ҳарф, оҳиста ва бидуни хато мехонад.",
     },
     {
       id: "auto",
@@ -192,8 +194,8 @@ export function TajikAudioSettingsDialog({
     setIsTestingVoice(true);
     const testName = sampleName?.name_latin || sampleName?.name_tj || "Abirafshon";
     const testText =
-      settings.voicePreset === "english"
-        ? `${testName}. Meaning: ${sampleName?.meaning || "National official name"}`
+      settings.voicePreset === "english" || settings.useLatinTranscription
+        ? `${testName}. Meaning: ${sampleName?.meaning || "National official permitted name"}`
         : sampleName
         ? `Номи расмӣ: ${sampleName.name_tj}. ${sampleName.meaning ? "Маъно: " + sampleName.meaning : ""}`
         : "Ассалому алайкум! Номи зебо ва расмии тоҷикӣ бо маъно ва талаффузи дуруст.";
@@ -202,6 +204,7 @@ export function TajikAudioSettingsDialog({
       rate: settings.speed,
       pitch: settings.pitch,
       volume: settings.volume,
+      forceLatin: settings.useLatinTranscription ?? true,
       onEnd: () => setIsTestingVoice(false),
       onError: () => setIsTestingVoice(false),
     });
@@ -439,6 +442,8 @@ export function TajikAudioSettingsDialog({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {voicePresets.map((preset) => {
                 const isSelected = settings.voicePreset === preset.id;
+                const isFeatured = preset.isFeatured;
+
                 return (
                   <div
                     key={preset.id}
@@ -448,38 +453,43 @@ export function TajikAudioSettingsDialog({
                         selectedVoiceUri: "auto",
                       });
                     }}
-                    className={`p-3.5 rounded-2xl border cursor-pointer transition-all flex flex-col justify-between ${
+                    className={`rounded-2xl border cursor-pointer transition-all flex flex-col justify-between ${
+                      isFeatured
+                        ? "col-span-1 sm:col-span-2 p-4 bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-emerald-500/5 border-emerald-500/60 shadow-md ring-1 ring-emerald-500/30"
+                        : "p-3.5 bg-card border-border/80 hover:border-emerald-500/40 hover:bg-secondary/40"
+                    } ${
                       isSelected
-                        ? "bg-emerald-500/10 border-emerald-500 text-emerald-950 dark:text-emerald-100 shadow-sm ring-2 ring-emerald-500/50"
-                        : preset.isRecommended
-                        ? "bg-emerald-500/5 border-emerald-500/30 hover:border-emerald-500/60"
-                        : "bg-card border-border/80 hover:border-emerald-500/40 hover:bg-secondary/40"
+                        ? "ring-2 ring-emerald-500 border-emerald-500 bg-emerald-500/10 text-emerald-950 dark:text-emerald-100 shadow-md"
+                        : ""
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-2xl">{preset.flag}</span>
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-3xl">{preset.flag}</span>
                         <div>
                           <div className="flex items-center gap-1.5">
-                            <h4 className="font-bold text-xs sm:text-sm text-foreground">{preset.title}</h4>
+                            <h4 className="font-bold text-sm sm:text-base text-foreground flex items-center gap-1.5">
+                              {preset.title}
+                              {isFeatured && <Star className="h-4 w-4 text-amber-500 fill-amber-500" />}
+                            </h4>
                           </div>
-                          <span className="text-[10px] text-muted-foreground block">{preset.sub}</span>
+                          <span className="text-[11px] text-muted-foreground block">{preset.sub}</span>
                         </div>
                       </div>
                       <Badge
                         variant="outline"
-                        className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-lg ${
                           isSelected
-                            ? "bg-emerald-600 text-white border-transparent"
-                            : preset.isRecommended
-                            ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/30"
+                            ? "bg-emerald-600 text-white border-transparent shadow-sm"
+                            : isFeatured
+                            ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/40"
                             : "bg-secondary text-muted-foreground"
                         }`}
                       >
-                        {preset.badge}
+                        {isSelected ? "✓ Интихоб шуд" : preset.badge}
                       </Badge>
                     </div>
-                    <p className="text-[11px] text-muted-foreground mt-2 leading-relaxed">
+                    <p className={`mt-2 leading-relaxed ${isFeatured ? "text-xs text-foreground/90 font-medium" : "text-[11px] text-muted-foreground"}`}>
                       {preset.description}
                     </p>
                   </div>
@@ -646,6 +656,18 @@ export function TajikAudioSettingsDialog({
               </div>
 
               <div className="pt-2 border-t border-border/60 space-y-2 text-xs">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-muted-foreground font-medium block">Овонавишти лотинӣ (Лотинӣ хондан):</span>
+                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+                      100% равшан бе партофтани ҳарфҳои тоҷикӣ
+                    </span>
+                  </div>
+                  <Switch
+                    checked={settings.useLatinTranscription ?? true}
+                    onCheckedChange={(checked) => onUpdateSettings({ useLatinTranscription: checked })}
+                  />
+                </div>
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground font-medium">Худкор варақ задани саҳифа:</span>
                   <Switch
