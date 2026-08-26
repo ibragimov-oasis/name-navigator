@@ -40,8 +40,8 @@ const Certificate = () => {
         title={`Сертификат имени ${name} — Имяген`}
         description={`Именной сертификат для ${name}: значение, тафсир, нумерология и дуа. Готов к печати.`}
       />
-      <div className="min-h-screen bg-muted/30 print:bg-white">
-        <div className="container mx-auto max-w-3xl px-4 py-6 print:hidden">
+      <div className="min-h-screen bg-muted/30 print:bg-white pb-28 sm:pb-12">
+        <div className="container mx-auto max-w-3xl px-3 sm:px-4 py-4 sm:py-6 print:hidden">
           <div className="flex items-center justify-between">
             <Link
               to={-1 as any}

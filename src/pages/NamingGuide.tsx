@@ -87,9 +87,9 @@ const typeLabels = {
 
 const NamingGuide = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-28 sm:pb-12">
       <Header />
-      <div className="container mx-auto max-w-3xl px-4 py-8">
+      <main className="container mx-auto max-w-4xl px-3 sm:px-4 py-6 sm:py-8">
         <div className="text-center mb-8">
           <BookOpen className="mx-auto h-10 w-10 text-primary" />
           <h1 className="mt-3 font-display text-3xl font-bold text-foreground">Этикет имянаречения</h1>
@@ -114,7 +114,7 @@ const NamingGuide = () => {
             </div>
           ))}
         </div>
-      </div>
+      </main>
     </div>
   );
 };

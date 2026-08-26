@@ -88,7 +88,7 @@ export function TajikAudioPlayerBar({
   return (
     <aside
       aria-label="Аудиоплеери феҳристи номҳо"
-      className={`fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-4xl transition-all duration-300 ${
+      className={`fixed bottom-16 sm:bottom-4 left-1/2 -translate-x-1/2 z-40 w-[95%] max-w-4xl transition-all duration-300 ${
         isMinimized ? "translate-y-2" : ""
       }`}
     >

@@ -59,7 +59,7 @@ export const TajikNameDetailDialog = ({ name, open, onOpenChange }: TajikNameDet
       />
 
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto border-border/80 bg-background/95 backdrop-blur-xl p-6 sm:p-8 rounded-3xl shadow-2xl">
+        <DialogContent className="max-w-xl max-h-[92vh] overflow-y-auto border-border/80 bg-background/95 backdrop-blur-xl p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl shadow-2xl">
           <DialogHeader className="space-y-3 text-left">
             <div className="flex items-center justify-between gap-2 flex-wrap">
               <div className="flex items-center gap-2">

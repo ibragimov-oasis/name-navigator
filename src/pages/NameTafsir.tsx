@@ -120,30 +120,30 @@ const NameTafsir = () => {
   const destinyInfo = numerology ? DESTINY_TRAITS[numerology.destinyNumber] : null;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-28 sm:pb-12">
       <Header />
-      <div className="container mx-auto max-w-3xl px-4 py-8">
-        <div className="text-center mb-8">
-          <BookOpen className="mx-auto h-10 w-10 text-primary" />
-          <h1 className="mt-3 font-display text-3xl font-bold text-foreground">Тафсир имени</h1>
-          <p className="mt-2 text-muted-foreground">Глубокий анализ мусульманского имени: Коран, хадисы, значение</p>
+      <div className="container mx-auto max-w-3xl px-3 sm:px-4 py-4 sm:py-8">
+        <div className="text-center mb-6 sm:mb-8">
+          <BookOpen className="mx-auto h-8 w-8 sm:h-10 sm:w-10 text-primary" />
+          <h1 className="mt-2.5 sm:mt-3 font-display text-2xl sm:text-3xl font-bold text-foreground">Тафсир имени</h1>
+          <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-muted-foreground">Глубокий анализ мусульманского имени: Коран, хадисы, значение</p>
         </div>
 
-        <div className="relative mb-8">
-          <Search className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+        <div className="relative mb-6 sm:mb-8">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
           <Input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Введите имя (например, Мухаммад, Марьям, Юсуф)..."
-            className="pl-10 text-lg h-12"
+            className="pl-9 sm:pl-10 text-sm sm:text-base h-11 sm:h-12 rounded-xl"
           />
           {suggestions.length > 0 && (
             <div className="absolute z-10 mt-1 w-full rounded-xl border border-border bg-card shadow-lg">
               {suggestions.map(n => (
                 <button key={n.id} onClick={() => setSearch(n.name)}
-                  className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-secondary transition-colors first:rounded-t-xl last:rounded-b-xl">
-                  <span className="font-semibold text-foreground">{n.name}</span>
-                  <span className="text-xs text-muted-foreground">{n.meaning}</span>
+                  className="flex w-full items-center gap-3 px-3.5 sm:px-4 py-2.5 sm:py-3 text-left hover:bg-secondary transition-colors first:rounded-t-xl last:rounded-b-xl">
+                  <span className="font-semibold text-xs sm:text-sm text-foreground">{n.name}</span>
+                  <span className="text-[11px] sm:text-xs text-muted-foreground">{n.meaning}</span>
                 </button>
               ))}
             </div>
@@ -151,17 +151,17 @@ const NameTafsir = () => {
         </div>
 
         {selectedName && (
-          <div className="space-y-6 animate-fade-in">
+          <div className="space-y-4 sm:space-y-6 animate-fade-in">
             {/* Arabic rendering */}
-            <div className="rounded-2xl border border-border bg-gradient-to-br from-card to-secondary/30 p-8 text-center">
-              <p className="text-5xl font-bold mb-3" style={{ fontFamily: '"Noto Naskh Arabic", serif', direction: "rtl" }}>
+            <div className="rounded-2xl border border-border bg-gradient-to-br from-card to-secondary/30 p-5 sm:p-8 text-center">
+              <p className="text-3xl sm:text-5xl font-bold mb-2 sm:mb-3" style={{ fontFamily: '"Noto Naskh Arabic", serif', direction: "rtl" }}>
                 {arabicText}
               </p>
-              <h2 className="font-display text-3xl font-bold text-foreground">{selectedName.name}</h2>
-              <p className="mt-1 text-lg text-muted-foreground">{selectedName.meaning}</p>
-              <div className="mt-3 flex justify-center gap-2 flex-wrap">
-                <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">{selectedName.origin}</span>
-                <span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-medium text-accent">{selectedName.gender === "male" ? "♂ Мужское" : selectedName.gender === "female" ? "♀ Женское" : "⚥ Унисекс"}</span>
+              <h2 className="font-display text-2xl sm:text-3xl font-bold text-foreground">{selectedName.name}</h2>
+              <p className="mt-1 text-sm sm:text-base text-muted-foreground">{selectedName.meaning}</p>
+              <div className="mt-3 flex justify-center gap-1.5 sm:gap-2 flex-wrap">
+                <span className="rounded-full bg-primary/10 px-2.5 py-0.5 sm:px-3 sm:py-1 text-xs font-medium text-primary">{selectedName.origin}</span>
+                <span className="rounded-full bg-accent/10 px-2.5 py-0.5 sm:px-3 sm:py-1 text-xs font-medium text-accent">{selectedName.gender === "male" ? "♂ Мужское" : selectedName.gender === "female" ? "♀ Женское" : "⚥ Унисекс"}</span>
               </div>
             </div>
 

@@ -161,21 +161,21 @@ const Compatibility = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-28 sm:pb-12">
       <SEO
         title="Совместимость имён двух человек — Имяген"
         description="Проверьте совместимость имён по звучанию, нумерологии Абджад, культуре и жизненному пути. Подходит для супругов, родителей, партнёров."
       />
       <Header />
-      <main className="container mx-auto max-w-5xl px-4 py-8">
-        <div className="mb-8 text-center">
-          <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-coral-light">
-            <Heart className="h-6 w-6 text-primary" />
+      <main className="container mx-auto max-w-5xl px-3 sm:px-4 py-4 sm:py-8">
+        <div className="mb-6 sm:mb-8 text-center">
+          <div className="mx-auto inline-flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-coral-light">
+            <Heart className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
           </div>
-          <h1 className="mt-4 font-display text-3xl font-black text-foreground sm:text-4xl">
+          <h1 className="mt-3 sm:mt-4 font-display text-2xl sm:text-4xl font-black text-foreground">
             Совместимость двух человек
           </h1>
-          <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
+          <p className="mx-auto mt-2 sm:mt-3 max-w-xl text-xs sm:text-sm md:text-base text-muted-foreground">
             Звучание имён, нумерология Абджад, культурный код, жизненный путь и роли —
             всё в одной карточке.
           </p>

@@ -44,13 +44,13 @@ const NameCompare = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-28 sm:pb-12">
       <Header />
-      <div className="container mx-auto max-w-4xl px-4 py-8">
-        <div className="text-center mb-8">
-          <GitCompare className="mx-auto h-10 w-10 text-primary" />
-          <h1 className="mt-3 font-display text-3xl font-bold text-foreground">Сравнение имён</h1>
-          <p className="mt-2 text-muted-foreground">Сравните 2–4 имени по всем параметрам</p>
+      <div className="container mx-auto max-w-4xl px-3 sm:px-4 py-4 sm:py-8">
+        <div className="text-center mb-6 sm:mb-8">
+          <GitCompare className="mx-auto h-8 w-8 sm:h-10 sm:w-10 text-primary" />
+          <h1 className="mt-2.5 font-display text-2xl sm:text-3xl font-bold text-foreground">Сравнение имён</h1>
+          <p className="mt-1 text-xs sm:text-sm text-muted-foreground">Сравните 2–4 имени по всем параметрам</p>
         </div>
 
         {/* Input fields */}

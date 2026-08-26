@@ -66,15 +66,15 @@ const NameBattle = () => {
     `Раунд ${round}`;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-28 sm:pb-12">
       <Header />
-      <div className="container mx-auto max-w-2xl px-4 py-8">
+      <div className="container mx-auto max-w-2xl px-3 sm:px-4 py-4 sm:py-8">
 
         {!started && !champion && (
-          <div className="animate-fade-in space-y-6 text-center">
-            <Swords className="mx-auto h-14 w-14 text-primary" />
-            <h1 className="font-display text-4xl font-bold text-foreground">Битва имён</h1>
-            <p className="text-muted-foreground">
+          <div className="animate-fade-in space-y-4 sm:space-y-6 text-center">
+            <Swords className="mx-auto h-10 w-10 sm:h-14 sm:w-14 text-primary" />
+            <h1 className="font-display text-2xl sm:text-4xl font-bold text-foreground">Битва имён</h1>
+            <p className="text-xs sm:text-base text-muted-foreground">
               8 имён сразятся попарно. Выбирай лучшее — и найди чемпиона!
             </p>
             <div className="mx-auto flex max-w-xs gap-3">

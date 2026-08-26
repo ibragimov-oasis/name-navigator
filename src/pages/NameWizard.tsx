@@ -89,9 +89,9 @@ const NameWizard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-28 sm:pb-12">
       <Header />
-      <div className="container mx-auto max-w-2xl px-4 py-8">
+      <div className="container mx-auto max-w-2xl px-3 sm:px-4 py-4 sm:py-8">
         {/* Progress */}
         <div className="mb-8 flex items-center justify-center gap-2">
           {(["info", "preferences", "results"] as Step[]).map((s, i) => (

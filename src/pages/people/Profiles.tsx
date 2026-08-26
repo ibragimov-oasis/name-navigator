@@ -25,18 +25,18 @@ const Profiles = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-28 sm:pb-12">
       <Header />
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-4xl">
+        <div className="flex flex-wrap items-start justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
           <div>
-            <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-coral-light mb-2">
-              <Users className="h-5 w-5 text-primary" />
+            <div className="inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-2xl bg-coral-light mb-2">
+              <Users className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
             </div>
-            <h1 className="font-display text-3xl font-black text-foreground">
+            <h1 className="font-display text-2xl sm:text-3xl font-black text-foreground">
               Мои профили
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground max-w-xl">
+            <p className="mt-1 text-xs sm:text-sm text-muted-foreground max-w-xl">
               Активный профиль автоматически подставляется в тафсир, нумерологию,
               ДНК, подпись, сертификат и насаб.
             </p>

@@ -69,14 +69,14 @@ const CharacterName = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-28 sm:pb-12">
       <Header />
-      <main className="container mx-auto max-w-2xl px-4 py-8">
-        <div className="text-center mb-8">
-          <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-lavender-light">
-            <Users className="h-6 w-6 text-lavender" />
+      <main className="container mx-auto max-w-2xl px-3 sm:px-4 py-4 sm:py-8">
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="mx-auto inline-flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-lavender-light">
+            <Users className="h-5 w-5 sm:h-6 sm:w-6 text-lavender" />
           </div>
-          <h1 className="mt-3 font-display text-3xl font-bold text-foreground">
+          <h1 className="mt-2.5 font-display text-2xl sm:text-3xl font-bold text-foreground">
             Имя для персонажа
           </h1>
           <p className="mt-2 text-muted-foreground">

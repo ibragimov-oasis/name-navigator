@@ -225,7 +225,7 @@ export function TajikAudioSettingsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl border-emerald-500/20 p-6 sm:p-8">
+      <DialogContent className="max-w-2xl max-h-[92vh] overflow-y-auto rounded-2xl sm:rounded-3xl border-emerald-500/20 p-4 sm:p-6 md:p-8">
         <DialogHeader className="space-y-2">
           <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
             <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">

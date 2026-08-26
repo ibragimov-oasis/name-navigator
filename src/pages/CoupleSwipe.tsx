@@ -155,62 +155,62 @@ export default function CoupleSwipe() {
 
   if (!session || !role) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background pb-28 sm:pb-12">
         <Header />
         <Breadcrumbs items={[{ label: "Вдвоём" }]} />
-        <main className="container mx-auto max-w-2xl px-4 py-8">
-          <div className="text-center mb-8">
-            <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-coral-light">
-              <Users className="h-6 w-6 text-primary" />
+        <main className="container mx-auto max-w-2xl px-3 sm:px-4 py-4 sm:py-8">
+          <div className="text-center mb-6 sm:mb-8">
+            <div className="mx-auto inline-flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-coral-light">
+              <Users className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
             </div>
-            <h1 className="mt-3 font-display text-3xl font-bold">Свайп вдвоём</h1>
-            <p className="mt-2 text-muted-foreground">
-              Оба родителя голосуют независимо. Совпадения покажутся обоим в реальном времени.
+            <h1 className="mt-3 font-display text-2xl sm:text-3xl font-bold text-foreground">
+              Выбор имени вдвоём
+            </h1>
+            <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
+              Свайпайте имена независимо. Совпадения появятся в реальном времени!
             </p>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-border bg-card p-5">
-              <h3 className="font-bold text-foreground mb-3">Создать сессию</h3>
-              <div className="flex gap-2 mb-3">
-                {(["female", "male"] as const).map((g) => (
-                  <button
-                    key={g}
-                    onClick={() => setGender(g)}
-                    className={`flex-1 rounded-full px-3 py-2 text-sm font-medium transition-colors ${
-                      gender === g
-                        ? "bg-accent text-accent-foreground"
-                        : "bg-secondary text-secondary-foreground"
-                    }`}
-                  >
-                    {g === "female" ? "♀ Дочка" : "♂ Сын"}
-                  </button>
-                ))}
+            <div className="rounded-2xl border border-border bg-card p-5 space-y-3">
+              <div className="flex items-center gap-2 font-display text-base font-bold text-foreground">
+                <Sparkles className="h-4 w-4 text-primary" /> Создать сессию
               </div>
+              <p className="text-xs text-muted-foreground">
+                Создайте код и отправьте ссылку партнёру
+              </p>
               <button
                 onClick={createSession}
-                disabled={loading}
-                className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary py-2.5 text-xs sm:text-sm font-semibold text-primary-foreground transition hover:opacity-90 active:scale-95"
               >
-                {loading ? "Создаю…" : "Создать и получить код"}
+                Создать комнату <ArrowRight className="h-4 w-4" />
               </button>
             </div>
 
-            <div className="rounded-2xl border border-border bg-card p-5">
-              <h3 className="font-bold text-foreground mb-3">Войти по коду</h3>
-              <input
-                type="text"
-                placeholder="ABCDE"
-                value={joinCode}
-                onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-                className="w-full rounded-lg border border-input bg-background py-2 px-3 text-sm uppercase font-mono mb-3 focus:border-accent focus:outline-none"
-              />
-              <button
-                onClick={joinSession}
-                className="w-full rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground hover:opacity-90"
-              >
-                Войти
-              </button>
+            <div className="rounded-2xl border border-border bg-card p-5 space-y-3">
+              <div className="flex items-center gap-2 font-display text-base font-bold text-foreground">
+                <Heart className="h-4 w-4 text-rose-500" /> Присоединиться
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Введите 6-значный код, который вам прислали
+              </p>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="CODE"
+                  value={joinCode}
+                  onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                  maxLength={6}
+                  className="w-full rounded-xl border border-input bg-background px-3 py-2 text-center font-mono text-base font-bold tracking-wider text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+                />
+                <button
+                  onClick={joinSession}
+                  disabled={joinCode.trim().length < 4}
+                  className="rounded-xl bg-primary px-4 text-xs sm:text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                >
+                  Войти
+                </button>
+              </div>
             </div>
           </div>
         </main>
@@ -222,10 +222,10 @@ export default function CoupleSwipe() {
   const done = !current;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-28 sm:pb-12">
       <Header />
       <Breadcrumbs items={[{ label: "Вдвоём" }]} />
-      <main className="container mx-auto max-w-2xl px-4 py-8">
+      <main className="container mx-auto max-w-2xl px-3 sm:px-4 py-4 sm:py-8">
         <div className="flex items-center justify-between mb-4 rounded-xl bg-card border border-border p-3">
           <div className="text-sm">
             <span className="text-muted-foreground">Код:</span>{" "}

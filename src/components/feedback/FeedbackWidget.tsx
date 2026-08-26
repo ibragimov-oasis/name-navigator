@@ -91,22 +91,22 @@ export default function FeedbackWidget() {
         type="button"
         aria-label="Оставить отзыв"
         onClick={() => setOpen(true)}
-        className="fixed bottom-6 left-6 z-[9999] w-14 h-14 rounded-full shadow-lg flex items-center justify-center bg-indigo-600 text-white hover:bg-indigo-700 hover:scale-105 transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+        className="fixed bottom-20 sm:bottom-6 left-3 sm:left-6 z-30 w-11 h-11 sm:w-14 sm:h-14 rounded-full shadow-lg flex items-center justify-center bg-indigo-600 text-white hover:bg-indigo-700 hover:scale-105 active:scale-95 transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
       >
-        <MessageSquarePlus className="w-6 h-6" />
+        <MessageSquarePlus className="w-5 h-5 sm:w-6 sm:h-6" />
       </button>
 
       {toastMessage && (
-        <div className="fixed bottom-24 left-6 z-[99999] max-w-sm rounded-lg bg-zinc-900 border border-zinc-800 text-white px-4 py-3 shadow-lg flex items-center gap-2 dark:bg-white dark:border-zinc-200 dark:text-black animate-in fade-in slide-in-from-bottom-5 duration-300">
-          <span className="text-sm font-medium">{toastMessage}</span>
+        <div className="fixed bottom-32 sm:bottom-24 left-3 sm:left-6 z-[99999] max-w-sm rounded-xl bg-zinc-900 border border-zinc-800 text-white px-4 py-3 shadow-lg flex items-center gap-2 dark:bg-white dark:border-zinc-200 dark:text-black animate-in fade-in slide-in-from-bottom-5 duration-300">
+          <span className="text-xs sm:text-sm font-medium">{toastMessage}</span>
         </div>
       )}
 
       {open && (
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 p-3 sm:p-4 backdrop-blur-sm">
           <div className="absolute inset-0" onClick={() => setOpen(false)} />
           
-          <div className="relative w-full max-w-md rounded-xl border border-zinc-200 bg-white p-6 shadow-2xl dark:border-zinc-800 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-200">
+          <div className="relative w-[calc(100%-1rem)] max-w-md max-h-[90vh] overflow-y-auto rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6 shadow-2xl dark:border-zinc-800 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-200">
             
             <div className="flex flex-col gap-1.5 text-left">
               <h2 className="text-lg font-semibold leading-none tracking-tight flex items-center gap-2">

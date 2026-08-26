@@ -58,16 +58,16 @@ const AdultNames = () => {
   }, [search, gender, goal, impression]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-28 sm:pb-12">
       <Header />
-      <main className="container mx-auto px-4 py-6 max-w-5xl">
-        <div className="mb-6 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-coral-light">
-            <UserCheck className="h-5 w-5 text-primary" />
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-5xl">
+        <div className="mb-4 sm:mb-6 flex items-center gap-2.5 sm:gap-3">
+          <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-coral-light shrink-0">
+            <UserCheck className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
           </div>
           <div>
-            <h1 className="font-display text-2xl font-bold text-foreground">Имя для взрослого</h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">Имя для взрослого</h1>
+            <p className="text-xs sm:text-sm text-muted-foreground">
               Подбор осознанного имени по цели и впечатлению
             </p>
           </div>

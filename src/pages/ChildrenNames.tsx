@@ -48,18 +48,21 @@ const ChildrenNames = () => {
     return result;
   }, [search, gender, selectedCultures, selectedReligions, selectedAttributes, sort]);
 
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const activeFiltersCount = (gender.length > 0 ? 1 : 0) + (selectedCultures.length > 0 ? 1 : 0) + (selectedReligions.length > 0 ? 1 : 0) + (selectedAttributes.length > 0 ? 1 : 0);
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-28 sm:pb-12">
       <Header />
-      <main className="container mx-auto px-4 py-6">
-        <div className="mb-6 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-coral-light">
-              <Baby className="h-5 w-5 text-primary" />
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
+        <div className="mb-4 sm:mb-6 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-coral-light shrink-0">
+              <Baby className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
             </div>
             <div>
-              <h1 className="font-display text-2xl font-bold text-foreground">Имена для детей</h1>
-              <p className="text-sm text-muted-foreground">Найдите идеальное имя для вашего ребёнка</p>
+              <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">Имена для детей</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground">Найдите идеальное имя для вашего ребёнка</p>
             </div>
           </div>
           <Link
@@ -74,9 +77,30 @@ const ChildrenNames = () => {
           <FamilyNameBar />
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
+        {/* Mobile Filter Toggle Button */}
+        <div className="lg:hidden mb-3">
+          <button
+            onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
+            className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-border bg-card text-xs font-bold text-foreground shadow-sm"
+          >
+            <div className="flex items-center gap-2">
+              <Search className="h-4 w-4 text-primary" />
+              <span>Фильтры и поиск</span>
+              {activeFiltersCount > 0 && (
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                  {activeFiltersCount}
+                </span>
+              )}
+            </div>
+            <span className="text-primary text-[11px] font-semibold">
+              {mobileFiltersOpen ? "Скрыть ▲" : "Настроить ▼"}
+            </span>
+          </button>
+        </div>
+
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-[280px_1fr]">
           {/* Filters */}
-          <aside className="space-y-4 rounded-xl border border-border bg-card p-4">
+          <aside className={`space-y-4 rounded-xl border border-border bg-card p-4 ${mobileFiltersOpen ? "block" : "hidden lg:block"}`}>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
@@ -84,7 +108,7 @@ const ChildrenNames = () => {
                 placeholder="Поиск имени..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-lg border border-input bg-background py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-ring"
+                className="w-full rounded-lg border border-input bg-background py-2 pl-9 pr-3 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>
 
@@ -126,9 +150,9 @@ const ChildrenNames = () => {
             {(gender.length > 0 || selectedCultures.length > 0 || selectedReligions.length > 0 || selectedAttributes.length > 0) && (
               <button
                 onClick={() => { setGender([]); setSelectedCultures([]); setSelectedReligions([]); setSelectedAttributes([]); }}
-                className="w-full rounded-lg border border-border py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                className="w-full rounded-lg border border-border py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
               >
-                Сбросить фильтры
+                Сбросить все фильтры
               </button>
             )}
           </aside>
@@ -137,13 +161,13 @@ const ChildrenNames = () => {
           <div className="space-y-3">
             <SortBar sort={sort} onSortChange={setSort} count={filtered.length} />
             {filtered.length === 0 ? (
-              <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16 text-center">
+              <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-12 sm:py-16 text-center">
                 <Baby className="mb-3 h-10 w-10 text-muted-foreground" />
                 <p className="font-medium text-foreground">Ничего не найдено</p>
-                <p className="text-sm text-muted-foreground">Попробуйте изменить фильтры</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Попробуйте изменить параметры фильтра</p>
               </div>
             ) : (
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-2.5 sm:gap-3 sm:grid-cols-2">
                 {filtered.map((name, i) => (
                   <NameCard key={name.id} item={name} index={i} />
                 ))}

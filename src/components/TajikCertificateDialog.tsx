@@ -43,9 +43,9 @@ export const TajikCertificateDialog = ({ name, open, onOpenChange }: TajikCertif
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[92vh] overflow-y-auto border-border/80 bg-background/95 backdrop-blur-xl p-6 sm:p-8 rounded-3xl shadow-2xl">
+      <DialogContent className="max-w-2xl max-h-[92vh] overflow-y-auto border-border/80 bg-background/95 backdrop-blur-xl p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl shadow-2xl">
         <DialogHeader className="space-y-2 text-left">
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
             <Badge variant="outline" className="px-3 py-1 text-xs font-semibold rounded-full border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
               <ShieldCheck className="h-4 w-4" />
               Иқтибоси расмӣ барои САҲШ (ЗАГС)
@@ -53,7 +53,7 @@ export const TajikCertificateDialog = ({ name, open, onOpenChange }: TajikCertif
             <span className="text-xs text-muted-foreground font-mono">№{name.num} / {name.letter}</span>
           </div>
 
-          <DialogTitle className="text-2xl sm:text-3xl font-black text-foreground font-display">
+          <DialogTitle className="text-xl sm:text-3xl font-black text-foreground font-display">
             Санади расмии тасдиқи ном
           </DialogTitle>
           <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
@@ -64,31 +64,31 @@ export const TajikCertificateDialog = ({ name, open, onOpenChange }: TajikCertif
         {/* Printable Certificate Box */}
         <div
           ref={certRef}
-          className="mt-4 relative overflow-hidden rounded-2xl border-2 border-emerald-500/30 bg-gradient-to-b from-card via-card/90 to-emerald-500/5 p-6 sm:p-8 text-foreground shadow-md"
+          className="mt-4 relative overflow-hidden rounded-2xl border-2 border-emerald-500/30 bg-gradient-to-b from-card via-card/90 to-emerald-500/5 p-4 sm:p-6 md:p-8 text-foreground shadow-md"
         >
           {/* Ornamental watermark */}
           <div className="absolute inset-0 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:16px_16px] opacity-10 pointer-events-none" />
 
           {/* Certificate Header */}
-          <div className="text-center space-y-2 border-b border-border/60 pb-6 mb-6">
-            <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 mx-auto shadow-inner border border-emerald-500/20">
-              <ShieldCheck className="h-8 w-8" />
+          <div className="text-center space-y-2 border-b border-border/60 pb-4 sm:pb-6 mb-4 sm:mb-6">
+            <div className="inline-flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 mx-auto shadow-inner border border-emerald-500/20">
+              <ShieldCheck className="h-6 w-6 sm:h-8 sm:w-8" />
             </div>
-            <h3 className="font-display text-lg sm:text-xl font-bold tracking-tight text-foreground uppercase">
+            <h3 className="font-display text-base sm:text-xl font-bold tracking-tight text-foreground uppercase">
               Ҷумҳурии Тоҷикистон
             </h3>
             <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
               Феҳристи номҳои миллии тоҷикӣ
             </p>
-            <p className="text-[11px] text-muted-foreground max-w-md mx-auto">
+            <p className="text-[10px] sm:text-[11px] text-muted-foreground max-w-md mx-auto">
               Тасдиқшуда бо Қарори Ҳукумати Ҷумҳурии Тоҷикистон аз 26 феврали соли 2026, №98 (моддаи 20¹ Қонуни ҶТ «Дар бораи бақайдгирии давлатии асноди ҳолати шаҳрвандӣ»)
             </p>
           </div>
 
           {/* Core Name Display */}
-          <div className="bg-background/80 backdrop-blur-sm rounded-xl p-5 border border-border/60 text-center space-y-3 mb-6 shadow-sm">
-            <span className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">Номи тасдиқшуда</span>
-            <div className="text-3xl sm:text-5xl font-black text-foreground font-display tracking-tight text-emerald-600 dark:text-emerald-400">
+          <div className="bg-background/80 backdrop-blur-sm rounded-xl p-4 sm:p-5 border border-border/60 text-center space-y-2 sm:space-y-3 mb-4 sm:mb-6 shadow-sm">
+            <span className="text-[10px] sm:text-xs uppercase tracking-widest text-muted-foreground font-semibold">Номи тасдиқшуда</span>
+            <div className="text-2xl sm:text-4xl md:text-5xl font-black text-foreground font-display tracking-tight text-emerald-600 dark:text-emerald-400">
               {name.name_tj}
             </div>
             <div className="flex flex-wrap items-center justify-center gap-2 pt-1">

@@ -56,22 +56,46 @@ const PetNames = () => {
     return result;
   }, [search, gender, selectedTypes, selectedAttributes, selectedCharacters, selectedSizes, commandOnly, sort]);
 
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const activeFiltersCount = (gender.length > 0 ? 1 : 0) + (selectedTypes.length > 0 ? 1 : 0) + (selectedAttributes.length > 0 ? 1 : 0) + (selectedCharacters.length > 0 ? 1 : 0) + (selectedSizes.length > 0 ? 1 : 0) + (commandOnly ? 1 : 0);
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-28 sm:pb-12">
       <Header />
-      <main className="container mx-auto px-4 py-6">
-        <div className="mb-6 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-light">
-            <PawPrint className="h-5 w-5 text-accent" />
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
+        <div className="mb-4 sm:mb-6 flex items-center gap-2.5 sm:gap-3">
+          <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-teal-light shrink-0">
+            <PawPrint className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
           </div>
           <div>
-            <h1 className="font-display text-2xl font-bold text-foreground">Имена для питомцев</h1>
-            <p className="text-sm text-muted-foreground">Подберите уникальное имя для вашего любимца</p>
+            <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">Имена для питомцев</h1>
+            <p className="text-xs sm:text-sm text-muted-foreground">Подберите уникальное имя для вашего любимца</p>
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
-          <aside className="space-y-4 rounded-xl border border-border bg-card p-4">
+        {/* Mobile Filter Toggle */}
+        <div className="lg:hidden mb-3">
+          <button
+            onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
+            className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-border bg-card text-xs font-bold text-foreground shadow-sm"
+          >
+            <div className="flex items-center gap-2">
+              <Search className="h-4 w-4 text-accent" />
+              <span>Фильтры и поиск</span>
+              {activeFiltersCount > 0 && (
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-accent-foreground">
+                  {activeFiltersCount}
+                </span>
+              )}
+            </div>
+            <span className="text-accent text-[11px] font-semibold">
+              {mobileFiltersOpen ? "Скрыть ▲" : "Настроить ▼"}
+            </span>
+          </button>
+        </div>
+
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-[280px_1fr]">
+          <aside className={`space-y-4 rounded-xl border border-border bg-card p-4 ${mobileFiltersOpen ? "block" : "hidden lg:block"}`}>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
@@ -79,7 +103,7 @@ const PetNames = () => {
                 placeholder="Поиск имени..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-lg border border-input bg-background py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-ring"
+                className="w-full rounded-lg border border-input bg-background py-2 pl-9 pr-3 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>
 

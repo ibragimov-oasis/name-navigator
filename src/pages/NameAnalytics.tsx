@@ -42,18 +42,18 @@ const NameAnalytics = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-28 sm:pb-12">
       <Header />
-      <div className="container mx-auto max-w-3xl px-4 py-8">
-        <div className="text-center mb-8">
-          <BarChart3 className="mx-auto h-10 w-10 text-primary" />
-          <h1 className="mt-3 font-display text-3xl font-bold text-foreground">
+      <div className="container mx-auto max-w-3xl px-3 sm:px-4 py-4 sm:py-8">
+        <div className="text-center mb-6 sm:mb-8">
+          <BarChart3 className="mx-auto h-8 w-8 sm:h-10 sm:w-10 text-primary" />
+          <h1 className="mt-2.5 font-display text-2xl sm:text-3xl font-bold text-foreground">
             Аналитика имени
           </h1>
-          <p className="mt-2 text-muted-foreground">
+          <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
             Узнайте пол, возраст и географию имени по мировым данным
           </p>
-          <p className="mt-1 text-xs text-muted-foreground">
+          <p className="mt-1 text-[11px] text-muted-foreground">
             Данные от Genderize.io • Nationalize.io • Agify.io
           </p>
         </div>

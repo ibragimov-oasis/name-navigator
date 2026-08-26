@@ -26,17 +26,17 @@ const Favorites = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-28 sm:pb-12">
       <Header />
-      <main className="container mx-auto px-4 py-6">
-        <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-light">
-              <Heart className="h-5 w-5 text-rose" />
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
+        <div className="mb-4 sm:mb-6 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-rose-light shrink-0">
+              <Heart className="h-4 w-4 sm:h-5 sm:w-5 text-rose" />
             </div>
             <div>
-              <h1 className="font-display text-2xl font-bold text-foreground">Избранное</h1>
-              <p className="text-sm text-muted-foreground">
+              <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">Избранное</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 {favorites.length} {favorites.length === 1 ? "имя" : favorites.length < 5 ? "имени" : "имён"} сохранено
               </p>
             </div>
@@ -44,7 +44,7 @@ const Favorites = () => {
           {favorites.length > 0 && (
             <button
               onClick={clearFavorites}
-              className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              className="flex items-center gap-1.5 rounded-xl border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
             >
               <Trash2 className="h-3.5 w-3.5" />
               Очистить
@@ -53,27 +53,27 @@ const Favorites = () => {
         </div>
 
         {/* Tabs */}
-        <div className="mb-4 flex gap-1 rounded-lg bg-secondary p-1">
+        <div className="mb-4 flex gap-1 rounded-xl bg-secondary p-1">
           <button
             onClick={() => setTab("favorites")}
-            className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+            className={`flex-1 rounded-lg px-3 py-2 text-xs sm:text-sm font-semibold transition-colors ${
               tab === "favorites"
                 ? "bg-background text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            <Heart className="mr-1.5 inline h-4 w-4" />
+            <Heart className="mr-1 inline h-3.5 w-3.5 text-rose" />
             Избранные ({favoriteNames.length})
           </button>
           <button
             onClick={() => setTab("recommendations")}
-            className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+            className={`flex-1 rounded-lg px-3 py-2 text-xs sm:text-sm font-semibold transition-colors ${
               tab === "recommendations"
                 ? "bg-background text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            <Sparkles className="mr-1.5 inline h-4 w-4" />
+            <Sparkles className="mr-1 inline h-3.5 w-3.5 text-primary" />
             Рекомендации ({recommendations.length})
           </button>
         </div>

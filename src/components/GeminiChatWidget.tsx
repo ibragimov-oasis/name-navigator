@@ -65,16 +65,16 @@ const GeminiChatWidget = () => {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-4 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-lg transition hover:scale-105"
+        className="fixed bottom-20 sm:bottom-4 right-3 sm:right-4 z-30 flex h-11 w-11 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-lg transition hover:scale-105 active:scale-95"
         aria-label="Открыть AI-чат"
       >
-        <Sparkles className="h-6 w-6" />
+        <Sparkles className="h-5 w-5 sm:h-6 sm:w-6" />
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-end justify-end bg-black/30 sm:p-4" onClick={() => setOpen(false)}>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:justify-end bg-black/60 backdrop-blur-sm sm:p-4" onClick={() => setOpen(false)}>
           <div
-            className="flex h-[85vh] w-full max-w-md flex-col rounded-t-2xl border border-border bg-card shadow-2xl sm:rounded-2xl"
+            className="flex h-[92vh] sm:h-[85vh] w-full max-w-md flex-col rounded-t-3xl sm:rounded-2xl border border-border bg-card shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-border px-4 py-3">

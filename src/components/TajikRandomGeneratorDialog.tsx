@@ -60,7 +60,7 @@ export const TajikRandomGeneratorDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg border-border/80 bg-background/95 backdrop-blur-xl p-6 sm:p-8 rounded-3xl shadow-2xl">
+      <DialogContent className="max-w-lg max-h-[92vh] overflow-y-auto border-border/80 bg-background/95 backdrop-blur-xl p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl shadow-2xl">
         <DialogHeader className="space-y-2 text-left">
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="px-3 py-1 text-xs font-semibold rounded-full border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center gap-1">

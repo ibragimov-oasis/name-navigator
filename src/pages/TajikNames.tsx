@@ -241,7 +241,7 @@ const TajikNames = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background text-foreground selection:bg-emerald-500/20 pb-28">
+    <div className="min-h-screen bg-background text-foreground selection:bg-emerald-500/20 pb-36 sm:pb-28">
       <Header />
 
       {/* Detail Dialog */}
@@ -308,55 +308,55 @@ const TajikNames = () => {
 
       <main className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Hero Section */}
-        <section className="relative overflow-hidden rounded-3xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-background to-secondary/30 p-6 sm:p-10 mb-8 shadow-xl">
+        <section className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-background to-secondary/30 p-4 sm:p-8 md:p-10 mb-6 sm:mb-8 shadow-xl">
           <div className="absolute top-0 right-0 -mt-8 -mr-8 w-80 h-80 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
-          <div className="relative z-10 space-y-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-semibold">
-                <ShieldCheck className="h-4 w-4" />
-                Тасдиқшуда бо Қарори Ҳукумати Ҷумҳурии Тоҷикистон №98
+          <div className="relative z-10 space-y-3 sm:space-y-4">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[11px] sm:text-xs font-semibold">
+                <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
+                Тасдиқшуда бо Қарори Ҳукумати ҶТ №98
               </div>
-              <Badge variant="outline" className="text-xs bg-background/80 border-border">
-                Моддаи 20¹ Қонуни ҶТ дар бораи САҲШ
+              <Badge variant="outline" className="text-[10px] sm:text-xs bg-background/80 border-border">
+                Моддаи 20¹ Қонуни САҲШ
               </Badge>
               {isAudioPlaying && (
-                <Badge className="bg-emerald-600 text-white text-xs animate-pulse font-bold flex items-center gap-1">
+                <Badge className="bg-emerald-600 text-white text-[10px] sm:text-xs animate-pulse font-bold flex items-center gap-1">
                   <Radio className="h-3 w-3" />
                   Хониши овозӣ фаъол аст
                 </Badge>
               )}
             </div>
 
-            <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground font-display">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-foreground font-display">
               Феҳристи номҳои миллии тоҷикӣ
             </h1>
-            <p className="text-sm sm:text-base text-muted-foreground max-w-3xl leading-relaxed">
+            <p className="text-xs sm:text-sm md:text-base text-muted-foreground max-w-3xl leading-relaxed">
               Ягона феҳристи расмии номҳои миллии тасдиқшуда ва иҷозатдодашудаи Тоҷикистон.
-              Тибқи қонунгузории ҶТ танҳо номҳои ин феҳрист барои сабти асноди ҳолати шаҳрвандӣ (САҲШ / ЗАГС) ва шиноснома иҷозат доранд.
+              Танҳо номҳои ин феҳрист барои сабти асноди ҳолати шаҳрвандӣ (САҲШ / ЗАГС) ва шиноснома иҷозат доранд.
             </p>
 
             {/* Quick Stats Badges & Action Buttons */}
-            <div className="pt-2 flex flex-wrap items-center justify-between gap-3">
-              <div className="flex flex-wrap items-center gap-2.5">
-                <div className="px-3.5 py-2 rounded-xl bg-card border border-border/80 text-xs font-medium flex items-center gap-2 shadow-sm">
+            <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2">
+                <div className="px-3 py-2 rounded-xl bg-card border border-border/80 text-xs font-medium flex items-center gap-2 shadow-sm">
                   <span className="font-bold text-foreground text-sm">{counts.total.toLocaleString()}</span>
-                  <span className="text-muted-foreground">ҳамагӣ ном</span>
+                  <span className="text-muted-foreground text-[11px]">ҳамагӣ</span>
                 </div>
-                <div className="px-3.5 py-2 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-700 dark:text-sky-300 text-xs font-medium flex items-center gap-2">
+                <div className="px-3 py-2 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-700 dark:text-sky-300 text-xs font-medium flex items-center gap-2">
                   <span className="font-bold text-sm">{counts.male.toLocaleString()}</span>
-                  <span>писарона</span>
+                  <span className="text-[11px]">писарона</span>
                 </div>
-                <div className="px-3.5 py-2 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-300 text-xs font-medium flex items-center gap-2">
+                <div className="px-3 py-2 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-300 text-xs font-medium flex items-center gap-2">
                   <span className="font-bold text-sm">{counts.female.toLocaleString()}</span>
-                  <span>духтарона</span>
+                  <span className="text-[11px]">духтарона</span>
                 </div>
-                <div className="px-3.5 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-xs font-medium flex items-center gap-2">
+                <div className="px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-xs font-medium flex items-center gap-2">
                   <span className="font-bold text-sm">{counts.enriched.toLocaleString()}</span>
-                  <span>бо шарҳи маъно</span>
+                  <span className="text-[11px]">бо маъно</span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                 {/* Audio Reader Launch Button */}
                 <Button
                   onClick={() => {
@@ -366,19 +366,19 @@ const TajikNames = () => {
                       setIsAudioSettingsOpen(true);
                     }
                   }}
-                  className={`rounded-xl font-bold text-xs h-10 px-4 flex items-center gap-1.5 shadow-md transition-all ${
+                  className={`rounded-xl font-bold text-xs h-10 px-3.5 flex items-center justify-center gap-1.5 shadow-md transition-all ${
                     isAudioPlaying
                       ? "bg-emerald-600 hover:bg-emerald-700 text-white ring-2 ring-emerald-400"
                       : "bg-card border border-emerald-500/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/10"
                   }`}
                 >
                   <Headphones className="h-4 w-4 text-emerald-500" />
-                  <span>{isAudioPlaying ? (isAudioPaused ? "Идомаи аудио" : "Таваққуфи аудио") : "🎧 Автохониш (Аудиоплеер)"}</span>
+                  <span>{isAudioPlaying ? (isAudioPaused ? "Идомаи аудио" : "Таваққуфи аудио") : "🎧 Автохониш (TTS)"}</span>
                 </Button>
 
                 <Button
                   onClick={() => setGeneratorOpen(true)}
-                  className="rounded-xl font-bold bg-primary hover:bg-primary/90 text-primary-foreground text-xs h-10 px-4 flex items-center gap-1.5 shadow-md"
+                  className="rounded-xl font-bold bg-primary hover:bg-primary/90 text-primary-foreground text-xs h-10 px-3.5 flex items-center justify-center gap-1.5 shadow-md"
                 >
                   <Dices className="h-4 w-4" />
                   <span>Интихоби тасодуфӣ</span>
@@ -389,8 +389,8 @@ const TajikNames = () => {
         </section>
 
         {/* Sub-Tools Tabs Bar */}
-        <div className="mb-8">
-          <div className="flex items-center gap-2 border-b border-border/60 overflow-x-auto pb-2 scrollbar-none">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex items-center gap-2 border-b border-border/60 overflow-x-auto pb-2 scrollbar-none touch-scroll -mx-4 px-4 sm:mx-0 sm:px-0">
             {[
               { id: "catalog", label: "Каталог ва Ҷустуҷӯ", icon: Search, count: counts.total },
               { id: "audio", label: "Аудиохонӣ (TTS)", icon: Headphones, badge: "Овозӣ" },
@@ -413,7 +413,7 @@ const TajikNames = () => {
                       setActiveTab(tab.id as ActiveTab);
                     }
                   }}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
+                  className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
                     isActive
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
@@ -489,13 +489,13 @@ const TajikNames = () => {
                 )}
               </div>
 
-              <div className="flex flex-wrap gap-1.5 p-2 rounded-2xl bg-card border border-border">
+              <div className="flex flex-nowrap sm:flex-wrap overflow-x-auto gap-1.5 p-2 rounded-2xl bg-card border border-border scrollbar-none touch-scroll -mx-4 px-4 sm:mx-0 sm:px-2">
                 <Button
                   variant={selectedLetter === "all" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setSelectedLetter("all")}
-                  className={`h-9 px-3 text-xs rounded-xl font-semibold transition-all ${
-                    selectedLetter === "all" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                  className={`h-9 px-3 text-xs rounded-xl font-semibold transition-all shrink-0 ${
+                    selectedLetter === "all" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   Ҳама ({counts.total})
@@ -506,7 +506,7 @@ const TajikNames = () => {
                     variant={selectedLetter === stat.letter ? "default" : "ghost"}
                     size="sm"
                     onClick={() => setSelectedLetter(stat.letter)}
-                    className={`h-9 min-w-[38px] px-2 text-xs rounded-xl font-bold transition-all flex items-center gap-1 ${
+                    className={`h-9 min-w-[38px] px-2 text-xs rounded-xl font-bold transition-all flex items-center gap-1 shrink-0 ${
                       selectedLetter === stat.letter
                         ? "bg-primary text-primary-foreground shadow-sm scale-105"
                         : "text-muted-foreground hover:text-foreground hover:bg-secondary"
@@ -522,7 +522,7 @@ const TajikNames = () => {
 
             {/* Filter Controls & Search */}
             <section className="mb-6 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] gap-3 items-center">
+              <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] md:grid-cols-[1fr_auto_auto] gap-2.5 items-center">
                 {/* Live Search Input */}
                 <div className="relative">
                   <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -530,7 +530,7 @@ const TajikNames = () => {
                     placeholder="Ҷустуҷӯ аз рӯи навишти тоҷикӣ, русӣ, лотинӣ ё маъно..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="pl-10 h-11 rounded-xl bg-card border-border text-sm"
+                    className="pl-10 h-11 rounded-xl bg-card border-border text-xs sm:text-sm"
                   />
                   {search && (
                     <button
@@ -546,16 +546,16 @@ const TajikNames = () => {
                 <Tabs
                   value={selectedGender}
                   onValueChange={(v) => setSelectedGender(v as GenderFilter)}
-                  className="w-full md:w-auto"
+                  className="w-full sm:w-auto"
                 >
-                  <TabsList className="h-11 rounded-xl bg-card border border-border p-1">
-                    <TabsTrigger value="all" className="rounded-lg text-xs font-semibold">
+                  <TabsList className="h-11 w-full sm:w-auto grid grid-cols-3 sm:flex rounded-xl bg-card border border-border p-1">
+                    <TabsTrigger value="all" className="rounded-lg text-[11px] sm:text-xs font-semibold px-2">
                       Ҳама ({counts.total})
                     </TabsTrigger>
-                    <TabsTrigger value="male" className="rounded-lg text-xs font-semibold text-sky-600 dark:text-sky-400">
+                    <TabsTrigger value="male" className="rounded-lg text-[11px] sm:text-xs font-semibold text-sky-600 dark:text-sky-400 px-2">
                       Писарона ({counts.male})
                     </TabsTrigger>
-                    <TabsTrigger value="female" className="rounded-lg text-xs font-semibold text-rose-600 dark:text-rose-400">
+                    <TabsTrigger value="female" className="rounded-lg text-[11px] sm:text-xs font-semibold text-rose-600 dark:text-rose-400 px-2">
                       Духтарона ({counts.female})
                     </TabsTrigger>
                   </TabsList>
@@ -566,7 +566,7 @@ const TajikNames = () => {
                   onClick={handleExportCSV}
                   variant="outline"
                   size="sm"
-                  className="h-11 px-4 rounded-xl text-xs font-semibold flex items-center gap-2 border-border bg-card hover:bg-secondary text-foreground"
+                  className="hidden md:flex h-11 px-4 rounded-xl text-xs font-semibold items-center gap-2 border-border bg-card hover:bg-secondary text-foreground"
                 >
                   <Download className="h-4 w-4 text-primary" />
                   <span>Экспорт CSV</span>
@@ -574,14 +574,14 @@ const TajikNames = () => {
               </div>
 
               {/* Secondary Sub-filters & View Mode */}
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-border/50 text-xs">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-muted-foreground font-medium">Ҳолат:</span>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-2 border-t border-border/50 text-xs">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-muted-foreground font-medium text-[11px]">Ҳолат:</span>
                   <Button
                     variant={selectedEnriched === "all" ? "secondary" : "ghost"}
                     size="sm"
                     onClick={() => setSelectedEnriched("all")}
-                    className="h-7 text-xs rounded-lg px-2.5"
+                    className="h-7 text-xs rounded-lg px-2"
                   >
                     Ҳама
                   </Button>
@@ -589,7 +589,7 @@ const TajikNames = () => {
                     variant={selectedEnriched === "enriched" ? "secondary" : "ghost"}
                     size="sm"
                     onClick={() => setSelectedEnriched("enriched")}
-                    className="h-7 text-xs rounded-lg px-2.5 text-emerald-600 dark:text-emerald-400"
+                    className="h-7 text-xs rounded-lg px-2 text-emerald-600 dark:text-emerald-400"
                   >
                     Бо маълумот ({counts.enriched})
                   </Button>
@@ -597,9 +597,9 @@ const TajikNames = () => {
                     variant={selectedEnriched === "pending" ? "secondary" : "ghost"}
                     size="sm"
                     onClick={() => setSelectedEnriched("pending")}
-                    className="h-7 text-xs rounded-lg px-2.5 text-amber-600 dark:text-amber-400"
+                    className="h-7 text-xs rounded-lg px-2 text-amber-600 dark:text-amber-400"
                   >
-                    Интизори такмил ({counts.total - counts.enriched})
+                    Интизор ({counts.total - counts.enriched})
                   </Button>
                 </div>
 

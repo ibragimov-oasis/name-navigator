@@ -240,11 +240,11 @@ export default function AISearchDialog({ open, onClose }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-start justify-center bg-background/80 backdrop-blur-sm pt-[8vh] px-4 animate-in fade-in"
+      className="fixed inset-0 z-[100] flex items-start justify-center bg-background/80 backdrop-blur-sm pt-3 sm:pt-[8vh] px-2 sm:px-4 animate-in fade-in"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-2xl bg-card border border-border rounded-2xl shadow-2xl overflow-hidden animate-in slide-in-from-top-4"
+        className="w-full max-w-2xl max-h-[94vh] sm:max-h-[85vh] flex flex-col bg-card border border-border rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-top-4"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Input */}

@@ -75,21 +75,21 @@ const sections = [
 const People = () => {
   const { activePerson } = usePeople();
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-28 sm:pb-12">
       <SEO
         title="Имена для людей — взрослых, новообращённых, персонажей | Имяген"
         description="Подбор имени для взрослого, мусульманское имя для новообращённого, имя для персонажа книги, псевдоним и совместимость двух людей."
       />
       <Header />
-      <main className="container mx-auto px-4 py-8">
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-coral-light">
-            <Users className="h-6 w-6 text-primary" />
+      <main className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
+        <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-10">
+          <div className="mx-auto inline-flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-coral-light">
+            <Users className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
           </div>
-          <h1 className="mt-4 font-display text-3xl sm:text-4xl font-black text-foreground">
+          <h1 className="mt-3 sm:mt-4 font-display text-2xl sm:text-4xl font-black text-foreground">
             Имена для людей
           </h1>
-          <p className="mt-3 text-muted-foreground">
+          <p className="mt-2 sm:mt-3 text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed">
             Не только для младенцев. Подберите имя для взрослого, новообращённого, персонажа книги
             или творческий псевдоним — с глубоким смыслом и культурным контекстом.
           </p>

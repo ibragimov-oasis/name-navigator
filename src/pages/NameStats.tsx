@@ -48,17 +48,17 @@ const NameStats = () => {
   }, [allNames]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-28 sm:pb-12">
       <Header />
-      <div className="container mx-auto max-w-4xl px-4 py-8">
-        <div className="text-center mb-8">
-          <BarChart3 className="mx-auto h-10 w-10 text-primary" />
-          <h1 className="mt-3 font-display text-3xl font-bold text-foreground">Статистика имён</h1>
-          <p className="mt-2 text-muted-foreground">Аналитика {stats.total} имён в базе данных</p>
+      <div className="container mx-auto max-w-4xl px-3 sm:px-4 py-4 sm:py-8">
+        <div className="text-center mb-6 sm:mb-8">
+          <BarChart3 className="mx-auto h-8 w-8 sm:h-10 sm:w-10 text-primary" />
+          <h1 className="mt-2.5 font-display text-2xl sm:text-3xl font-bold text-foreground">Статистика имён</h1>
+          <p className="mt-1 text-xs sm:text-sm text-muted-foreground">Аналитика {stats.total} имён в базе данных</p>
         </div>
 
         {/* Summary cards */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-3 gap-2.5 sm:gap-4 mb-6 sm:mb-8">
           {[
             { label: "Всего имён", val: stats.total, color: "text-primary" },
             { label: "Мужских", val: stats.maleCount, color: "text-accent" },
