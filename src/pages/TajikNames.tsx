@@ -274,11 +274,13 @@ const TajikNames = () => {
         onOpenChange={setIsAudioSettingsOpen}
         settings={audioSettings}
         onUpdateSettings={updateAudioSettings}
-        totalPages={totalPages}
-        totalNames={filteredNames.length}
+        allNames={tajikRegistryNames}
+        initialGender={selectedGender}
+        initialLetter={selectedLetter}
+        itemsPerPage={ITEMS_PER_PAGE}
         availableVoices={availableVoices}
-        onStartReading={(startPage, endPage) => {
-          startReadingPages(filteredNames, startPage, endPage);
+        onStartReading={(scopedNames, startPage, endPage) => {
+          startReadingPages(scopedNames, startPage, endPage);
         }}
         sampleName={selectedName || paginatedNames[0]}
       />

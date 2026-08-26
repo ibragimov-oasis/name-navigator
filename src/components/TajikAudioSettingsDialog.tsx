@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -17,29 +17,35 @@ import {
   Gauge,
   UserCheck,
   Play,
-  RotateCcw,
   Sparkles,
   Sliders,
   Radio,
   Clock,
   BookOpen,
   VolumeX,
+  Filter,
+  Users,
+  User,
 } from "lucide-react";
-import {
-  AudioReaderSettings,
-} from "@/hooks/useTajikAudioReader";
+import { AudioReaderSettings } from "@/hooks/useTajikAudioReader";
 import { VoicePreset, SpeechReadingMode, speakName } from "@/lib/tts";
 import { TajikRegistryName } from "@/data/tajikTypes";
+import { TAJIK_ALPHABET } from "@/data/tajikRegistry";
+
+type GenderScope = "all" | "male" | "female";
+type EnrichedScope = "all" | "enriched" | "pending";
 
 interface TajikAudioSettingsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   settings: AudioReaderSettings;
   onUpdateSettings: (newSettings: Partial<AudioReaderSettings>) => void;
-  totalPages: number;
-  totalNames: number;
+  allNames: TajikRegistryName[];
+  initialGender?: GenderScope;
+  initialLetter?: string;
+  itemsPerPage?: number;
   availableVoices: SpeechSynthesisVoice[];
-  onStartReading: (startPage: number, endPage: number) => void;
+  onStartReading: (scopedNames: TajikRegistryName[], startPage: number, endPage: number) => void;
   sampleName?: TajikRegistryName;
 }
 
@@ -48,15 +54,68 @@ export function TajikAudioSettingsDialog({
   onOpenChange,
   settings,
   onUpdateSettings,
-  totalPages,
-  totalNames,
+  allNames,
+  initialGender = "all",
+  initialLetter = "all",
+  itemsPerPage = 36,
   availableVoices,
   onStartReading,
   sampleName,
 }: TajikAudioSettingsDialogProps) {
-  const [localStartPage, setLocalStartPage] = useState<number>(settings.startPage || 1);
-  const [localEndPage, setLocalEndPage] = useState<number>(settings.endPage || totalPages);
+  // Local Filter Scope State
+  const [selectedGender, setSelectedGender] = useState<GenderScope>(initialGender);
+  const [selectedLetter, setSelectedLetter] = useState<string>(initialLetter);
+  const [selectedEnriched, setSelectedEnriched] = useState<EnrichedScope>("all");
+
+  // Sync initial props when opened
+  useEffect(() => {
+    if (open) {
+      setSelectedGender(initialGender);
+      setSelectedLetter(initialLetter);
+    }
+  }, [open, initialGender, initialLetter]);
+
+  // Compute filtered list based on audio dialog filters
+  const filteredList = useMemo(() => {
+    return allNames.filter((item) => {
+      if (selectedGender !== "all" && item.gender !== selectedGender) {
+        return false;
+      }
+      if (selectedLetter !== "all" && item.letter.toUpperCase() !== selectedLetter.toUpperCase()) {
+        return false;
+      }
+      if (selectedEnriched === "enriched" && !item.is_enriched) {
+        return false;
+      }
+      if (selectedEnriched === "pending" && item.is_enriched) {
+        return false;
+      }
+      return true;
+    });
+  }, [allNames, selectedGender, selectedLetter, selectedEnriched]);
+
+  // Dynamic total pages for this filter
+  const totalPages = Math.max(1, Math.ceil(filteredList.length / itemsPerPage));
+
+  // Local Page Range State
+  const [localStartPage, setLocalStartPage] = useState<number>(1);
+  const [localEndPage, setLocalEndPage] = useState<number>(totalPages);
   const [isTestingVoice, setIsTestingVoice] = useState(false);
+
+  // Recalculate end page whenever totalPages shrinks/expands
+  useEffect(() => {
+    setLocalStartPage(1);
+    setLocalEndPage(totalPages);
+  }, [totalPages]);
+
+  // Counts for Badges
+  const genderCounts = useMemo(() => {
+    return {
+      all: allNames.length,
+      male: allNames.filter((n) => n.gender === "male").length,
+      female: allNames.filter((n) => n.gender === "female").length,
+    };
+  }, [allNames]);
 
   // Group system voices by language
   const categorizedVoices = useMemo(() => {
@@ -137,7 +196,7 @@ export function TajikAudioSettingsDialog({
       endPage: ePage,
     });
 
-    onStartReading(sPage, ePage);
+    onStartReading(filteredList, sPage, ePage);
     onOpenChange(false);
   };
 
@@ -154,20 +213,116 @@ export function TajikAudioSettingsDialog({
             </DialogTitle>
           </div>
           <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
-            Диапазони саҳифаҳо, диктор (овозҳои форсӣ, арабӣ, русӣ), суръат ва баландии садоро муайян кунед.
+            Филтри номҳо (писарона/духтарона), диапазони саҳифаҳо, диктор (форсӣ, арабӣ, русӣ), суръат ва баландиро танзим кунед.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-3 text-sm">
-          {/* SECTION 1: Page Range (Откуда и до куда читать) */}
+          {/* SECTION 1: GENDER & SCOPE FILTERS */}
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-card via-background to-secondary/30 border border-border space-y-3.5 shadow-sm">
+            <div className="flex items-center justify-between">
+              <Label className="font-bold text-foreground text-xs uppercase tracking-wider flex items-center gap-1.5">
+                <Filter className="h-4 w-4 text-emerald-500" />
+                Филтри хониш (Интихоби ҷинс ва категория):
+              </Label>
+              <Badge variant="outline" className="text-[11px] font-mono border-emerald-500/30 text-emerald-600 dark:text-emerald-400">
+                {filteredList.length} ном интихоб шуд
+              </Badge>
+            </div>
+
+            {/* Gender Selection Chips */}
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => setSelectedGender("all")}
+                className={`p-2.5 rounded-xl border text-xs font-bold flex flex-col items-center gap-1 transition-all ${
+                  selectedGender === "all"
+                    ? "bg-primary text-primary-foreground border-transparent shadow-sm scale-[1.02]"
+                    : "bg-card border-border text-muted-foreground hover:text-foreground hover:bg-secondary"
+                }`}
+              >
+                <div className="flex items-center gap-1">
+                  <Users className="h-3.5 w-3.5" />
+                  <span>Ҳамаи номҳо</span>
+                </div>
+                <span className="text-[10px] opacity-80 font-normal">({genderCounts.all})</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSelectedGender("male")}
+                className={`p-2.5 rounded-xl border text-xs font-bold flex flex-col items-center gap-1 transition-all ${
+                  selectedGender === "male"
+                    ? "bg-sky-600 text-white border-transparent shadow-sm scale-[1.02]"
+                    : "bg-sky-500/10 border-sky-500/20 text-sky-700 dark:text-sky-300 hover:bg-sky-500/20"
+                }`}
+              >
+                <div className="flex items-center gap-1">
+                  <User className="h-3.5 w-3.5" />
+                  <span>Писарона (♂)</span>
+                </div>
+                <span className="text-[10px] opacity-80 font-normal">({genderCounts.male})</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSelectedGender("female")}
+                className={`p-2.5 rounded-xl border text-xs font-bold flex flex-col items-center gap-1 transition-all ${
+                  selectedGender === "female"
+                    ? "bg-rose-600 text-white border-transparent shadow-sm scale-[1.02]"
+                    : "bg-rose-500/10 border-rose-500/20 text-rose-700 dark:text-rose-300 hover:bg-rose-500/20"
+                }`}
+              >
+                <div className="flex items-center gap-1">
+                  <User className="h-3.5 w-3.5" />
+                  <span>Духтарона (♀)</span>
+                </div>
+                <span className="text-[10px] opacity-80 font-normal">({genderCounts.female})</span>
+              </button>
+            </div>
+
+            {/* Sub-Filters: Letter & Status */}
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground font-medium text-[11px]">Ҳарф:</span>
+                <select
+                  value={selectedLetter}
+                  onChange={(e) => setSelectedLetter(e.target.value)}
+                  className="h-8 px-2 rounded-lg bg-card border border-border text-xs text-foreground font-semibold focus:outline-none"
+                >
+                  <option value="all">Ҳамаи ҳарфҳо (А-Я)</option>
+                  {TAJIK_ALPHABET.map((l) => (
+                    <option key={l} value={l}>
+                      Ҳарфи {l}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground font-medium text-[11px]">Шарҳи маъно:</span>
+                <select
+                  value={selectedEnriched}
+                  onChange={(e) => setSelectedEnriched(e.target.value as EnrichedScope)}
+                  className="h-8 px-2 rounded-lg bg-card border border-border text-xs text-foreground font-semibold focus:outline-none"
+                >
+                  <option value="all">Ҳамаи номҳо</option>
+                  <option value="enriched">Танҳо бо маълумот</option>
+                  <option value="pending">Интизори такмил</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* SECTION 2: Page Range (Откуда и до куда читать) */}
           <div className="p-4 rounded-2xl bg-card border border-border space-y-3.5 shadow-sm">
             <div className="flex items-center justify-between">
               <Label className="font-bold text-foreground text-xs uppercase tracking-wider flex items-center gap-1.5">
                 <BookOpen className="h-4 w-4 text-emerald-500" />
-                Диапазони хониш (Аз куҷо то куҷо):
+                Диапазони хониш (Саҳифаҳо):
               </Label>
               <span className="text-[11px] text-muted-foreground font-medium">
-                Ҳамагӣ {totalPages} саҳифа ({totalNames.toLocaleString()} ном)
+                {totalPages} саҳифа барои интихоби ҷорӣ ({filteredList.length} ном)
               </span>
             </div>
 
@@ -249,7 +404,7 @@ export function TajikAudioSettingsDialog({
             </div>
           </div>
 
-          {/* SECTION 2: Voice & Speaker Preset */}
+          {/* SECTION 3: Voice & Speaker Preset */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label className="font-bold text-foreground text-xs uppercase tracking-wider flex items-center gap-1.5">
@@ -333,7 +488,7 @@ export function TajikAudioSettingsDialog({
             )}
           </div>
 
-          {/* SECTION 3: Speed, Volume, Pitch */}
+          {/* SECTION 4: Speed, Volume, Pitch */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-card border border-border">
             {/* Speed Control */}
             <div className="space-y-2">
@@ -390,7 +545,7 @@ export function TajikAudioSettingsDialog({
             </div>
           </div>
 
-          {/* SECTION 4: Reading Mode & Interval */}
+          {/* SECTION 5: Reading Mode & Interval */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Reading Mode */}
             <div className="p-4 rounded-2xl bg-card border border-border space-y-2.5">
@@ -499,7 +654,9 @@ export function TajikAudioSettingsDialog({
               className="h-11 px-6 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md flex items-center gap-2 flex-1 sm:flex-initial"
             >
               <Play className="h-4 w-4 fill-white" />
-              <span>Оғоз кардан ({localStartPage}..{localEndPage})</span>
+              <span>
+                Оғоз ({selectedGender === "male" ? "♂ Писарона" : selectedGender === "female" ? "♀ Духтарона" : "Ҳама"}: {localStartPage}..{localEndPage})
+              </span>
             </Button>
           </div>
         </DialogFooter>
