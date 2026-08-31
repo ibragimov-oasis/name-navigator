@@ -14,81 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      tajik_registry_names: {
-        Row: {
-          id: string
-          num: number
-          name_tj: string
-          name_tj_raw: string
-          name_cyrillic: string
-          name_cyrillic_raw: string
-          name_latin: string
-          name_latin_raw: string
-          gender: "male" | "female"
-          gender_label: string
-          gender_tj: string
-          letter: string
-          is_official_permitted: boolean
-          legal_decree: string
-          is_enriched: boolean
-          matched_child_name_id: string | null
-          meaning: string | null
-          origin: string | null
-          attributes: string[]
-          history: string | null
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id: string
-          num: number
-          name_tj: string
-          name_tj_raw: string
-          name_cyrillic: string
-          name_cyrillic_raw: string
-          name_latin: string
-          name_latin_raw: string
-          gender: "male" | "female"
-          gender_label: string
-          gender_tj: string
-          letter: string
-          is_official_permitted?: boolean
-          legal_decree?: string
-          is_enriched?: boolean
-          matched_child_name_id?: string | null
-          meaning?: string | null
-          origin?: string | null
-          attributes?: string[]
-          history?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          num?: number
-          name_tj?: string
-          name_tj_raw?: string
-          name_cyrillic?: string
-          name_cyrillic_raw?: string
-          name_latin?: string
-          name_latin_raw?: string
-          gender?: "male" | "female"
-          gender_label?: string
-          gender_tj?: string
-          letter?: string
-          is_official_permitted?: boolean
-          legal_decree?: string
-          is_enriched?: boolean
-          matched_child_name_id?: string | null
-          meaning?: string | null
-          origin?: string | null
-          attributes?: string[]
-          history?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       api_keys: {
         Row: {
           api_key: string
@@ -890,6 +815,42 @@ export type Database = {
         }
         Relationships: []
       }
+      enrich_runs: {
+        Row: {
+          added: number
+          errors: Json | null
+          finished_at: string | null
+          id: string
+          model: string | null
+          skipped: number
+          source: string | null
+          started_at: string
+          status: string
+        }
+        Insert: {
+          added?: number
+          errors?: Json | null
+          finished_at?: string | null
+          id?: string
+          model?: string | null
+          skipped?: number
+          source?: string | null
+          started_at?: string
+          status?: string
+        }
+        Update: {
+          added?: number
+          errors?: Json | null
+          finished_at?: string | null
+          id?: string
+          model?: string | null
+          skipped?: number
+          source?: string | null
+          started_at?: string
+          status?: string
+        }
+        Relationships: []
+      }
       eth_candles: {
         Row: {
           close_price: number
@@ -1168,6 +1129,27 @@ export type Database = {
           tp_percent?: number
           tp_price?: number
           trend_at_entry?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      llm_quota_usage: {
+        Row: {
+          day: string
+          model: string
+          requests: number
+          updated_at: string
+        }
+        Insert: {
+          day?: string
+          model: string
+          requests?: number
+          updated_at?: string
+        }
+        Update: {
+          day?: string
+          model?: string
+          requests?: number
           updated_at?: string
         }
         Relationships: []
@@ -1508,6 +1490,84 @@ export type Database = {
           name?: string
           style?: string
           svg_data?: string | null
+        }
+        Relationships: []
+      }
+      names_enriched: {
+        Row: {
+          attributes: Json
+          confidence: number
+          created_at: string
+          culture: string | null
+          famous_people: Json
+          gender: string
+          history: string | null
+          id: string
+          languages: Json
+          llm_model: string | null
+          meaning: string | null
+          name: string
+          name_day: string | null
+          name_latin: string | null
+          name_lower: string | null
+          name_native: string | null
+          origin: string | null
+          popularity: number | null
+          religion: string | null
+          source_kind: string | null
+          source_url: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          attributes?: Json
+          confidence?: number
+          created_at?: string
+          culture?: string | null
+          famous_people?: Json
+          gender: string
+          history?: string | null
+          id?: string
+          languages?: Json
+          llm_model?: string | null
+          meaning?: string | null
+          name: string
+          name_day?: string | null
+          name_latin?: string | null
+          name_lower?: string | null
+          name_native?: string | null
+          origin?: string | null
+          popularity?: number | null
+          religion?: string | null
+          source_kind?: string | null
+          source_url?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          attributes?: Json
+          confidence?: number
+          created_at?: string
+          culture?: string | null
+          famous_people?: Json
+          gender?: string
+          history?: string | null
+          id?: string
+          languages?: Json
+          llm_model?: string | null
+          meaning?: string | null
+          name?: string
+          name_day?: string | null
+          name_latin?: string | null
+          name_lower?: string | null
+          name_native?: string | null
+          origin?: string | null
+          popularity?: number | null
+          religion?: string | null
+          source_kind?: string | null
+          source_url?: string | null
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }
