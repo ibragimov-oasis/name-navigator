@@ -1,6 +1,12 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
-import { tajikRegistryNames, TAJIK_ALPHABET, checkTajikNameLegality, getTajikAlphabetStats } from "@/data/tajikRegistry";
+import SEO from "@/components/SEO";
+import { TAJIK_ALPHABET, checkTajikNameLegality, tajikNameSlug, TAJIK_REGISTRY_DECREE } from "@/data/tajikRegistry";
+import { useTajikRegistry, useDebouncedValue } from "@/hooks/useTajikRegistry";
+import { hasRareLetters, countSyllables } from "@/lib/tajik/text";
+import { TajikCardsSkeleton, TajikFiltersSkeleton, TajikRegistryError } from "@/components/tajik/TajikRegistrySkeleton";
+import { TajikFioChecker } from "@/components/tajik/TajikFioChecker";
 import { TajikRegistryName, NameCheckResult } from "@/data/tajikTypes";
 import { TajikNameDetailDialog } from "@/components/TajikNameDetailDialog";
 import { TajikCertificateDialog } from "@/components/TajikCertificateDialog";
