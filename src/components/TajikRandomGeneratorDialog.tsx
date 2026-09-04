@@ -27,6 +27,7 @@ export const TajikRandomGeneratorDialog = ({
   const [isRolling, setIsRolling] = useState(false);
 
   const { toggleFavorite, isFavorite } = useFavorites();
+  const { names: tajikRegistryNames } = useTajikRegistry();
 
   const candidatePool = useMemo(() => {
     return tajikRegistryNames.filter((n) => {
@@ -34,7 +35,8 @@ export const TajikRandomGeneratorDialog = ({
       if (selectedLetter !== "all" && n.letter.toUpperCase() !== selectedLetter.toUpperCase()) return false;
       return true;
     });
-  }, [selectedGender, selectedLetter]);
+  }, [tajikRegistryNames, selectedGender, selectedLetter]);
+
 
   const handleRoll = () => {
     if (candidatePool.length === 0) {
