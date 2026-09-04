@@ -253,9 +253,10 @@ const TajikNames = () => {
       setCheckResult(null);
       return;
     }
-    const res = checkTajikNameLegality(target);
+    const res = checkTajikNameLegality(target, tajikRegistryNames);
     setCheckResult(res);
   };
+
 
   const handleExportCSV = () => {
     const headers = ["Т/Р", "Тоҷикӣ", "Овонавишти кириллӣ", "Овонавишти лотинӣ", "Ҷинс", "Ҳарф", "Маъно", "Ҳолат"];
