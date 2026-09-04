@@ -835,10 +835,7 @@ const TajikNames = () => {
                     <Card
                       key={item.id}
                       id={`name-card-${item.id}`}
-                      onClick={() => {
-                        setSelectedName(item);
-                        setDetailOpen(true);
-                      }}
+                      onClick={() => openName(item)}
                       className={`group relative cursor-pointer overflow-hidden rounded-2xl border bg-card hover:border-emerald-500/50 hover:shadow-lg transition-all duration-300 flex flex-col justify-between ${
                         isCurrentlyPlaying
                           ? "border-emerald-500 shadow-xl shadow-emerald-500/20 bg-emerald-500/5 ring-2 ring-emerald-500/50"
@@ -1006,10 +1003,7 @@ const TajikNames = () => {
                         <tr
                           key={item.id}
                           id={`name-row-${item.id}`}
-                          onClick={() => {
-                            setSelectedName(item);
-                            setDetailOpen(true);
-                          }}
+                          onClick={() => openName(item)}
                           className={`hover:bg-secondary/40 cursor-pointer transition-colors ${
                             isCurrentlyPlaying
                               ? "bg-emerald-500/10 border-l-4 border-l-emerald-500 font-medium"
