@@ -492,6 +492,7 @@ const TajikNames = () => {
               { id: "catalog", label: "Каталог ва Ҷустуҷӯ", icon: Search, count: counts.total },
               { id: "audio", label: "Аудиохонӣ (TTS)", icon: Headphones, badge: "Овозӣ" },
               { id: "checker", label: "Санҷиши ном (ЗАГС)", icon: Scale, badge: "Муҳим" },
+              { id: "fio", label: "Санҷиши НИН (ФИО)", icon: UserSquare2, badge: "Нав" },
               { id: "generator", label: "Генератори ном", icon: Dices },
               { id: "analytics", label: "Инфографика ва таҳлил", icon: BarChart3 },
               { id: "legal", label: "Қонунгузорӣ ва қоидаҳо", icon: HelpCircle },
