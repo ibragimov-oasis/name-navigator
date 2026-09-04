@@ -686,6 +686,64 @@ const TajikNames = () => {
                 </Button>
               </div>
 
+              {/* Умные фильтры и быстрые пресеты */}
+              <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                <span className="text-muted-foreground font-medium text-[11px] flex items-center gap-1">
+                  <Filter className="h-3.5 w-3.5" /> Филтрҳои зирак:
+                </span>
+                {([
+                  { id: "all", label: "Ҳар дарозӣ" },
+                  { id: "short", label: "Кӯтоҳ (≤5)" },
+                  { id: "medium", label: "Миёна (6–8)" },
+                  { id: "long", label: "Дароз (9+)" },
+                ] as const).map((opt) => (
+                  <Button
+                    key={opt.id}
+                    variant={lengthFilter === opt.id ? "secondary" : "ghost"}
+                    size="sm"
+                    onClick={() => setLengthFilter(opt.id)}
+                    className="h-7 text-xs rounded-lg px-2"
+                  >
+                    {opt.label}
+                  </Button>
+                ))}
+                <Button
+                  variant={rareOnly ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() => setRareOnly((v) => !v)}
+                  className="h-7 text-xs rounded-lg px-2"
+                  title="Танҳо номҳо бо ҳарфҳои хоси тоҷикӣ: Ғ Қ Ҷ Ӯ Ӣ Ҳ"
+                >
+                  Ҳарфҳои хос (Ғ Қ Ҷ Ӯ Ӣ Ҳ)
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleShareView}
+                  className="h-7 text-xs rounded-lg px-2 gap-1.5 text-primary"
+                >
+                  <Share2 className="h-3.5 w-3.5" />
+                  Мубодилаи ҷустуҷӯ
+                </Button>
+                {(lengthFilter !== "all" || rareOnly || selectedLetter !== "all" || search || selectedGender !== "all") && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setLengthFilter("all");
+                      setRareOnly(false);
+                      setSelectedEnriched("all");
+                      patchParams({ q: null, gender: null, letter: null, page: null });
+                    }}
+                    className="h-7 text-xs rounded-lg px-2 text-muted-foreground"
+                  >
+                    Тоза кардани филтрҳо
+                  </Button>
+                )}
+              </div>
+
+
+
               {/* Secondary Sub-filters & View Mode */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-2 border-t border-border/50 text-xs">
                 <div className="flex flex-wrap items-center gap-1.5">
