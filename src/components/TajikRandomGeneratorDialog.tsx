@@ -1,7 +1,8 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { tajikRegistryNames, TAJIK_ALPHABET } from "@/data/tajikRegistry";
+import { TAJIK_ALPHABET } from "@/data/tajikRegistry";
+import { useTajikRegistry } from "@/hooks/useTajikRegistry";
 import { TajikRegistryName } from "@/data/tajikTypes";
 import { Dices, Sparkles, Heart, Volume2, ShieldCheck, ArrowRight, RefreshCw } from "lucide-react";
 import { useState, useMemo } from "react";
@@ -26,6 +27,7 @@ export const TajikRandomGeneratorDialog = ({
   const [isRolling, setIsRolling] = useState(false);
 
   const { toggleFavorite, isFavorite } = useFavorites();
+  const { names: tajikRegistryNames } = useTajikRegistry();
 
   const candidatePool = useMemo(() => {
     return tajikRegistryNames.filter((n) => {
@@ -33,7 +35,8 @@ export const TajikRandomGeneratorDialog = ({
       if (selectedLetter !== "all" && n.letter.toUpperCase() !== selectedLetter.toUpperCase()) return false;
       return true;
     });
-  }, [selectedGender, selectedLetter]);
+  }, [tajikRegistryNames, selectedGender, selectedLetter]);
+
 
   const handleRoll = () => {
     if (candidatePool.length === 0) {

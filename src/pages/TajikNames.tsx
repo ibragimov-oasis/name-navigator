@@ -1,6 +1,12 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
-import { tajikRegistryNames, TAJIK_ALPHABET, checkTajikNameLegality, getTajikAlphabetStats } from "@/data/tajikRegistry";
+import SEO from "@/components/SEO";
+import { TAJIK_ALPHABET, checkTajikNameLegality, tajikNameSlug, TAJIK_REGISTRY_DECREE } from "@/data/tajikRegistry";
+import { useTajikRegistry, useDebouncedValue } from "@/hooks/useTajikRegistry";
+import { hasRareLetters, countSyllables } from "@/lib/tajik/text";
+import { TajikCardsSkeleton, TajikFiltersSkeleton, TajikRegistryError } from "@/components/tajik/TajikRegistrySkeleton";
+import { TajikFioChecker } from "@/components/tajik/TajikFioChecker";
 import { TajikRegistryName, NameCheckResult } from "@/data/tajikTypes";
 import { TajikNameDetailDialog } from "@/components/TajikNameDetailDialog";
 import { TajikCertificateDialog } from "@/components/TajikCertificateDialog";
@@ -48,25 +54,71 @@ import {
   Play,
   Pause,
   Radio,
+  UserSquare2,
+  Filter,
+
 } from "lucide-react";
 
 type GenderFilter = "all" | "male" | "female";
 type EnrichedFilter = "all" | "enriched" | "pending";
 type ViewMode = "grid" | "table";
 type SortOrder = "num-asc" | "alpha-asc" | "alpha-desc" | "length-asc" | "length-desc";
-type ActiveTab = "catalog" | "checker" | "generator" | "analytics" | "legal";
+type ActiveTab = "catalog" | "checker" | "fio" | "analytics" | "legal";
+type LengthFilter = "all" | "short" | "medium" | "long";
 
 const ITEMS_PER_PAGE = 36;
+const VALID_TABS: readonly ActiveTab[] = ["catalog", "checker", "fio", "analytics", "legal"];
 
 const TajikNames = () => {
-  const [activeTab, setActiveTab] = useState<ActiveTab>("catalog");
-  const [search, setSearch] = useState("");
-  const [selectedGender, setSelectedGender] = useState<GenderFilter>("all");
-  const [selectedLetter, setSelectedLetter] = useState<string>("all");
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // ---- Состояние, синхронизированное с URL (шэрится ссылкой) ----
+  const activeTab = (VALID_TABS.includes(searchParams.get("tab") as ActiveTab)
+    ? (searchParams.get("tab") as ActiveTab)
+    : "catalog");
+  const search = searchParams.get("q") ?? "";
+  const selectedGender = (["all", "male", "female"].includes(searchParams.get("gender") ?? "")
+    ? (searchParams.get("gender") as GenderFilter)
+    : "all");
+  const selectedLetter = searchParams.get("letter") ?? "all";
+  const currentPage = Math.max(1, Number(searchParams.get("page") ?? 1) || 1);
+
+  const patchParams = useCallback(
+    (patch: Record<string, string | null>, resetPage = true) => {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          for (const [key, value] of Object.entries(patch)) {
+            if (value === null || value === "" || value === "all") next.delete(key);
+            else next.set(key, value);
+          }
+          if (resetPage && !("page" in patch)) next.delete("page");
+          return next;
+        },
+        { replace: true }
+      );
+    },
+    [setSearchParams]
+  );
+
+  const setActiveTab = useCallback((tab: ActiveTab) => patchParams({ tab: tab === "catalog" ? null : tab }, false), [patchParams]);
+  const setSearch = useCallback((value: string) => patchParams({ q: value }), [patchParams]);
+  const setSelectedGender = useCallback((value: GenderFilter) => patchParams({ gender: value }), [patchParams]);
+  const setSelectedLetter = useCallback((value: string) => patchParams({ letter: value }), [patchParams]);
+  const setCurrentPage = useCallback(
+    (updater: number | ((p: number) => number)) => {
+      const value = typeof updater === "function" ? updater(currentPage) : updater;
+      patchParams({ page: value <= 1 ? null : String(value) }, false);
+    },
+    [patchParams, currentPage]
+  );
+
+  // ---- Локальное состояние ----
   const [selectedEnriched, setSelectedEnriched] = useState<EnrichedFilter>("all");
   const [sortOrder, setSortOrder] = useState<SortOrder>("num-asc");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [lengthFilter, setLengthFilter] = useState<LengthFilter>("all");
+  const [rareOnly, setRareOnly] = useState(false);
 
   // Checker tool state
   const [checkerQuery, setCheckerQuery] = useState("");
@@ -80,12 +132,25 @@ const TajikNames = () => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const { isFavorite, toggleFavorite } = useFavorites();
-  const alphabetStats = useMemo(() => getTajikAlphabetStats(), []);
+  const { names: tajikRegistryNames, loading, error, reload, counts, alphabetStats } = useTajikRegistry();
+
+  const debouncedSearch = useDebouncedValue(search, 200);
+
+  // Открытие имени по пермалинку ?name=<slug>
+  const nameSlug = searchParams.get("name");
+  useEffect(() => {
+    if (!nameSlug || tajikRegistryNames.length === 0) return;
+    const target = tajikRegistryNames.find((n) => tajikNameSlug(n) === nameSlug.toLowerCase());
+    if (target) {
+      setSelectedName(target);
+      setDetailOpen(true);
+    }
+  }, [nameSlug, tajikRegistryNames]);
 
   // Filtered & sorted names
   const filteredNames = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    
+    const q = debouncedSearch.trim().toLowerCase();
+
     return tajikRegistryNames.filter((item) => {
       // Gender filter
       if (selectedGender !== "all" && item.gender !== selectedGender) {
@@ -100,6 +165,17 @@ const TajikNames = () => {
         return false;
       }
       if (selectedEnriched === "pending" && item.is_enriched) {
+        return false;
+      }
+      // Умный фильтр по длине имени
+      if (lengthFilter !== "all") {
+        const len = item.name_tj.length;
+        if (lengthFilter === "short" && len > 5) return false;
+        if (lengthFilter === "medium" && (len < 6 || len > 8)) return false;
+        if (lengthFilter === "long" && len < 9) return false;
+      }
+      // Только имена с редкими таджикскими буквами
+      if (rareOnly && !hasRareLetters(item.name_tj)) {
         return false;
       }
       // Search filter
@@ -128,15 +204,16 @@ const TajikNames = () => {
       }
       return a.num - b.num;
     });
-  }, [search, selectedGender, selectedLetter, selectedEnriched, sortOrder]);
+  }, [tajikRegistryNames, debouncedSearch, selectedGender, selectedLetter, selectedEnriched, lengthFilter, rareOnly, sortOrder]);
 
   // Total pages
   const totalPages = Math.ceil(filteredNames.length / ITEMS_PER_PAGE) || 1;
 
-  // Reset page when filters change
+  // Страница не должна выходить за пределы результата
   useEffect(() => {
-    setCurrentPage(1);
-  }, [search, selectedGender, selectedLetter, selectedEnriched, sortOrder]);
+    if (currentPage > totalPages) setCurrentPage(1);
+  }, [currentPage, totalPages, setCurrentPage]);
+
 
   // Audio Reader Hook Integration
   const {
@@ -179,9 +256,10 @@ const TajikNames = () => {
       setCheckResult(null);
       return;
     }
-    const res = checkTajikNameLegality(target);
+    const res = checkTajikNameLegality(target, tajikRegistryNames);
     setCheckResult(res);
   };
+
 
   const handleExportCSV = () => {
     const headers = ["Т/Р", "Тоҷикӣ", "Овонавишти кириллӣ", "Овонавишти лотинӣ", "Ҷинс", "Ҳарф", "Маъно", "Ҳолат"];
@@ -231,18 +309,40 @@ const TajikNames = () => {
     }
   };
 
-  const counts = useMemo(() => {
-    return {
-      total: tajikRegistryNames.length,
-      male: tajikRegistryNames.filter((n) => n.gender === "male").length,
-      female: tajikRegistryNames.filter((n) => n.gender === "female").length,
-      enriched: tajikRegistryNames.filter((n) => n.is_enriched).length,
-    };
+  // Поделиться текущей выборкой (фильтры уже в URL)
+  const handleShareView = useCallback(() => {
+    const url = window.location.href;
+    if (navigator.share) {
+      void navigator.share({ title: "Феҳристи номҳои миллии тоҷикӣ", url });
+      return;
+    }
+    navigator.clipboard.writeText(url);
+    toast.success("Пайванд нусхабардорӣ шуд");
   }, []);
+
+  const openName = useCallback(
+    (item: TajikRegistryName) => {
+      setSelectedName(item);
+      setDetailOpen(true);
+      patchParams({ name: tajikNameSlug(item) }, false);
+    },
+    [patchParams]
+  );
+
+  useEffect(() => {
+    if (!detailOpen) patchParams({ name: null }, false);
+  }, [detailOpen, patchParams]);
+
 
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-emerald-500/20 pb-36 sm:pb-28">
+      <SEO
+        title="Феҳристи номҳои миллии тоҷикӣ 2026 — реестр разрешённых имён Таджикистана"
+        description={`Официальный реестр национальных имён Таджикистана: ${counts.total || 3461} имён, проверка имени для ЗАГС, значения, транслитерация и правила ФИО. ${TAJIK_REGISTRY_DECREE}.`}
+        canonical={typeof window !== "undefined" ? `${window.location.origin}/tajik-names` : undefined}
+      />
       <Header />
+
 
       {/* Detail Dialog */}
       <TajikNameDetailDialog
@@ -395,6 +495,7 @@ const TajikNames = () => {
               { id: "catalog", label: "Каталог ва Ҷустуҷӯ", icon: Search, count: counts.total },
               { id: "audio", label: "Аудиохонӣ (TTS)", icon: Headphones, badge: "Овозӣ" },
               { id: "checker", label: "Санҷиши ном (ЗАГС)", icon: Scale, badge: "Муҳим" },
+              { id: "fio", label: "Санҷиши НИН (ФИО)", icon: UserSquare2, badge: "Нав" },
               { id: "generator", label: "Генератори ном", icon: Dices },
               { id: "analytics", label: "Инфографика ва таҳлил", icon: BarChart3 },
               { id: "legal", label: "Қонунгузорӣ ва қоидаҳо", icon: HelpCircle },
@@ -437,9 +538,21 @@ const TajikNames = () => {
           </div>
         </div>
 
-        {/* TAB 1: CATALOG */}
-        {activeTab === "catalog" && (
+        {/* Ошибка загрузки реестра */}
+        {error && <TajikRegistryError message={error} onRetry={reload} />}
+
+        {/* Скелетон первичной загрузки */}
+        {loading && !error && activeTab === "catalog" && (
           <>
+            <TajikFiltersSkeleton />
+            <TajikCardsSkeleton count={12} />
+          </>
+        )}
+
+        {/* TAB 1: CATALOG */}
+        {activeTab === "catalog" && !loading && !error && (
+          <>
+
             {/* Quick Check & Audio Play Mini-Banner */}
             <div className="mb-6 p-4 rounded-2xl bg-card border border-border flex flex-col sm:flex-row items-center justify-between gap-3">
               <div className="flex items-center gap-3">
@@ -573,6 +686,64 @@ const TajikNames = () => {
                 </Button>
               </div>
 
+              {/* Умные фильтры и быстрые пресеты */}
+              <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                <span className="text-muted-foreground font-medium text-[11px] flex items-center gap-1">
+                  <Filter className="h-3.5 w-3.5" /> Филтрҳои зирак:
+                </span>
+                {([
+                  { id: "all", label: "Ҳар дарозӣ" },
+                  { id: "short", label: "Кӯтоҳ (≤5)" },
+                  { id: "medium", label: "Миёна (6–8)" },
+                  { id: "long", label: "Дароз (9+)" },
+                ] as const).map((opt) => (
+                  <Button
+                    key={opt.id}
+                    variant={lengthFilter === opt.id ? "secondary" : "ghost"}
+                    size="sm"
+                    onClick={() => setLengthFilter(opt.id)}
+                    className="h-7 text-xs rounded-lg px-2"
+                  >
+                    {opt.label}
+                  </Button>
+                ))}
+                <Button
+                  variant={rareOnly ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() => setRareOnly((v) => !v)}
+                  className="h-7 text-xs rounded-lg px-2"
+                  title="Танҳо номҳо бо ҳарфҳои хоси тоҷикӣ: Ғ Қ Ҷ Ӯ Ӣ Ҳ"
+                >
+                  Ҳарфҳои хос (Ғ Қ Ҷ Ӯ Ӣ Ҳ)
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleShareView}
+                  className="h-7 text-xs rounded-lg px-2 gap-1.5 text-primary"
+                >
+                  <Share2 className="h-3.5 w-3.5" />
+                  Мубодилаи ҷустуҷӯ
+                </Button>
+                {(lengthFilter !== "all" || rareOnly || selectedLetter !== "all" || search || selectedGender !== "all") && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setLengthFilter("all");
+                      setRareOnly(false);
+                      setSelectedEnriched("all");
+                      patchParams({ q: null, gender: null, letter: null, page: null });
+                    }}
+                    className="h-7 text-xs rounded-lg px-2 text-muted-foreground"
+                  >
+                    Тоза кардани филтрҳо
+                  </Button>
+                )}
+              </div>
+
+
+
               {/* Secondary Sub-filters & View Mode */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-2 border-t border-border/50 text-xs">
                 <div className="flex flex-wrap items-center gap-1.5">
@@ -664,10 +835,7 @@ const TajikNames = () => {
                     <Card
                       key={item.id}
                       id={`name-card-${item.id}`}
-                      onClick={() => {
-                        setSelectedName(item);
-                        setDetailOpen(true);
-                      }}
+                      onClick={() => openName(item)}
                       className={`group relative cursor-pointer overflow-hidden rounded-2xl border bg-card hover:border-emerald-500/50 hover:shadow-lg transition-all duration-300 flex flex-col justify-between ${
                         isCurrentlyPlaying
                           ? "border-emerald-500 shadow-xl shadow-emerald-500/20 bg-emerald-500/5 ring-2 ring-emerald-500/50"
@@ -835,10 +1003,7 @@ const TajikNames = () => {
                         <tr
                           key={item.id}
                           id={`name-row-${item.id}`}
-                          onClick={() => {
-                            setSelectedName(item);
-                            setDetailOpen(true);
-                          }}
+                          onClick={() => openName(item)}
                           className={`hover:bg-secondary/40 cursor-pointer transition-colors ${
                             isCurrentlyPlaying
                               ? "bg-emerald-500/10 border-l-4 border-l-emerald-500 font-medium"
@@ -939,7 +1104,12 @@ const TajikNames = () => {
         )}
 
         {/* TAB 2: NAME LEGALITY CHECKER */}
-        {activeTab === "checker" && (
+        {/* TAB: FIO (ФИО) CHECKER */}
+        {activeTab === "fio" && !loading && !error && (
+          <TajikFioChecker names={tajikRegistryNames} onOpenName={openName} />
+        )}
+
+        {activeTab === "checker" && !loading && !error && (
           <section className="space-y-6 max-w-3xl mx-auto py-4">
             <div className="p-6 sm:p-8 rounded-3xl border border-border bg-card shadow-md space-y-4">
               <div className="flex items-center gap-2 text-primary">
@@ -997,22 +1167,31 @@ const TajikNames = () => {
               {checkResult && (
                 <div
                   className={`mt-6 p-5 sm:p-6 rounded-2xl border transition-all animate-fade-in ${
-                    checkResult.isPermitted
+                    checkResult.status === "permitted"
                       ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-950 dark:text-emerald-100"
+                      : checkResult.status === "likely"
+                      ? "bg-sky-500/10 border-sky-500/30 text-sky-950 dark:text-sky-100"
                       : "bg-amber-500/10 border-amber-500/30 text-amber-950 dark:text-amber-100"
                   }`}
                 >
                   <div className="flex items-start gap-4">
-                    {checkResult.isPermitted ? (
+                    {checkResult.status === "permitted" ? (
                       <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                    ) : checkResult.status === "likely" ? (
+                      <Info className="h-8 w-8 text-sky-600 dark:text-sky-400 shrink-0 mt-0.5" />
                     ) : (
                       <AlertCircle className="h-8 w-8 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                     )}
                     <div className="space-y-3 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-black text-lg">
-                          {checkResult.isPermitted ? "✓ НОМ РАСМАН ИҶОЗАТ ДОДА ШУДААСТ" : "⚠ ДАР ФЕҲРИСТИ РАСМӢ ЁФТ НАШУД"}
+                          {checkResult.status === "permitted"
+                            ? "✓ НОМ РАСМАН ИҶОЗАТ ДОДА ШУДААСТ"
+                            : checkResult.status === "likely"
+                            ? "≈ НОМИ НАЗДИК ДАР ФЕҲРИСТ ҲАСТ"
+                            : "⚠ ДАР ФЕҲРИСТИ РАСМӢ ЁФТ НАШУД"}
                         </span>
+
                         {checkResult.exactMatch && (
                           <Badge className="text-xs bg-emerald-600 text-white font-bold">
                             №{checkResult.exactMatch.num} • {checkResult.exactMatch.gender_tj}
@@ -1087,7 +1266,7 @@ const TajikNames = () => {
         )}
 
         {/* TAB 3: ANALYTICS & INFOGRAPHICS */}
-        {activeTab === "analytics" && (
+        {activeTab === "analytics" && !loading && !error && (
           <section className="space-y-6 max-w-5xl mx-auto py-4">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="p-5 rounded-2xl bg-card border border-border space-y-1 shadow-sm">
