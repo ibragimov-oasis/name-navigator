@@ -305,14 +305,30 @@ const TajikNames = () => {
     }
   };
 
-  const counts = useMemo(() => {
-    return {
-      total: tajikRegistryNames.length,
-      male: tajikRegistryNames.filter((n) => n.gender === "male").length,
-      female: tajikRegistryNames.filter((n) => n.gender === "female").length,
-      enriched: tajikRegistryNames.filter((n) => n.is_enriched).length,
-    };
+  // Поделиться текущей выборкой (фильтры уже в URL)
+  const handleShareView = useCallback(() => {
+    const url = window.location.href;
+    if (navigator.share) {
+      void navigator.share({ title: "Феҳристи номҳои миллии тоҷикӣ", url });
+      return;
+    }
+    navigator.clipboard.writeText(url);
+    toast.success("Пайванд нусхабардорӣ шуд");
   }, []);
+
+  const openName = useCallback(
+    (item: TajikRegistryName) => {
+      setSelectedName(item);
+      setDetailOpen(true);
+      patchParams({ name: tajikNameSlug(item) }, false);
+    },
+    [patchParams]
+  );
+
+  useEffect(() => {
+    if (!detailOpen) patchParams({ name: null }, false);
+  }, [detailOpen, patchParams]);
+
 
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-emerald-500/20 pb-36 sm:pb-28">
