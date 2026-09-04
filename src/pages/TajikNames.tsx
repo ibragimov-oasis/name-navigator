@@ -538,9 +538,21 @@ const TajikNames = () => {
           </div>
         </div>
 
-        {/* TAB 1: CATALOG */}
-        {activeTab === "catalog" && (
+        {/* Ошибка загрузки реестра */}
+        {error && <TajikRegistryError message={error} onRetry={reload} />}
+
+        {/* Скелетон первичной загрузки */}
+        {loading && !error && activeTab === "catalog" && (
           <>
+            <TajikFiltersSkeleton />
+            <TajikCardsSkeleton count={12} />
+          </>
+        )}
+
+        {/* TAB 1: CATALOG */}
+        {activeTab === "catalog" && !loading && !error && (
+          <>
+
             {/* Quick Check & Audio Play Mini-Banner */}
             <div className="mb-6 p-4 rounded-2xl bg-card border border-border flex flex-col sm:flex-row items-center justify-between gap-3">
               <div className="flex items-center gap-3">
