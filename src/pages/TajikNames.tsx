@@ -1110,7 +1110,12 @@ const TajikNames = () => {
         )}
 
         {/* TAB 2: NAME LEGALITY CHECKER */}
-        {activeTab === "checker" && (
+        {/* TAB: FIO (ФИО) CHECKER */}
+        {activeTab === "fio" && !loading && !error && (
+          <TajikFioChecker names={tajikRegistryNames} onOpenName={openName} />
+        )}
+
+        {activeTab === "checker" && !loading && !error && (
           <section className="space-y-6 max-w-3xl mx-auto py-4">
             <div className="p-6 sm:p-8 rounded-3xl border border-border bg-card shadow-md space-y-4">
               <div className="flex items-center gap-2 text-primary">
