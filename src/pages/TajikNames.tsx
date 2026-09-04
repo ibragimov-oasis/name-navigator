@@ -1173,22 +1173,31 @@ const TajikNames = () => {
               {checkResult && (
                 <div
                   className={`mt-6 p-5 sm:p-6 rounded-2xl border transition-all animate-fade-in ${
-                    checkResult.isPermitted
+                    checkResult.status === "permitted"
                       ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-950 dark:text-emerald-100"
+                      : checkResult.status === "likely"
+                      ? "bg-sky-500/10 border-sky-500/30 text-sky-950 dark:text-sky-100"
                       : "bg-amber-500/10 border-amber-500/30 text-amber-950 dark:text-amber-100"
                   }`}
                 >
                   <div className="flex items-start gap-4">
-                    {checkResult.isPermitted ? (
+                    {checkResult.status === "permitted" ? (
                       <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                    ) : checkResult.status === "likely" ? (
+                      <Info className="h-8 w-8 text-sky-600 dark:text-sky-400 shrink-0 mt-0.5" />
                     ) : (
                       <AlertCircle className="h-8 w-8 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                     )}
                     <div className="space-y-3 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-black text-lg">
-                          {checkResult.isPermitted ? "✓ НОМ РАСМАН ИҶОЗАТ ДОДА ШУДААСТ" : "⚠ ДАР ФЕҲРИСТИ РАСМӢ ЁФТ НАШУД"}
+                          {checkResult.status === "permitted"
+                            ? "✓ НОМ РАСМАН ИҶОЗАТ ДОДА ШУДААСТ"
+                            : checkResult.status === "likely"
+                            ? "≈ НОМИ НАЗДИК ДАР ФЕҲРИСТ ҲАСТ"
+                            : "⚠ ДАР ФЕҲРИСТИ РАСМӢ ЁФТ НАШУД"}
                         </span>
+
                         {checkResult.exactMatch && (
                           <Badge className="text-xs bg-emerald-600 text-white font-bold">
                             №{checkResult.exactMatch.num} • {checkResult.exactMatch.gender_tj}
