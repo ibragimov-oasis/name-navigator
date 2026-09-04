@@ -1,7 +1,8 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { tajikRegistryNames, TAJIK_ALPHABET } from "@/data/tajikRegistry";
+import { TAJIK_ALPHABET } from "@/data/tajikRegistry";
+import { useTajikRegistry } from "@/hooks/useTajikRegistry";
 import { TajikRegistryName } from "@/data/tajikTypes";
 import { Dices, Sparkles, Heart, Volume2, ShieldCheck, ArrowRight, RefreshCw } from "lucide-react";
 import { useState, useMemo } from "react";
