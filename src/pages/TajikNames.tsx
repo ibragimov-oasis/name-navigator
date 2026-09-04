@@ -54,6 +54,9 @@ import {
   Play,
   Pause,
   Radio,
+  UserSquare2,
+  Filter,
+
 } from "lucide-react";
 
 type GenderFilter = "all" | "male" | "female";
