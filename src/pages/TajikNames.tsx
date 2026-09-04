@@ -1263,7 +1263,7 @@ const TajikNames = () => {
         )}
 
         {/* TAB 3: ANALYTICS & INFOGRAPHICS */}
-        {activeTab === "analytics" && (
+        {activeTab === "analytics" && !loading && !error && (
           <section className="space-y-6 max-w-5xl mx-auto py-4">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="p-5 rounded-2xl bg-card border border-border space-y-1 shadow-sm">
