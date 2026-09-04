@@ -60,19 +60,62 @@ type GenderFilter = "all" | "male" | "female";
 type EnrichedFilter = "all" | "enriched" | "pending";
 type ViewMode = "grid" | "table";
 type SortOrder = "num-asc" | "alpha-asc" | "alpha-desc" | "length-asc" | "length-desc";
-type ActiveTab = "catalog" | "checker" | "generator" | "analytics" | "legal";
+type ActiveTab = "catalog" | "checker" | "fio" | "analytics" | "legal";
+type LengthFilter = "all" | "short" | "medium" | "long";
 
 const ITEMS_PER_PAGE = 36;
+const VALID_TABS: readonly ActiveTab[] = ["catalog", "checker", "fio", "analytics", "legal"];
 
 const TajikNames = () => {
-  const [activeTab, setActiveTab] = useState<ActiveTab>("catalog");
-  const [search, setSearch] = useState("");
-  const [selectedGender, setSelectedGender] = useState<GenderFilter>("all");
-  const [selectedLetter, setSelectedLetter] = useState<string>("all");
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // ---- Состояние, синхронизированное с URL (шэрится ссылкой) ----
+  const activeTab = (VALID_TABS.includes(searchParams.get("tab") as ActiveTab)
+    ? (searchParams.get("tab") as ActiveTab)
+    : "catalog");
+  const search = searchParams.get("q") ?? "";
+  const selectedGender = (["all", "male", "female"].includes(searchParams.get("gender") ?? "")
+    ? (searchParams.get("gender") as GenderFilter)
+    : "all");
+  const selectedLetter = searchParams.get("letter") ?? "all";
+  const currentPage = Math.max(1, Number(searchParams.get("page") ?? 1) || 1);
+
+  const patchParams = useCallback(
+    (patch: Record<string, string | null>, resetPage = true) => {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          for (const [key, value] of Object.entries(patch)) {
+            if (value === null || value === "" || value === "all") next.delete(key);
+            else next.set(key, value);
+          }
+          if (resetPage && !("page" in patch)) next.delete("page");
+          return next;
+        },
+        { replace: true }
+      );
+    },
+    [setSearchParams]
+  );
+
+  const setActiveTab = useCallback((tab: ActiveTab) => patchParams({ tab: tab === "catalog" ? null : tab }, false), [patchParams]);
+  const setSearch = useCallback((value: string) => patchParams({ q: value }), [patchParams]);
+  const setSelectedGender = useCallback((value: GenderFilter) => patchParams({ gender: value }), [patchParams]);
+  const setSelectedLetter = useCallback((value: string) => patchParams({ letter: value }), [patchParams]);
+  const setCurrentPage = useCallback(
+    (updater: number | ((p: number) => number)) => {
+      const value = typeof updater === "function" ? updater(currentPage) : updater;
+      patchParams({ page: value <= 1 ? null : String(value) }, false);
+    },
+    [patchParams, currentPage]
+  );
+
+  // ---- Локальное состояние ----
   const [selectedEnriched, setSelectedEnriched] = useState<EnrichedFilter>("all");
   const [sortOrder, setSortOrder] = useState<SortOrder>("num-asc");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [lengthFilter, setLengthFilter] = useState<LengthFilter>("all");
+  const [rareOnly, setRareOnly] = useState(false);
 
   // Checker tool state
   const [checkerQuery, setCheckerQuery] = useState("");
@@ -86,12 +129,25 @@ const TajikNames = () => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const { isFavorite, toggleFavorite } = useFavorites();
-  const alphabetStats = useMemo(() => getTajikAlphabetStats(), []);
+  const { names: tajikRegistryNames, loading, error, reload, counts, alphabetStats } = useTajikRegistry();
+
+  const debouncedSearch = useDebouncedValue(search, 200);
+
+  // Открытие имени по пермалинку ?name=<slug>
+  const nameSlug = searchParams.get("name");
+  useEffect(() => {
+    if (!nameSlug || tajikRegistryNames.length === 0) return;
+    const target = tajikRegistryNames.find((n) => tajikNameSlug(n) === nameSlug.toLowerCase());
+    if (target) {
+      setSelectedName(target);
+      setDetailOpen(true);
+    }
+  }, [nameSlug, tajikRegistryNames]);
 
   // Filtered & sorted names
   const filteredNames = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    
+    const q = debouncedSearch.trim().toLowerCase();
+
     return tajikRegistryNames.filter((item) => {
       // Gender filter
       if (selectedGender !== "all" && item.gender !== selectedGender) {
@@ -106,6 +162,17 @@ const TajikNames = () => {
         return false;
       }
       if (selectedEnriched === "pending" && item.is_enriched) {
+        return false;
+      }
+      // Умный фильтр по длине имени
+      if (lengthFilter !== "all") {
+        const len = item.name_tj.length;
+        if (lengthFilter === "short" && len > 5) return false;
+        if (lengthFilter === "medium" && (len < 6 || len > 8)) return false;
+        if (lengthFilter === "long" && len < 9) return false;
+      }
+      // Только имена с редкими таджикскими буквами
+      if (rareOnly && !hasRareLetters(item.name_tj)) {
         return false;
       }
       // Search filter
@@ -134,15 +201,16 @@ const TajikNames = () => {
       }
       return a.num - b.num;
     });
-  }, [search, selectedGender, selectedLetter, selectedEnriched, sortOrder]);
+  }, [tajikRegistryNames, debouncedSearch, selectedGender, selectedLetter, selectedEnriched, lengthFilter, rareOnly, sortOrder]);
 
   // Total pages
   const totalPages = Math.ceil(filteredNames.length / ITEMS_PER_PAGE) || 1;
 
-  // Reset page when filters change
+  // Страница не должна выходить за пределы результата
   useEffect(() => {
-    setCurrentPage(1);
-  }, [search, selectedGender, selectedLetter, selectedEnriched, sortOrder]);
+    if (currentPage > totalPages) setCurrentPage(1);
+  }, [currentPage, totalPages, setCurrentPage]);
+
 
   // Audio Reader Hook Integration
   const {
