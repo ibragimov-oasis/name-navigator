@@ -333,7 +333,13 @@ const TajikNames = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-emerald-500/20 pb-36 sm:pb-28">
+      <SEO
+        title="Феҳристи номҳои миллии тоҷикӣ 2026 — реестр разрешённых имён Таджикистана"
+        description={`Официальный реестр национальных имён Таджикистана: ${counts.total || 3461} имён, проверка имени для ЗАГС, значения, транслитерация и правила ФИО. ${TAJIK_REGISTRY_DECREE}.`}
+        canonical={typeof window !== "undefined" ? `${window.location.origin}/tajik-names` : undefined}
+      />
       <Header />
+
 
       {/* Detail Dialog */}
       <TajikNameDetailDialog
