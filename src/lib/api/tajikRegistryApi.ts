@@ -108,19 +108,25 @@ export interface TajikEnrichmentRow {
  */
 export async function fetchEnrichment(): Promise<Map<string, TajikEnrichmentRow>> {
   const map = new Map<string, TajikEnrichmentRow>();
-  if (!USE_REMOTE) {
-    try {
-      const { data, error } = await supabase
-        .from("tajik_registry_enrichment")
-        .select("name_key, meaning, history, origin")
-        .limit(5000);
-      if (error || !data) return map;
-      for (const row of data as TajikEnrichmentRow[]) {
-        map.set(row.name_key, row);
-      }
-    } catch {
-      return map;
-    }
+  if (!USE_REMOTE) return map;
+  try {
+    // Таблица ещё не входит в сгенерированные типы Supabase — узкий безопасный доступ.
+    const client = supabase as unknown as {
+      from: (table: string) => {
+        select: (cols: string) => {
+          limit: (n: number) => Promise<{ data: TajikEnrichmentRow[] | null; error: unknown }>;
+        };
+      };
+    };
+    const { data, error } = await client
+      .from("tajik_registry_enrichment")
+      .select("name_key, meaning, history, origin")
+      .limit(5000);
+    if (error || !data) return map;
+    for (const row of data) map.set(row.name_key, row);
+  } catch {
+    return map;
   }
   return map;
 }
+
