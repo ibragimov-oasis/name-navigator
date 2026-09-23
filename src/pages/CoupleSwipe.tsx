@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { supabase } from "@/integrations/supabase/client";
 import { getChildNames } from "@/lib/namesStore";
-import { Heart, X, Users, Copy, RefreshCw, Trophy, Share2 } from "lucide-react";
+import { Heart, X, Users, Copy, RefreshCw, Trophy, Share2, Sparkles, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 
 // Таблица создана миграцией, но types.ts ещё не перегенерирован

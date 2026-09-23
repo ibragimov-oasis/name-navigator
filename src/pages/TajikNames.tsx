@@ -894,18 +894,7 @@ const TajikNames = () => {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                toggleFavorite({
-                                  id: item.id,
-                                  name: item.name_tj,
-                                  gender: item.gender,
-                                  origin: item.origin || "Тоҷикӣ",
-                                  culture: "Таджикская",
-                                  meaning: item.meaning || "Официальное разрешённое таджикское имя",
-                                  attributes: item.attributes || ["национальное", "официальное"],
-                                  popularity: 90,
-                                  history: item.legal_decree,
-                                  languages: ["tg", "ru"]
-                                });
+                                toggleFavorite(item.id);
                                 toast.success(isFav ? "Аз мунтахаб хориҷ шуд" : "Ба мунтахаб илова шуд");
                               }}
                               className="p-1.5 rounded-full text-muted-foreground hover:text-rose hover:bg-rose-500/10 transition-colors"

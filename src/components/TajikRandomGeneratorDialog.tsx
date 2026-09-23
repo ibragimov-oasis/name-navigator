@@ -186,18 +186,7 @@ export const TajikRandomGeneratorDialog = ({
               <Button
                 variant="outline"
                 onClick={() => {
-                  toggleFavorite({
-                    id: currentName.id,
-                    name: currentName.name_tj,
-                    gender: currentName.gender,
-                    origin: currentName.origin || "Тоҷикӣ",
-                    culture: "Таджикская",
-                    meaning: currentName.meaning || "Официальное разрешённое таджикское имя",
-                    attributes: currentName.attributes || ["национальное", "официальное"],
-                    popularity: 90,
-                    history: currentName.legal_decree,
-                    languages: ["tg", "ru"],
-                  });
+                  toggleFavorite(currentName.id);
                   toast.success(isFavorite(currentName.id) ? "Аз мунтахаб хориҷ шуд" : "Ба мунтахаб илова шуд");
                 }}
                 className="flex-1 rounded-xl text-xs font-semibold border-border flex items-center justify-center gap-1.5"

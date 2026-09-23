@@ -2,6 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { FavoritesProvider } from "@/lib/favorites";
 import { PeopleProvider } from "@/lib/people";
@@ -13,7 +14,7 @@ import ActivePersonBanner from "./components/ActivePersonBanner";
 
 import Index from "./pages/Index";
 import ChildrenNames from "./pages/ChildrenNames";
-import TajikNames from "./pages/TajikNames";
+const TajikNames = lazy(() => import("./pages/TajikNames"));
 import PetNames from "./pages/PetNames";
 import Favorites from "./pages/Favorites";
 import ImportData from "./pages/ImportData";
@@ -56,6 +57,7 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <ActivePersonBanner />
+              <Suspense fallback={<div className="min-h-screen bg-background" />}>
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/children" element={<ChildrenNames />} />
@@ -91,6 +93,7 @@ const App = () => (
                 <Route path="/analytics" element={<NameAnalytics />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              </Suspense>
               {/* Floating Widgets & Mobile Navigation */}
               <FeedbackWidget />
               <GeminiChatWidget />
