@@ -93,18 +93,7 @@ export const TajikNameDetailDialog = ({ name, open, onOpenChange }: TajikNameDet
                   variant="ghost"
                   size="icon"
                   onClick={() => {
-                    toggleFavorite({
-                      id: name.id,
-                      name: name.name_tj,
-                      gender: name.gender,
-                      origin: name.origin || "Тоҷикӣ",
-                      culture: "Таджикская",
-                      meaning: name.meaning || "Официальное разрешённое таджикское имя",
-                      attributes: name.attributes || ["национальное", "официальное"],
-                      popularity: 90,
-                      history: name.legal_decree,
-                      languages: ["tg", "ru"]
-                    });
+                    toggleFavorite(name.id);
                     toast.success(isFav ? "Аз мунтахаб хориҷ шуд" : "Ба мунтахаб илова шуд");
                   }}
                   className="rounded-full hover:bg-rose-500/10 text-muted-foreground hover:text-rose"
