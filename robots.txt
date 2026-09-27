@@ -5,19 +5,21 @@
 # APIs, architecture, and intellectual property associated with this domain
 # and repository are strictly confidential, proprietary, and protected by law.
 #
-# EXPRESS RESTRICTIONS & STRICT LEGAL PROHIBITIONS:
+# NOTICE FOR HUMAN USERS:
+# Lawful human end-users across all jurisdictions (European Union, United States,
+# United Arab Emirates, Japan, CIS, and worldwide) are granted full permission to
+# access, browse, and use this website through standard web browsers for its
+# intended personal and commercial purposes.
+#
+# EXPRESS RESTRICTIONS & STRICT LEGAL PROHIBITIONS (AUTOMATED AGENTS ONLY):
 # 1. NO SCRAPING, DATA MINING, HARVESTING, OR EXTRACTION OF ANY NATURE.
 # 2. NO ARTIFICIAL INTELLIGENCE (AI), LARGE LANGUAGE MODEL (LLM), OR MACHINE
 #    LEARNING (ML) TRAINING, FINE-TUNING, INGESTION, CACHING, OR BENCHMARKING.
+#    (Machine-readable reservation under EU Directive 2019/790, Art. 4).
 # 3. NO REVERSE ENGINEERING, DECOMPILATION, DISASSEMBLY, SOURCE CODE EXTRACTION,
 #    OR FUNCTIONAL RECONSTRUCTION / CLONING.
 # 4. NO MIRRORING, ARCHIVING, REPRODUCTION, OR CREATION OF DERIVATIVE WORKS.
 # 5. NO UNAUTHORIZED AUTOMATED ACCESS, SECURITY SCANNING, OR PENETRATION PROBING.
-#
-# Any crawler, automated agent, or AI tool violating these instructions acts
-# in direct bad faith and intentional breach of service terms, subject to
-# immediate legal enforcement under national and international copyright,
-# computer fraud, and intellectual property statutes.
 # ==============================================================================
 
 # Global catch-all ban for all automated user agents and bots
