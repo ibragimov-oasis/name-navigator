@@ -27,3 +27,10 @@
 1. Создать таблицу `tajik_registry_enrichment` и запустить обогащение значений/истории, включить `USE_REMOTE`.
 2. Добавить JSON-LD `Dataset` и страницы отдельных имён (`/tajik-names/:slug`) для SEO.
 3. Виртуализация списка при выводе более 200 карточек.
+
+## 2026-11-03 — Автопополнение имён восстановлено
+- `supabase/functions/enrich-names/index.ts` переписан и задеплоен: провайдеры Lovable AI Gateway (google/gemini-3.8-flash) → Gemini → Pollinations; культура с наименьшим покрытием, 20 имён за запуск, без повторов, пишет в `names_enriched` (status published) и лог в `enrich_runs`.
+- Баг: `name_lower` — generated-колонка, её вставка ломала все insert'ы. Исправлено. Проверено: запуск добавил 13 украинских имён.
+- Cron `enrich-names-every-15min` уже указывает на функцию (~80 имён/час при наличии кредитов ИИ).
+- `src/lib/namesStore.ts`: `loadEnrichedNames()` подтягивает опубликованные имена из БД, кэш в localStorage применяется синхронно при старте, событие `names-updated`. Проверено Playwright: 1403 имени в кэше, ошибок нет.
+- Next: страницы, держащие список в useMemo([]), увидят новые имена только со следующего захода — можно подписать их на `names-updated`.
