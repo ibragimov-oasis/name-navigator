@@ -96,7 +96,7 @@ Deno.serve(async (req) => {
     const lower = n.name.trim().toLowerCase();
     if (!lower || known.has(lower)) { skipped++; continue; }
     const { error } = await db.from("names_enriched").insert({
-      name: n.name.trim(), name_lower: lower, gender: n.gender, culture,
+      name: n.name.trim(), gender: n.gender, culture,
       origin: n.origin ?? culture, religion: n.religion ?? null, meaning: n.meaning ?? null,
       history: n.history ?? null, attributes: n.attributes ?? [], famous_people: n.famous_people ?? [],
       name_latin: n.name_latin ?? null, name_native: n.name_native ?? null,
