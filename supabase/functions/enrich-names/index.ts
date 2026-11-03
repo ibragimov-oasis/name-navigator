@@ -23,10 +23,10 @@ function providers(): Provider[] {
   const list: Provider[] = [];
   const lov = Deno.env.get("LOVABLE_API_KEY");
   if (lov) list.push({
-    id: "lovable:google/gemini-2.5-flash",
+    id: "lovable:google/gemini-3.8-flash",
     call: (p) => fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST", headers: { Authorization: `Bearer ${lov}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ model: "google/gemini-2.5-flash", messages: [{ role: "user", content: p }] }),
+      body: JSON.stringify({ model: "google/gemini-3.8-flash", messages: [{ role: "user", content: p }] }),
     }),
   });
   const gem = Deno.env.get("GEMINI_API_KEY");
