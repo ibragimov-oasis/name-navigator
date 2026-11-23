@@ -1,11 +1,16 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { getChildNames } from "@/lib/namesStore";
-import { calculateHarmony, generatePatronymic, HarmonyResult } from "@/lib/nameHarmony";
+import { getChildNames, loadEnrichedNames } from "@/lib/namesStore";
+import { useFavorites } from "@/lib/favorites";
+import { speakName, stopSpeech, ttsSupported } from "@/lib/tts";
+import { fetchRegistry } from "@/lib/api/tajikRegistryApi";
+import WizardNameDetailDialog from "@/components/wizard/WizardNameDetailDialog";
+import { buildRegistryLookup, isRegistryCulture, registryBadge, type RegistryLookup } from "@/components/wizard/RegistryBadge";
+import { calculateHarmony, generatePatronymic, siblingHarmony } from "@/lib/nameHarmony";
 import { ChildName } from "@/data/childNames";
-import { Wand2, ArrowRight, ArrowLeft, Sparkles, Star, Volume2, Heart } from "lucide-react";
+import { Wand2, ArrowRight, ArrowLeft, Sparkles, Star, Volume2, Heart, Users, ShieldCheck, Plus, X } from "lucide-react";
 
 type Step = "info" | "preferences" | "results";
 
@@ -32,7 +37,14 @@ const NameWizard = () => {
   const [gender, setGender] = useState<"male" | "female">("male");
   const [selectedCultures, setSelectedCultures] = useState<string[]>([]);
   const [selectedAttrs, setSelectedAttrs] = useState<string[]>([]);
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const [siblings, setSiblings] = useState<string[]>([]);
+  const [siblingInput, setSiblingInput] = useState("");
+  const [visible, setVisible] = useState(20);
+  const [catalogVersion, setCatalogVersion] = useState(0);
+  const [openId, setOpenId] = useState<string | null>(null);
+  const [registry, setRegistry] = useState<RegistryLookup | null>(null);
+  const canSpeak = ttsSupported();
   // Nasab fields
   const [grandfatherName, setGrandfatherName] = useState("");
   const [greatGrandfatherName, setGreatGrandfatherName] = useState("");
@@ -40,9 +52,18 @@ const NameWizard = () => {
   const [selectedNisba, setSelectedNisba] = useState("");
   const [showNasab, setShowNasab] = useState(false);
 
-  const allNames = getChildNames();
-  const cultures = [...new Set(allNames.map(n => n.culture))];
-  const attrs = [...new Set(allNames.flatMap(n => n.attributes))];
+  // Живое обновление каталога: свежие имена из автопополнения
+  useEffect(() => {
+    const onUpdate = () => setCatalogVersion(v => v + 1);
+    window.addEventListener("names-updated", onUpdate);
+    void loadEnrichedNames().then(added => { if (added > 0) onUpdate(); });
+    return () => { window.removeEventListener("names-updated", onUpdate); stopSpeech(); };
+  }, []);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const allNames = useMemo(() => getChildNames(), [catalogVersion]);
+  const cultures = useMemo(() => [...new Set(allNames.map(n => n.culture))], [allNames]);
+  const attrs = useMemo(() => [...new Set(allNames.flatMap(n => n.attributes))], [allNames]);
 
   const results = useMemo(() => {
     let filtered = allNames.filter(n => n.gender === gender || n.gender === "unisex");
@@ -53,11 +74,37 @@ const NameWizard = () => {
       filtered = filtered.filter(n => n.attributes.some(a => selectedAttrs.includes(a)));
     }
 
-    return filtered.map(name => ({
-      name,
-      harmony: calculateHarmony(name.name, fatherName, surname, gender),
-    })).sort((a, b) => b.harmony.total - a.harmony.total);
-  }, [allNames, gender, selectedCultures, selectedAttrs, fatherName, surname]);
+    return filtered.map(name => {
+      const harmony = calculateHarmony(name.name, fatherName, surname, gender, { motherName });
+      const sibling = siblingHarmony(name.name, siblings);
+      // Созвучие с братьями/сёстрами даёт бонус до +15 к сортировке
+      return { name, harmony, sibling, rank: harmony.total + sibling.score * 0.15 };
+    }).filter(r => !siblings.some(s => s.trim().toLowerCase() === r.name.name.toLowerCase()))
+      .sort((a, b) => b.rank - a.rank);
+  }, [allNames, gender, selectedCultures, selectedAttrs, fatherName, surname, motherName, siblings]);
+
+  useEffect(() => { setVisible(20); }, [gender, selectedCultures, selectedAttrs]);
+
+  // Ленивая загрузка реестра РТ, только если в выдаче есть таджикские/персидские имена
+  const needsRegistry = step === "results" && results.some(r => isRegistryCulture(r.name.culture));
+  useEffect(() => {
+    if (!needsRegistry || registry) return;
+    const ctrl = new AbortController();
+    fetchRegistry(ctrl.signal).then(list => setRegistry(buildRegistryLookup(list))).catch(() => { /* бейдж просто не покажем */ });
+    return () => ctrl.abort();
+  }, [needsRegistry, registry]);
+
+  const badgeFor = (n: { name: string; culture: string }) =>
+    registry && isRegistryCulture(n.culture) ? registryBadge(n.name, registry) : null;
+
+  const speakFio = (text: string) => { speakName(text, "ru-RU"); };
+
+  const addSibling = () => {
+    const v = siblingInput.trim();
+    if (!v || siblings.length >= 5 || siblings.some(s => s.toLowerCase() === v.toLowerCase())) return;
+    setSiblings(prev => [...prev, v]); setSiblingInput("");
+  };
+  const opened = openId ? results.find(r => r.name.id === openId) ?? null : null;
 
   const buildNasab = (childName: string) => {
     const ibn = gender === "male" ? "ибн" : "бинт";
@@ -84,9 +131,7 @@ const NameWizard = () => {
 
   const toggleCulture = (c: string) => setSelectedCultures(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c]);
   const toggleAttr = (a: string) => setSelectedAttrs(prev => prev.includes(a) ? prev.filter(x => x !== a) : [...prev, a]);
-  const toggleFav = (id: string) => {
-    setFavorites(prev => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
-  };
+  const toggleFav = (id: string) => toggleFavorite(id);
 
   return (
     <div className="min-h-screen bg-background pb-28 sm:pb-12">
@@ -132,6 +177,25 @@ const NameWizard = () => {
               <div>
                 <label className="text-sm font-semibold text-foreground">Имя матери <span className="text-muted-foreground font-normal">(опционально)</span></label>
                 <Input value={motherName} onChange={e => setMotherName(e.target.value)} placeholder="Для подбора созвучных" className="mt-1" />
+                {motherName && <p className="mt-1 text-xs text-muted-foreground">Учитывается в оценке гармонии (35%)</p>}
+              </div>
+              <div>
+                <label className="text-sm font-semibold text-foreground"><Users className="mr-1 inline h-4 w-4" />Старшие дети <span className="text-muted-foreground font-normal">(до 5, опционально)</span></label>
+                <div className="mt-1 flex gap-2">
+                  <Input value={siblingInput} onChange={e => setSiblingInput(e.target.value)}
+                    onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addSibling(); } }}
+                    placeholder="Имя брата или сестры" disabled={siblings.length >= 5} />
+                  <Button type="button" variant="outline" size="icon" onClick={addSibling} aria-label="Добавить ребёнка" disabled={siblings.length >= 5}><Plus className="h-4 w-4" /></Button>
+                </div>
+                {siblings.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {siblings.map(s => (
+                      <span key={s} className="flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-xs text-secondary-foreground">
+                        {s}<button onClick={() => setSiblings(prev => prev.filter(x => x !== s))} aria-label={`Убрать ${s}`}><X className="h-3 w-3" /></button>
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
               <div>
                 <label className="text-sm font-semibold text-foreground">Пол ребёнка</label>
@@ -259,9 +323,13 @@ const NameWizard = () => {
             </Button>
 
             <div className="space-y-3">
-              {results.slice(0, 20).map(({ name, harmony }, i) => (
-                <div key={name.id}
-                  className="rounded-xl border border-border bg-card p-4 transition-all hover:shadow-md"
+              {results.slice(0, visible).map(({ name, harmony, sibling }, i) => {
+                const badge = badgeFor(name);
+                return (
+                <div key={name.id} role="button" tabIndex={0}
+                  onClick={() => setOpenId(name.id)}
+                  onKeyDown={e => { if (e.key === "Enter") setOpenId(name.id); }}
+                  className="cursor-pointer rounded-xl border border-border bg-card p-4 transition-all hover:shadow-md"
                   style={{ animationDelay: `${i * 40}ms` }}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -271,8 +339,13 @@ const NameWizard = () => {
                         {harmony.total >= 80 && <Star className="h-4 w-4 fill-gold text-gold" />}
                       </div>
                       <p className="mt-1 text-sm text-muted-foreground">{name.meaning}</p>
-                      <p className="mt-1 text-xs font-medium text-foreground">
-                        <Volume2 className="mr-1 inline h-3 w-3" />
+                      <p className="mt-1 flex items-center text-xs font-medium text-foreground">
+                        {canSpeak && (
+                          <button onClick={e => { e.stopPropagation(); speakFio(harmony.fullName); }}
+                            aria-label={`Озвучить ${harmony.fullName}`} className="mr-1 rounded p-0.5 text-primary hover:bg-primary/10">
+                            <Volume2 className="h-3.5 w-3.5" />
+                          </button>
+                        )}
                         {harmony.fullName}
                       </p>
                       {/* Full Islamic name if nasab enabled */}
@@ -288,8 +361,8 @@ const NameWizard = () => {
                         harmony.total >= 65 ? "bg-gold/10 text-gold" :
                         "bg-secondary text-muted-foreground"
                       }`}>{harmony.total}%</div>
-                      <button onClick={() => toggleFav(name.id)} className="p-1 transition-colors">
-                        <Heart className={`h-5 w-5 ${favorites.has(name.id) ? "fill-rose text-rose" : "text-muted-foreground"}`} />
+                      <button onClick={e => { e.stopPropagation(); toggleFav(name.id); }} aria-label="Избранное" className="p-1 transition-colors">
+                        <Heart className={`h-5 w-5 ${isFavorite(name.id) ? "fill-rose text-rose" : "text-muted-foreground"}`} />
                       </button>
                     </div>
                   </div>
@@ -311,6 +384,14 @@ const NameWizard = () => {
 
                   <div className="mt-2 flex flex-wrap gap-1">
                     <span className="rounded-full bg-coral-light px-2 py-0.5 text-xs font-medium text-primary">{name.culture}</span>
+                    {sibling.sibling && sibling.score >= 40 && (
+                      <span className="rounded-full bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent"><Users className="mr-1 inline h-3 w-3" />Пара к {sibling.sibling}</span>
+                    )}
+                    {badge && (
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${badge.status === "permitted" ? "bg-accent/10 text-accent" : badge.status === "likely" ? "bg-gold/10 text-gold" : "bg-secondary text-muted-foreground"}`}>
+                        <ShieldCheck className="mr-1 inline h-3 w-3" />{badge.label}
+                      </span>
+                    )}
                     {name.attributes.slice(0, 3).map(a => (
                       <span key={a} className="rounded-full bg-secondary px-2 py-0.5 text-xs text-secondary-foreground">{a}</span>
                     ))}
@@ -318,8 +399,26 @@ const NameWizard = () => {
 
                   <p className="mt-2 text-xs text-muted-foreground">{harmony.verdict}</p>
                 </div>
-              ))}
+              ); })}
             </div>
+
+            {results.length > visible && (
+              <Button variant="outline" className="w-full" onClick={() => setVisible(v => v + 20)}>
+                Показать ещё ({results.length - visible})
+              </Button>
+            )}
+
+            <WizardNameDetailDialog
+              name={opened?.name ?? null}
+              harmony={opened?.harmony ?? null}
+              sibling={opened?.sibling}
+              registry={opened ? badgeFor(opened.name) : null}
+              isFavorite={opened ? isFavorite(opened.name.id) : false}
+              onToggleFavorite={() => opened && toggleFav(opened.name.id)}
+              onSpeak={() => opened && speakFio(opened.harmony.fullName)}
+              canSpeak={canSpeak}
+              onOpenChange={o => { if (!o) setOpenId(null); }}
+            />
 
             {results.length === 0 && (
               <div className="py-12 text-center">

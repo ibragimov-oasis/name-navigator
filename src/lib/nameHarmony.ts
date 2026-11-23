@@ -56,6 +56,10 @@ export interface HarmonyResult {
     rhythm: number;
     alliteration: number;
     length: number;
+    /** Компоненты взвешенной оценки (0-100), если соответствующие данные введены */
+    father?: number;
+    mother?: number;
+    surname?: number;
   };
   fullName: string;
   verdict: string;
@@ -93,7 +97,8 @@ export function calculateHarmony(
   firstName: string,
   fatherName: string,
   surname: string,
-  gender: "male" | "female"
+  gender: "male" | "female",
+  opts: HarmonyOptions = {}
 ): HarmonyResult {
   const patronymic = generatePatronymic(fatherName, gender);
   const parts = [surname, firstName, patronymic].filter(Boolean);
@@ -123,7 +128,22 @@ export function calculateHarmony(
   const totalLength = fullName.replace(/\s/g, "").length;
   const lengthScore = totalLength > 25 ? 50 : totalLength < 8 ? 60 : 85;
 
-  const total = Math.round(avgTransition * 0.35 + rhythm * 0.25 + allit * 0.2 + lengthScore * 0.2);
+  // Базовая оценка звучания ФИО (имя + отчество + фамилия)
+  const fioScore = Math.round(avgTransition * 0.35 + rhythm * 0.25 + allit * 0.2 + lengthScore * 0.2);
+
+  // Взвешенная модель: отец 45% / мать 35% / фамилия 20%.
+  // Веса отсутствующих компонентов перераспределяются пропорционально.
+  const components: { key: "father" | "mother" | "surname"; weight: number; score: number }[] = [];
+  if (fatherName.trim()) components.push({ key: "father", weight: HARMONY_WEIGHTS.father, score: fioScore });
+  const mother = opts.motherName?.trim();
+  if (mother) components.push({ key: "mother", weight: HARMONY_WEIGHTS.mother, score: motherHarmony(firstName, mother) });
+  if (surname.trim()) components.push({ key: "surname", weight: HARMONY_WEIGHTS.surname, score: surnameHarmony(firstName, surname) });
+  const weightSum = components.reduce((a, c) => a + c.weight, 0);
+  const total = weightSum > 0
+    ? Math.round(components.reduce((a, c) => a + c.score * c.weight, 0) / weightSum)
+    : fioScore;
+  const comp: { father?: number; mother?: number; surname?: number } = {};
+  for (const c of components) comp[c.key] = c.score;
 
   let verdict = "";
   if (total >= 80) verdict = "🎵 Прекрасное звучание!";
@@ -133,8 +153,63 @@ export function calculateHarmony(
 
   return {
     total,
-    details: { transition: Math.round(avgTransition), rhythm, alliteration: allit, length: lengthScore },
+    details: { transition: Math.round(avgTransition), rhythm, alliteration: allit, length: lengthScore, ...comp },
     fullName,
     verdict,
   };
+}
+
+export const HARMONY_WEIGHTS = { father: 0.45, mother: 0.35, surname: 0.2 } as const;
+
+export interface HarmonyOptions {
+  motherName?: string;
+}
+
+/** Созвучие имени ребёнка с именем матери: плавность, ритм, без «эха». */
+export function motherHarmony(child: string, mother: string): number {
+  if (!child || !mother) return 0;
+  const c = child.toLowerCase(), m = mother.toLowerCase();
+  if (c === m) return 35; // полное совпадение — путаница в семье
+  const flow = (transitionScore(child, mother) + transitionScore(mother, child)) / 2;
+  const rhythm = rhythmScore([countSyllables(child), countSyllables(mother)]);
+  let score = flow * 0.5 + rhythm * 0.3 + 20;
+  if (getFirstLetters(c, 1) === getFirstLetters(m, 1)) score -= 5; // лёгкое эхо
+  if (getLastLetters(c, 2) === getLastLetters(m, 2)) score -= 10; // одинаковые окончания
+  return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+/** Сочетание фамилии с именем: переход фамилия → имя и общая длина. */
+export function surnameHarmony(child: string, surname: string): number {
+  if (!child || !surname) return 0;
+  const flow = transitionScore(surname, child);
+  const len = (surname + child).length;
+  const lenScore = len > 18 ? 55 : len < 6 ? 60 : 90;
+  return Math.round(flow * 0.6 + lenScore * 0.4);
+}
+
+export interface SiblingMatch {
+  score: number; // 0-100
+  sibling: string | null;
+  reason: string | null;
+}
+
+/** Созвучие с именами старших детей: общее окончание, первая буква/корень, близкий ритм. */
+export function siblingHarmony(child: string, siblings: string[]): SiblingMatch {
+  let best: SiblingMatch = { score: 0, sibling: null, reason: null };
+  const c = child.toLowerCase().trim();
+  for (const raw of siblings) {
+    const s = raw.toLowerCase().trim();
+    if (!s || !c) continue;
+    if (s === c) continue; // такое имя уже есть в семье
+    let score = 0; const reasons: string[] = [];
+    if (getLastLetters(c, 3) === getLastLetters(s, 3) && c.length > 3) { score += 45; reasons.push("рифма окончаний"); }
+    else if (getLastLetters(c, 2) === getLastLetters(s, 2)) { score += 30; reasons.push("общее окончание"); }
+    if (getFirstLetters(c, 3) === getFirstLetters(s, 3)) { score += 30; reasons.push("общий корень"); }
+    else if (getFirstLetters(c, 1) === getFirstLetters(s, 1)) { score += 15; reasons.push("одна буква"); }
+    const diff = Math.abs(countSyllables(c) - countSyllables(s));
+    score += diff === 0 ? 25 : diff === 1 ? 15 : 0;
+    score = Math.min(100, score);
+    if (score > best.score) best = { score, sibling: raw.trim(), reason: reasons.join(", ") || "близкий ритм" };
+  }
+  return best;
 }
