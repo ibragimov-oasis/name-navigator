@@ -5,8 +5,13 @@ import { Heart, Volume2, Users, ShieldCheck } from "lucide-react";
 import type { ChildName } from "@/data/childNames";
 import type { HarmonyResult, SiblingMatch } from "@/lib/nameHarmony";
 import type { RegistryBadge } from "./RegistryBadge";
+import AdabBadge from "@/components/ai/AdabBadge";
+import AiDecisionPanel, { ProbBars } from "@/components/ai/AiDecisionPanel";
+import { evaluateHarmonyScore } from "@/lib/ai/geminiDecisions";
 
 interface Props {
+  motherName?: string;
+  siblings?: string[];
   name: ChildName | null;
   harmony: HarmonyResult | null;
   sibling?: SiblingMatch;
@@ -18,7 +23,7 @@ interface Props {
   onOpenChange: (open: boolean) => void;
 }
 
-const WizardNameDetailDialog = ({ name, harmony, sibling, registry, isFavorite, onToggleFavorite, onSpeak, canSpeak, onOpenChange }: Props) => {
+const WizardNameDetailDialog = ({ name, harmony, sibling, registry, isFavorite, onToggleFavorite, onSpeak, canSpeak, onOpenChange, motherName, siblings }: Props) => {
   const parts: { label: string; val: number | undefined }[] = harmony ? [
     { label: "С отчеством (отец, 45%)", val: harmony.details.father },
     { label: "С именем матери (35%)", val: harmony.details.mother },
@@ -72,6 +77,14 @@ const WizardNameDetailDialog = ({ name, harmony, sibling, registry, isFavorite, 
               {name.attributes.length > 0 && (
                 <div className="flex flex-wrap gap-1">{name.attributes.map(a => <span key={a} className="rounded-full bg-secondary px-2 py-0.5 text-xs text-secondary-foreground">{a}</span>)}</div>
               )}
+              <AiDecisionPanel
+                key={`h-${name.id}`}
+                title="Агент созвучия"
+                buttonLabel="ИИ-проверка"
+                run={() => evaluateHarmonyScore({ name: name.name, fullName: harmony.fullName, mother: motherName, siblings: siblings?.filter(Boolean), localScore: harmony.total })}
+                render={(r) => <><p className="font-bold text-foreground">{r.decision} <span className="font-normal text-muted-foreground">({Math.round(r.confidence * 100)}%)</span></p><ProbBars r={r} /></>}
+              />
+              <AdabBadge key={`a-${name.id}`} name={name.name} meaning={name.meaning} />
               <div className="flex gap-2 pt-2">
                 {canSpeak && <Button variant="outline" className="flex-1" onClick={onSpeak}><Volume2 className="mr-2 h-4 w-4" /> Озвучить ФИО</Button>}
                 <Button variant={isFavorite ? "default" : "outline"} className="flex-1" onClick={onToggleFavorite}>

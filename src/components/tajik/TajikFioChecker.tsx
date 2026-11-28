@@ -7,6 +7,8 @@ import { checkTajikNameLegality } from "@/data/tajikRegistry";
 import type { TajikRegistryName } from "@/data/tajikTypes";
 import { AlertTriangle, CheckCircle2, Copy, Info, UserSquare2 } from "lucide-react";
 import { toast } from "sonner";
+import AiDecisionPanel, { ProbBars } from "@/components/ai/AiDecisionPanel";
+import { evaluateLegalityDecision, mergeLegality } from "@/lib/ai/geminiDecisions";
 
 interface Props {
   names: readonly TajikRegistryName[];
@@ -169,6 +171,22 @@ export const TajikFioChecker = ({ names, onOpenName }: Props) => {
                 Нусха
               </Button>
             </div>
+
+            <AiDecisionPanel
+              title="Агент законности РТ"
+              buttonLabel="Решение ИИ"
+              run={() => evaluateLegalityDecision(result.input, legality ? `${legality.status}` : "нет данных")}
+              note="Точное совпадение с реестром всегда важнее ответа ИИ."
+              render={(r) => {
+                const m = mergeLegality(legality?.status ?? "not_found", r);
+                return (
+                  <>
+                    {m && <p className="font-bold text-foreground">{m.label} <span className="font-normal text-muted-foreground">({Math.round(m.confidence * 100)}%{m.source === "registry" ? ", по реестру" : ""})</span></p>}
+                    <ProbBars r={r} />
+                  </>
+                );
+              }}
+            />
           </div>
         )}
       </div>

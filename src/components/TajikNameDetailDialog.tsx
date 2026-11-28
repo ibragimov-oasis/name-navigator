@@ -9,6 +9,7 @@ import { speakName } from "@/lib/tts";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { TajikCertificateDialog } from "@/components/TajikCertificateDialog";
+import AdabBadge from "@/components/ai/AdabBadge";
 
 interface TajikNameDetailDialogProps {
   name: TajikRegistryName | null;
@@ -122,6 +123,7 @@ export const TajikNameDetailDialog = ({ name, open, onOpenChange }: TajikNameDet
               </DialogDescription>
             </div>
           </DialogHeader>
+          <div className="px-1"><AdabBadge name={name.name_tj} meaning={name.meaning} /></div>
 
           {/* Spellings & Transliterations */}
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2.5">

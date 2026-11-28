@@ -1,5 +1,5 @@
 // Auto-enrichment of the names catalog. Called by pg_cron.
-// Providers are tried in order: Lovable AI Gateway -> Gemini -> Pollinations (free).
+// Providers are tried in order: Gemini 3.5/3.1 Flash Lite -> Lovable AI Gateway -> Gemini 2.5 -> Pollinations (free).
 // Stops early (records status) when every provider is rate-limited / out of credits.
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
@@ -21,6 +21,14 @@ type Provider = { id: string; call: (prompt: string) => Promise<Response> };
 
 function providers(): Provider[] {
   const list: Provider[] = [];
+  const gemKey = Deno.env.get("GEMINI_API_KEY");
+  if (gemKey) for (const m of ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite"]) list.push({
+    id: `gemini:${m}`,
+    call: (p) => fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
+      method: "POST", headers: { Authorization: `Bearer ${gemKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ model: m, messages: [{ role: "user", content: p }] }),
+    }),
+  });
   const lov = Deno.env.get("LOVABLE_API_KEY");
   if (lov) list.push({
     id: "lovable:google/gemini-3.8-flash",

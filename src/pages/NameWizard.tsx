@@ -410,6 +410,8 @@ const NameWizard = () => {
 
             <WizardNameDetailDialog
               name={opened?.name ?? null}
+              motherName={motherName}
+              siblings={siblings}
               harmony={opened?.harmony ?? null}
               sibling={opened?.sibling}
               registry={opened ? badgeFor(opened.name) : null}
